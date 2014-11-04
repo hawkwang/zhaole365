@@ -1,6 +1,6 @@
-<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:29:47
+<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:46:12
          compiled from "/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_plugins/mailbox/views/components/chat_user_list.html" */ ?>
-<?php /*%%SmartyHeaderCode:17945232665458725ba736c2-00476732%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+<?php /*%%SmartyHeaderCode:137504826954587634666153-43232322%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
   'file_dependency' => 
   array (
@@ -11,7 +11,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
       2 => 'file',
     ),
   ),
-  'nocache_hash' => '17945232665458725ba736c2-00476732',
+  'nocache_hash' => '137504826954587634666153-43232322',
   'function' => 
   array (
   ),
@@ -23,9 +23,9 @@ $_valid = $_smarty_tpl->decodeProperties(array (
   ),
   'has_nocache_code' => false,
   'version' => 'Smarty-3.1.12',
-  'unifunc' => 'content_5458725badd2d8_58996455',
+  'unifunc' => 'content_545876346b1de1_26217892',
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_5458725badd2d8_58996455')) {function content_5458725badd2d8_58996455($_smarty_tpl) {?><?php if (!is_callable('smarty_function_text')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.text.php';
+<?php if ($_valid && !is_callable('content_545876346b1de1_26217892')) {function content_545876346b1de1_26217892($_smarty_tpl) {?><?php if (!is_callable('smarty_function_text')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.text.php';
 if (!is_callable('smarty_block_form')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/block.form.php';
 if (!is_callable('smarty_function_input')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.input.php';
 ?><?php if ($_smarty_tpl->tpl_vars['useChat']->value=='promoted'){?>

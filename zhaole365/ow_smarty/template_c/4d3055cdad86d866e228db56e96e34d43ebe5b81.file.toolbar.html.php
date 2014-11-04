@@ -1,6 +1,6 @@
-<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:29:47
+<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:46:12
          compiled from "/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_plugins/mailbox/views/components/toolbar.html" */ ?>
-<?php /*%%SmartyHeaderCode:16947214405458725ba050d8-75954397%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+<?php /*%%SmartyHeaderCode:39084697854587634609ff8-22627461%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
   'file_dependency' => 
   array (
@@ -11,7 +11,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
       2 => 'file',
     ),
   ),
-  'nocache_hash' => '16947214405458725ba050d8-75954397',
+  'nocache_hash' => '39084697854587634609ff8-22627461',
   'function' => 
   array (
   ),
@@ -27,9 +27,9 @@ $_valid = $_smarty_tpl->decodeProperties(array (
   ),
   'has_nocache_code' => false,
   'version' => 'Smarty-3.1.12',
-  'unifunc' => 'content_5458725ba66292_35746045',
+  'unifunc' => 'content_54587634658912_04784257',
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_5458725ba66292_35746045')) {function content_5458725ba66292_35746045($_smarty_tpl) {?><?php if (!is_callable('smarty_function_component')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.component.php';
+<?php if ($_valid && !is_callable('content_54587634658912_04784257')) {function content_54587634658912_04784257($_smarty_tpl) {?><?php if (!is_callable('smarty_function_component')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.component.php';
 if (!is_callable('smarty_function_text')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.text.php';
 ?><?php if ($_smarty_tpl->tpl_vars['chatModeEnabled']->value){?>
 <?php echo smarty_function_component(array('class'=>"MAILBOX_CMP_ChatUserList"),$_smarty_tpl);?>
