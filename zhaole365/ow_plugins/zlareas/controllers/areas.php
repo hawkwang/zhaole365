@@ -12,8 +12,8 @@ class ZLAREAS_CTRL_Areas extends OW_ActionController
 
     public function index()
     {
-        $this->setPageTitle(OW::getLanguage()->text('zlareas', 'index_page_title'));
-        $this->setPageHeading(OW::getLanguage()->text('zlareas', 'index_page_heading'));
+        $this->setPageTitle('找乐地盘');
+        $this->setPageHeading('找乐地盘');
     	
     	$areainfos = array();
     	$areas = ZLAREAS_BOL_Service::getInstance()->getAreaList();

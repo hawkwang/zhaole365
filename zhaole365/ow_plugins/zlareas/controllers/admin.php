@@ -14,8 +14,10 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
 
     public function index()
     {
-        $this->setPageTitle(OW::getLanguage()->text('zlareas', 'admin_area_title'));
-        $this->setPageHeading(OW::getLanguage()->text('zlareas', 'admin_area_heading'));
+        $this->setPageTitle('找乐地盘');
+        $this->setPageHeading('找乐地盘');
+//         $this->setPageTitle(OW::getLanguage()->text('zlareas', 'admin_area_title'));
+//         $this->setPageHeading(OW::getLanguage()->text('zlareas', 'admin_area_heading'));
         $areainfos = array();
         $deleteUrls = array();
         $areas = ZLAREAS_BOL_Service::getInstance()->getAreaList();
@@ -36,25 +38,27 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $fieldAreacode = new TextField('areacode');
         $fieldAreacode->setRequired();
-        $fieldAreacode->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_areacode'));
+        $fieldAreacode->setInvitation('区域编码');
+//         $fieldAreacode->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_areacode'));
         $fieldAreacode->setHasInvitation(true);
         $form->addElement($fieldAreacode);
         
         $fieldProvince = new TextField('province');
         $fieldProvince->setRequired();
-        $fieldProvince->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_province'));
+        $fieldProvince->setInvitation('省份或直辖市');
+//         $fieldProvince->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_province'));
         $fieldProvince->setHasInvitation(true);
         $form->addElement($fieldProvince);
         
         $fieldCity = new TextField('city');
         $fieldCity->setRequired();
-        $fieldCity->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_city'));
+        $fieldCity->setInvitation('城市');
         $fieldCity->setHasInvitation(true);
         $form->addElement($fieldCity);
         
         $fieldArea = new TextField('area');
         $fieldArea->setRequired();
-        $fieldArea->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_area'));
+        $fieldArea->setInvitation('区域');
         $fieldArea->setHasInvitation(true);
         $form->addElement($fieldArea);
 
