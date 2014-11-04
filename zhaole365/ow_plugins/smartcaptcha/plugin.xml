@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>Smart Captcha</name>
+    <key>smartcaptcha</key>
+    <description>Smart Captcha</description>
+    <author>Kairat Bakytow</author>
+    <authorEmail>kainisoft@gmail.com</authorEmail>
+    <authorUrl>http://www.oxwall.org/user/kaini</authorUrl>
+    <developerKey>4ac98c58ea95347f443968a8fb045ad5</developerKey>
+    <build>5</build>
+    <copyright>(C) 2009 Oxwall Foundation. All rights reserved.</copyright>
+    <license>OSCL</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

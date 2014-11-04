@@ -1,0 +1,40 @@
+<li id="{$item.uniqId}" class="ql_item clearfix" rel="{$item.questionId}">
+
+    <div class="ql_avatar">
+        {decorator name="avatar_item" data=$item.avatar}
+    </div>
+
+    <div class="ql_body">
+        <div class="ql_string ow_smallmargin">
+            <a href="{$item.avatar.url}"><b>{$item.avatar.title}</b></a>
+	    {if !empty($item.context)}  &raquo; <a href="{$item.settings.context.url}">{$item.settings.context.label}</a>{/if}
+            {$item.text}
+        </div>
+
+        <div class="ql_content ow_small ow_smallmargin">{$item.answers}</div>
+
+        <div class="ow_newsfeed_btns ow_small ow_remark clearfix">
+            <a href="{$item.permalink}" class="ow_nowrap create_time ow_newsfeed_date ow_small">{$item.timeStamp}</a>
+            <div class="ow_newsfeed_left">
+                <span class="ow_newsfeed_control">
+                    {foreach from=$item.features item="btn"}
+                        <span class="ow_newsfeed_btn_wrap {if !empty($btn.class)}{$btn.class}{/if}">
+                            <span class="ow_miniic_control ow_cursor_pointer newsfeed-feature-button-control {if !empty($btn.active)}active{/if}">
+                                <span {if !empty($btn.title)}title="{$btn.title}"{/if} class="{$btn.iconClass} newsfeed-feature-button" {if !empty($btn.onclick)}onclick="{$btn.onclick}"{/if} ></span>
+                            </span><span class="ow_newsfeed_btn_label newsfeed-feature-label">{$btn.label}</span>
+                        </span>
+
+                        {if isset($btn.string)}
+                            <span class="ow_newsfeed_btn_string newsfeed-feature-string">
+                                {$btn.string}
+                            </span>
+                        {/if}
+                    {/foreach}
+                </span>
+            </div>
+        </div>
+
+        <div {if $item.lastItem}style="display: none;"{/if} class="ow_border ql_delimiter ql_doublesided_stdmargin"></div>
+
+    </div>
+</li>

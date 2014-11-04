@@ -1,0 +1,20 @@
+{style}
+{literal}
+    .topuser_cont {
+        display: inline-block; 
+        width: 70px;
+        margin: 5px;
+        text-align: center;
+    }
+{/literal}
+{/style}
+
+<div class="clearfix ow_center">
+{foreach from=$list item='user'}
+    {capture assign='userId'}{$user.dto->id}{/capture}
+    <div class="topuser_cont">
+	    {decorator name='avatar_item' data=$avatars[$userId]}
+	    {if $scores[$userId]}{display_rate avg_rate=$scores[$userId]}{/if}
+    </div>
+{/foreach}
+</div>

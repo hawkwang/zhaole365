@@ -1,0 +1,48 @@
+{*
+
+/**
+ * Copyright (c) 2014, Kairat Bakytow
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ */
+ 
+*}
+ 
+{$menu}
+
+{form name=smartcaptchaSettings}
+    <div class="clearfix" id="smartcaptchaSettings">
+        <table class="ow_table_1 ow_form">
+            <tbody>
+                {foreach from=$formData key='formEl' item='field' name='f'}
+                    <tr class="{cycle values='ow_alt2,ow_alt1'} {if $smarty.foreach.f.first}ow_tr_first{/if} {if $smarty.foreach.f.last}ow_tr_last{/if}">
+                        <td width="1" class="ow_label">
+                            {label name=$formEl}
+                        </td>
+                        <td class="ow_value">
+                            {input name=$formEl}
+                            {error name=$formEl}
+                        </td>
+                        <td class="ow_desc ow_small">{desc name=$formEl}</td>
+                    </tr>
+		{/foreach}
+                </tr>
+
+                <tr class="ow_tr_last">
+                    <td colspan="3">
+                        {submit name='save'}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    {block_decorator name='box' addClass='ow_stdmargin' langLabel='smartcaptcha+preview'}
+        <div class="css_code">
+            {input name='smartcaptcha'}
+        </div>
+    {/block_decorator}
+{/form}

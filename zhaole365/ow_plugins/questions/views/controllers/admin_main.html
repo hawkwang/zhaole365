@@ -1,0 +1,47 @@
+{style}{literal}
+
+.q-extended-tab
+{
+
+}
+
+{/literal}{/style}
+
+{$menu}
+
+{form name='QUESTIONS_ConfigSaveForm'}
+<table class="ow_table_1 ow_form">
+    <tr>
+        <th class="ow_name ow_txtleft" colspan="3">
+            <span class="ow_section_icon ow_ic_gear_wheel">{text key='questions+admin_main_settings_title'}</span>
+        </th>
+    </tr>
+
+    <tr class="ow_alt1">
+        <td class="ow_label">{label name='enable_follow'}</td>
+        <td class="ow_value">{input name='enable_follow'}</td>
+        <td class="ow_desc ow_small">{text key="questions+admin_enable_follow_desc"}</td>
+    </tr>
+
+    <tr class="ow_alt2">
+        <td class="ow_label">{label name='allow_comments'}</td>
+        <td class="ow_value">{input name='allow_comments'}</td>
+        <td class="ow_desc ow_small"></td>
+    </tr>
+
+    <tr class="ow_alt1">
+        <td class="ow_label">{label name='list_order'}</td>
+        <td class="ow_value">{input name='list_order'}</td>
+        <td class="ow_desc ow_small"></td>
+    </tr>
+
+    <tr class="ow_alt2">
+        <td class="ow_label">{label name='allow_popups'}</td>
+        <td class="ow_value">{input name='allow_popups'}</td>
+        <td class="ow_desc ow_small">{text key="questions+admin_allow_popups_desc"}</td>
+    </tr>
+
+    <tr><td colspan="3" class="ow_submit">{submit name='save' class='ow_ic_save'}</td></tr>
+</table>
+
+{/form}

@@ -1,0 +1,24 @@
+<div class="clearfix questions-answer" rel="{$option.id}">
+	<div class="qa-check ow_left">
+            {if !$option.disabled}<input type="{if $option.multiple}checkbox{else}radio{/if}" name="{$questionUniqId}" value="{$option.id}" {if $option.voted}checked="checked" rel="1"{else}rel="0"{/if} />{/if}
+	</div>
+	<div class="qa-users ow_right">{$option.users}</div>
+	<div class="qa-content ow_border">
+
+        <div class="qa-content-clip">
+            <div class="qa-content-wrap">
+                <div class="qa-shaded qa-result ow_border {*q-opacity20*} {if $option.percents >= 100}q-result-full{/if}" style="width: {$option.percents}%" rel="{$option.count}"></div>
+                <div class="qa-text">{$option.text}</div>
+            </div>
+        </div>
+
+        <div class="qa-hover-c ow_border clearfix q-opacity10">
+            <div class="qa-votes"><span class="qa-vote-n">{$option.count}</span> {text key="questions+counter_votes_label"}</div>
+            {if $option.editMode}
+                <div class="qa-delete-option questions-ic-delete"></div>
+            {/if}
+        </div>
+
+
+	</div>
+</div>

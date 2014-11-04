@@ -1,0 +1,29 @@
+<div class="questions-answers ow_small" id="{$uniqId}">
+    <div class="qa-list">
+        {$list}
+    </div>
+
+    {if $addNew}
+        <div class="questions-add-answer ow_ic_add clearfix" {if $hideAddNew}style="display: none"{/if}>
+            <form class="qaa-form">
+                    <a href="javascript://" class="qaa-button" q-title="{text key='questions+option_add_btn'}"></a>
+                    <div class="qaa-input-c">
+                            <input type="text" value="{text key='questions+option_add_inv'}" class="qaa-input invitation"/>
+                    </div>
+            </form>
+        </div>
+    {/if}
+
+    {if $viewMore}
+        <a href="{$viewMoreUrl}" class="qa-view-more ow_border">
+            <span class="qa-vm-content">
+                {text key='questions+more_options_btn' count=$viewMore}
+            </span>
+        </a>
+    {/if}
+
+
+
+
+
+</div>

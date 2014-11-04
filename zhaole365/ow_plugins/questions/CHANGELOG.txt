@@ -1,0 +1,18 @@
+QUESTIONS 200, 2012-05-13:
+
+Enhancements:
+- Email Notifications plugin support: notifications about answers and comments for a question;
+- Privacy plugin support: Users can select who can view their questions
+- Followers counter added to a question. Now users can see how many users follow a question
+- New authorization action added: "Add options to questions of other users"
+- Users can change question list order now
+- Questions widget added to "Avaliable widgets" section on Index page
+- When users answers, comments or follows a question this action displays on his profile's newsfeed
+- Other minor enhancements
+
+
+Bug fixes:
+- Moderators can deleted questions and options
+- Users follows questions created by him
+- Answer counter refreshes when user deletes an option with answers
+- Other minor fixes

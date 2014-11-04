@@ -1,0 +1,40 @@
+<div class="questions-add clearfix" id="{$uniqId}">
+    {form name="questions_add"}
+    <div class="form_auto_click">
+        <div class="questions-add-question">
+            {input name="question" class="questions-input"}
+        </div>
+        <div class="ow_submit_auto_click" style="display: none;">
+
+            <div class="questions-add-answers" style="display: none;">
+                {block_decorator name='tooltip' addClass='qaa-tooltip ow_small '}
+                    <div class="q-add-answers-field">
+                        <div class="ow_smallmargin">
+                            <div class="qaa-label-c">
+                                <span class="qaa-label"><strong>{text key="questions+question_add_answers_label"}</strong></span>
+                            </div>
+                        </div>
+
+                        {input name="answers"}
+                    </div>
+                {/block_decorator}
+            </div>
+
+            <div class="clearfix qa-submit-c ow_border">
+                <div class="ow_left questions-add-answers-btn-c">
+                    <a href="javascript://" class="questions-add-answers-btn">{text key="questions+question_add_show_options_btn"}</a>
+                    <div class="questions-add-answers-options" style="display: none;">
+                        {input name="allowAddOprions"}{label name="allowAddOprions"}
+                    </div>
+                </div>
+
+                <div class="ow_right q-save-c">
+                    <span class="ow_attachment_btn">{submit name="save"}</span>
+                </div>
+                
+                <div class="ow_inprogress q-status-preloader Q_StatusPreloader"></div>
+            </div>
+        </div>
+    </div>
+    {/form}
+</div>

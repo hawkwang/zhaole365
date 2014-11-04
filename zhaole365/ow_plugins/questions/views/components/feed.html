@@ -1,0 +1,10 @@
+<div class="questions-list" id="{$uniqId}">
+    <ul class="ql-items ow_smallmargin">
+        {$list}
+    </ul>
+    {if $viewMore}
+        <div class="ql_view_more_c">
+            {decorator name="button" class="ql_view_more ow_ic_down_arrow" langLabel="questions+view_more_questions_btn"}
+        </div>
+    {/if}
+</div>

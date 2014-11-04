@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>Top users by Oxwall CandyStore</name>
+    <key>ocstopusers</key>
+    <description>Top users plugin, enables profile rating</description>
+    <author>Oxwall CandyStore</author>
+    <authorEmail>plugins@oxcandystore.com</authorEmail>
+    <authorUrl>http://oxcandystore.com</authorUrl>
+    <developerKey>c36f83152f203c5a947a3fb053e4bc24</developerKey>
+    <build>4</build>
+    <copyright>(C) 2011 Oxwall CandyStore. All rights reserved.</copyright>
+    <license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

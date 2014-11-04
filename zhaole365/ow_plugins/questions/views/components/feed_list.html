@@ -1,0 +1,5 @@
+{foreach from=$list item="item"}
+    {$item}
+{foreachelse}
+    <li class="ql_item ow_nocontent">{text key="questions+question_list_no_items"}</li>
+{/foreach}

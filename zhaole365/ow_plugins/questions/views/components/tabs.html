@@ -1,0 +1,19 @@
+<div class="gtabs" id="{$uniqId}">
+
+    <div class="gtabs-tabs-c ow_smallmargin clearfix">
+    {foreach from=$tabs item="t" key="k"}
+        <a class="gtabs-tab {$t.icon} {if $t.active}gtabs-active{/if}" href="javascript://" data-key="{$k}">
+            {$t.label}
+        </a>
+    {/foreach}
+    </div>
+
+    <div class="gtabs-contents-c">
+    {foreach from=$tabs item="t" key="k"}
+        <div class="gtabs-contents" data-key="{$k}" {if !$t.active}style="display: none;"{/if}>
+            {$t.content}
+        </div>
+    {/foreach}
+    </div>
+
+</div>

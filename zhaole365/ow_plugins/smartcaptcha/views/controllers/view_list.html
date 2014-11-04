@@ -1,0 +1,101 @@
+{*
+
+/**
+ * Copyright (c) 2014, Kairat Bakytow
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ */
+ 
+*}
+
+{$menu}
+
+<div class="clearfix" id="smartcaptcha">
+    <div class="ow_hidden">
+        <div class="clearfix" id="smartcaptchaForm">
+            {form name=smartcaptchaEdit}
+                <table class="ow_table_1 ow_form">
+                    <tr class="ow_tr_first">
+                        <th>
+                            {text key='smartcaptcha+question_caption'}
+                        </th>
+                    </tr>
+                    <tr class="ow_alt1">
+                        <td class="ow_value">
+                            {input name='question'}
+                            <div style="height:1px;"></div>
+                            {error name='question'}
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="ow_table_1 ow_form smartcaptcha_answers" style="margin-bottom: 10px">
+                    <tr class="ow_tr_first">
+                        <th>
+                            {text key='smartcaptcha+answer_caption'}
+                        </th>
+                    </tr>
+                </table>
+
+                <div class="clearfix">
+                    <div class="ow_right" style="margin-bottom: 5px;">
+                        {decorator name='button_list_item' type='button' buttonName='newAnswer' langLabel='smartcaptcha+add_new_answer' id='newAnswer'}
+                    </div>
+                </div>
+
+                <div class="clearfix">
+                    <div class="ow_center">
+                        {submit name='save'}
+                    </div>
+                </div> 
+            {/form}
+        </div>
+    </div>
+    
+    <div class="clearfix ow_content_menu_wrap">
+        <div class="ow_right">
+            {decorator name='button' type='button' buttonName='newAnswer' langLabel='smartcaptcha+add_new_question' id='newQuestion' class='ow_ic_new'}
+        </div>
+    </div>
+    
+    {$paging}
+    <table class="ow_table_2">
+        <tbody>
+            <tr class="ow_tr_first">
+                <th width="1"></th>
+                <th>{text key='smartcaptcha+question_caption'}</th>
+                <th width="1">{text key='smartcaptcha+answer_count_caption'}</th>
+            </tr>
+            
+            {if !empty($items)}
+                {foreach from=$items item='item'}
+                    <tr class="{cycle values="ow_alt1,ow_alt2"}">
+                        <td><input type="checkbox" name="select" value="{$item.id}" /></td>
+                        <td style="cursor: pointer; text-align: left" class="question">
+                            <input type="hidden" name="question" value="{$item.id}" />
+                            {$item.question}
+                        </td>
+                        <td>
+                            {$item.count}
+                        </td>
+                    </tr>
+                {/foreach}
+            {else}
+                <tr class="ow_alt2">
+                    <td colspan="3">{text key='smartcaptcha+no_items'}</td>
+                </tr>
+            {/if}
+
+            <tr class="ow_tr_last">
+                <td><input type="checkbox" id="selectAll"/></td>
+                <td colspan="2">
+                    {decorator name='button_list_item' type='submit' buttonName='deleteQuestion' langLabel='smartcaptcha+delete_question' id='deleteQuestion'}
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    {$paging}
+</div>

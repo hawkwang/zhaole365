@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>Questions/Polls</name>
+    <key>questions</key>
+    <description>Allow users submit questions/polls for other users to answer, Facebook-style. LITE VERSION</description>
+    <author>Sergey Kambalin</author>
+    <authorEmail>greyexpert@gmail.com</authorEmail>
+    <developerKey>4de7d12343ccb157ece55b3ec3feadf5</developerKey>
+    <build>1590</build>
+    <copyright>(C) Sergey Kambalin</copyright>
+    <license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

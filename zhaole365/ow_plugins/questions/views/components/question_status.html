@@ -1,0 +1,9 @@
+<a href="{if $questionUrl}{$questionUrl}{else}javascript://{/if}" class="questions-status-c" id="{$uniqId}-status" {if $allowPopups}onclick="return QUESTIONS_AnswerListCollection.{$uniqId}.openQuestionDelegate();"{/if} {if !$voteCount && !$postCount}style="display: none;"{/if}>
+
+    <span class="ow_cursor_pointer ow_alt2 ow_nowrap questions-status">
+        <span class="q-status-votes questions_miniicon_check ow_miniicon_control ow_remark" {if !$voteCount}style="display: none;"{/if}><span class="qs-number">{$voteCount}</span></span>
+        <span class="q-status-delim" {if !$voteCount || !$postCount}style="display: none;"{/if} >&nbsp;</span>
+        <span class="q-status-posts ow_miniic_comment ow_miniicon_control ow_remark" {if !$postCount}style="display: none;"{/if} ><span class="qs-number">{$postCount}</span></span>
+    </span>
+
+</a>

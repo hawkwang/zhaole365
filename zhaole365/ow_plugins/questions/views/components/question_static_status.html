@@ -1,0 +1,17 @@
+<div class="questions-status-c" id="{$uniqId}-status" {if !$voteCount && !$postCount}style="display: none;"{/if}>
+
+    <span class="ow_nowrap questions-status">
+
+        <span class="q-status-votes ow_remark" {if !$voteCount}style="display: none;"{/if}><span class="qs-number ow_txt_value">{$voteCount}</span> {text key="questions+counter_votes_label"}</span>
+
+        <span class="q-status-delim qsd-1" {if (!$voteCount && !$followCount) || !$postCount}style="display: none;"{/if} >&middot;</span>
+
+        <span class="q-status-posts ow_remark" {if !$postCount}style="display: none;"{/if} ><span class="qs-number ow_txt_value">{$postCount}</span> {text key="questions+counter_comments_label"}</span>
+
+        <span class="q-status-delim qsd-2" {if (!$voteCount && !$postCount) || !$followCount}style="display: none;"{/if} >&middot;</span>
+
+        <a href="javascript://" onclick="QUESTIONS_AnswerListCollection.{$uniqId}.showFollowers();" class="q-status-follows ow_remark" {if !$followCount}style="display: none;"{/if} ><span class="qs-number ow_txt_value">{$followCount}</span> {text key="questions+counter_follows_label"}</a>
+
+    </span>
+
+</div>

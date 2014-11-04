@@ -1,0 +1,48 @@
+{style}
+{literal}
+    .topusers_rated_me .ow_avatar {
+        float: left;
+    }
+    
+    .topusers_rated_me .rate_info {
+        float: left;
+        padding-left: 5px;
+    }
+{/literal}
+{/style}
+
+{block_decorator name='box_cap' langLabel = 'base+rates_box_cap_label' iconClass='ow_ic_star'}{/block_decorator}
+{block_decorator name='box' addClass='ow_stdmargin'}
+<div id="rate_{$cmpId}">
+    {if !$ownerMode}
+    <div class="ow_smallmargin">
+	    <span class="ow_small">{text key='base+your_rate_label'}</span>
+	    <div class="rates_cont clearfix">
+	    {section name=foo loop=$maxRate}
+	        <a href="javascript://" class="rate_item" id="{$cmpId}_rate_item_{$smarty.section.foo.iteration}">&nbsp;</a>
+	    {/section}
+	    </div>
+    </div>
+    {/if}
+
+	{$total_score}
+    
+    {if $ownerMode && $list}
+    <div class="ow_smallmargin ow_outline">{text key='ocstopusers+rated_me'}</div>
+    <div class="topusers_rated_me">
+    {foreach from=$list item='user'}
+    <div class="clearfix ow_smallmargin">
+        {capture assign='userId'}{$user.dto->id}{/capture}
+        {decorator name='avatar_item' data=$avatars[$userId]}
+        {if $user.score}<div class="rate_info">
+            {display_rate avg_rate=$user.score}<br />
+            <a href="{$avatars.$userId.url}">{$avatars.$userId.title}</a><br />
+            {format_date timestamp=$user.timeStamp}
+        </div>{/if}
+    </div>
+    {/foreach}
+    </div>
+    {if $toolbar}<div class="clearfix">{decorator name='box_toolbar' itemList=$toolbar}</div>{/if}
+    {/if}
+</div>
+{/block_decorator}
