@@ -1,6 +1,6 @@
-<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:46:12
+<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 19:05:42
          compiled from "/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_system_plugins/base/decorators/floatbox.html" */ ?>
-<?php /*%%SmartyHeaderCode:10058466665458763490a937-48640998%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+<?php /*%%SmartyHeaderCode:6534055885458b3065dbf65-72604615%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
   'file_dependency' => 
   array (
@@ -11,15 +11,15 @@ $_valid = $_smarty_tpl->decodeProperties(array (
       2 => 'file',
     ),
   ),
-  'nocache_hash' => '10058466665458763490a937-48640998',
+  'nocache_hash' => '6534055885458b3065dbf65-72604615',
   'function' => 
   array (
   ),
   'has_nocache_code' => false,
   'version' => 'Smarty-3.1.12',
-  'unifunc' => 'content_54587634911893_50920301',
+  'unifunc' => 'content_5458b3065e3c49_04925124',
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_54587634911893_50920301')) {function content_54587634911893_50920301($_smarty_tpl) {?>
+<?php if ($_valid && !is_callable('content_5458b3065e3c49_04925124')) {function content_5458b3065e3c49_04925124($_smarty_tpl) {?>
 <div style="display: none" id="floatbox_prototype">
 
     
