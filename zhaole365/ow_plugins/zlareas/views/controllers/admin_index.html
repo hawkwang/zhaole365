@@ -1,0 +1,29 @@
+<table class="ow_table_1 ow_automargin" style="width: 400px;">
+    {foreach from=$areas item=area name=area}
+    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.area.last}ow_tr_last{/if} {if $smarty.foreach.area.first}ow_tr_first{/if}">
+        <td width="1"><a href="{$deleteUrls[$area.id]}" onclick="return confirm('{text key="base+are_you_sure"}');" style="width:16px; height:16px; display:block; margin:0 auto;background-repeat:no-repeat;background-position: 50% 50%;" class="ow_ic_delete"></a></td>
+        <td>{$area.areacode}</td>
+        <td>{$area.province}</td>
+        <td>{$area.city}</td>
+        <td>{$area.area}</td>
+    </tr>
+    {/foreach}
+</table>
+
+{form name='add_area'}
+<div style="width: 400px; margin:0 auto"><table class="ow_table_1 ow_form ow_automargin">
+    <tr class="ow_alt1 ow_tr_first ow_tr_last">
+		<td class="ow_value">{input name='areacode'}</td>
+		<td class="ow_value">{input name='province'}</td>
+		<td class="ow_value">{input name='city'}</td>
+		<td class="ow_value">{input name='area'}</td>
+	</tr>
+</table>
+    <div class="clearfix ow_submit ow_stdmargin">
+    	<div class="ow_right">
+        {submit name='add' class='ow_button ow_ic_save'}
+	</div></div>
+</div>	
+
+{/form}
+
