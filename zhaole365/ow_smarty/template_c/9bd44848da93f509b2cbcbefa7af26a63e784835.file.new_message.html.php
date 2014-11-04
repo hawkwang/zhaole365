@@ -1,6 +1,6 @@
-<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 10:49:27
+<?php /* Smarty version Smarty-3.1.12, created on 2014-11-04 14:29:47
          compiled from "/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_plugins/mailbox/views/components/new_message.html" */ ?>
-<?php /*%%SmartyHeaderCode:135225981354583eb7294721-34619843%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
+<?php /*%%SmartyHeaderCode:14722965155458725bb210a4-94222538%%*/if(!defined('SMARTY_DIR')) exit('no direct access allowed');
 $_valid = $_smarty_tpl->decodeProperties(array (
   'file_dependency' => 
   array (
@@ -11,7 +11,7 @@ $_valid = $_smarty_tpl->decodeProperties(array (
       2 => 'file',
     ),
   ),
-  'nocache_hash' => '135225981354583eb7294721-34619843',
+  'nocache_hash' => '14722965155458725bb210a4-94222538',
   'function' => 
   array (
   ),
@@ -23,9 +23,9 @@ $_valid = $_smarty_tpl->decodeProperties(array (
   ),
   'has_nocache_code' => false,
   'version' => 'Smarty-3.1.12',
-  'unifunc' => 'content_54583eb72c9706_06750852',
+  'unifunc' => 'content_5458725bba43b6_16607711',
 ),false); /*/%%SmartyHeaderCode%%*/?>
-<?php if ($_valid && !is_callable('content_54583eb72c9706_06750852')) {function content_54583eb72c9706_06750852($_smarty_tpl) {?><?php if (!is_callable('smarty_block_form')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/block.form.php';
+<?php if ($_valid && !is_callable('content_5458725bba43b6_16607711')) {function content_5458725bba43b6_16607711($_smarty_tpl) {?><?php if (!is_callable('smarty_block_form')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/block.form.php';
 if (!is_callable('smarty_function_text')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.text.php';
 if (!is_callable('smarty_function_input')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.input.php';
 if (!is_callable('smarty_function_submit')) include '/Users/hawkwang/BUPT/teaching/class_1/zhaole365/ow_smarty/plugin/function.submit.php';

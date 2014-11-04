@@ -3951,5 +3951,7 @@ http://class1.local/zhaole365/',
   'ocstopusers+rated_me' => 'Who rated me',
   'ocstopusers+rate_info' => 'rate: {$score} ({$rates} rates)',
   'ocstopusers+total_score_label' => 'Total: <span class="ow_outline">{$avgScore}</span> (<span class="ow_outline">{$ratesCount}</span> rates)',
+  'zlareas+main_menu_list' => '找乐地盘',
+  'zlareas+zlareas+main_menu_list' => '找乐地盘',
 );
 ?>
