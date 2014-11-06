@@ -3962,5 +3962,21 @@ http://class1.local/zhaole365/',
   'zlareas+label_invitation_city' => '城市',
   'zlareas+label_invitation_province' => '省份或直辖市',
   'zlareas+main_menu_list' => '找乐地盘',
+  'locationtag+address' => '<span class="location_tag_grey"> <a style="display:inline-block" href="{$url}">{$address}</a></span>',
+  'locationtag+admin_page_heading' => 'Location Tag - Plugin Settings',
+  'locationtag+api_key' => 'API Key',
+  'locationtag+api_key_description' => '<b>This is not required field.</b>
+<br/><br/>
+All Google Maps API applications* should load the Maps API using an API key.<br/><br/> Using an API key enables you to monitor your application\'s Maps API usage, and ensures that Google can contact you about your application if necessary.<br/><br/>
+Follow this <a href="https://developers.google.com/maps/documentation/javascript/tutorial">link</a> to read more information',
+  'locationtag+api_key_too_long' => 'Invalid API key',
+  'locationtag+general_settings' => 'General Settings',
+  'locationtag+googlemap_location_search_invitation' => 'town/district/zip',
+  'locationtag+google_maps_settings' => 'You can change google maps settings <a href="{$url}">here</a>',
+  'locationtag+kms_from' => 'kms from',
+  'locationtag+map_page_heading' => 'Map',
+  'locationtag+miles_from' => 'miles from',
+  'locationtag+settings_updated' => 'Settings updated',
+  'locationtag+users_map_menu_item' => 'Map',
 );
 ?>

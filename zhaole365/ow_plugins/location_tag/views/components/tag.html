@@ -1,0 +1,29 @@
+{style}
+{literal}
+
+.ow_tag_button_preloader{
+    background:url({/literal}{$themeImagesUrl}ajax_preloader_content.gif{literal}) 50% 50% no-repeat;
+}
+
+{/literal}
+{/style}
+
+<div class="location_tag_input_div clearfix">
+    <label id="location_tag_error" style="color:red;display:none;">地图服务提供商无法识别您提交的地址，请再次输入详细地址！</label>  
+    <div class="locationtag_address_icon_div">
+        <span class="ic_locationtag_pin locationtag_input_address_icon"></span>
+    </div>
+    <input name="location_tag" class="ow_locationtag_location_input" type="text" id="{$uniqueId}" placeholder='详细地址' >
+    <!-- <div id="locationtag_autocomplite_map" class='ow_location_tag_map_item' style="height:150px;"></div> -->
+</div>
+
+<table class="ow_table_1 ow_automargin" style="width: 400px;">
+    {foreach from=$areas item=area name=area}
+    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.area.last}ow_tr_last{/if} {if $smarty.foreach.area.first}ow_tr_first{/if}">
+        <td>{$area.areacode}</td>
+        <td>{$area.province}</td>
+        <td>{$area.city}</td>
+        <td>{$area.area}</td>
+    </tr>
+    {/foreach}
+</table>

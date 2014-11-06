@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>Newsfeed Location Tag</name>
+    <key>locationtag</key>
+    <description>Allows to tag location on newsfeed status update.
+Newsfeed plugin needed.
+Plugin compatible with oxwall 1.6.0+</description>
+    <author>Podyachev Evgeny</author>
+    <authorEmail>joker.OW2@gmail.com</authorEmail>
+	<authorUrl>http://www.oxwall.org/user/joker</authorUrl>
+	<developerKey>8697bdc9467df91a82092e3f1ffd199f</developerKey>
+    <build>17</build>
+    <copyright>Copyright (c) 2013, Podyachev Evgeny joker.OW2@gmail.com</copyright>
+	<license>OSCL</license>
+    <licenseUrl>http://www.oxwall.org/store/oscl</licenseUrl>
+</plugin>

@@ -1,0 +1,12 @@
+newsfeed location tag plugin (build 15) 2014-08-27: 
+============================== 
+- bug fix
+- support version 1.7.1
+
+
+newsfeed location tag plugin (build 10) 2014-01-30:
+==============================
+- mobile version support
+- fixed bug with wrong coordinates on the map
+
+

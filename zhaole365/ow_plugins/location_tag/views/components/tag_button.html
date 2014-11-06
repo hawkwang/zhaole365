@@ -1,0 +1,64 @@
+{style}
+{literal}
+input[name='location_tag'].ow_locationtag_location_input
+{
+    border: 1 none;
+    border-radius: 1;
+    height: 22px;
+    outline: 0 none;
+    padding-left: 18px;
+    padding-right: 1px;
+    padding-top: 1px;
+    padding-bottom: 1px;
+    width:100%;
+}
+
+.ow_tag_button
+{
+    width: 28px;
+    float:right;
+    margin-right: 3px;
+}
+
+span.locationtag_button_address_icon
+{
+    left: 2px;
+    position: absolute;
+    top: 3px;
+}
+
+.ow_tag_button a{
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAWCAYAAADEtGw7AAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH3QoFDi4wOFpZSAAAANlJREFUOMvt1CFOg0EQhuGHBoH4DwC3IOUGJSPwqB4AS0JThSZV+IYD9AIEtUkVll4DDlBR1WBWrGD5u00FJB0zM3l3vp1kZ4ej/Vs76TuQUjrDE+7QYY0XPEbEplZ3usPlbxgVeYcHXOK6VjTo6fa2EJ3gInsYZd4ujJsiXkTEFxYV3iS8LuJxSukc4wpvEn4t4md8Zv8TbxJeYlVhq8zbhSNii1kFzzLfb47zdHxgWHYbEVe/1Qx2/Ej3Pfl+whHxjnlO5zl3iI5hmh9sevDFklLqjuv179g3WCgxWKvbYlAAAAAASUVORK5CYII=) no-repeat;
+    width:22px;
+    height:22px;
+    overflow:hidden;
+    cursor:pointer;
+    text-decoration:none;
+    float:left;
+}
+
+body .ow_tag_button a {
+    border: 1px solid #CCCCCC;
+    border-radius: 2px 0 0 2px;
+}
+
+body .ow_tag_button .buttons {
+    background: none repeat scroll 0 0 #F5F5F5;
+    border: 1px solid #EBEBEB;
+    border-radius: 2px 2px 2px 2px;
+    padding: 1px;
+}
+
+.ow_tag_button_preloader{
+    background:url({/literal}{$themeImagesUrl}ajax_preloader_content.gif{literal}) 50% 50% no-repeat;
+}
+
+
+{/literal}
+{/style}
+
+<div class="ow_tag_button" id="{$buttonId}">
+  <span class="buttons clearfix">
+      <a id="{$buttonId}"  class="location_button" href="javascript://" title="{text key='locationtag+tag_button_label'}"></a>
+  </span>
+</div>
