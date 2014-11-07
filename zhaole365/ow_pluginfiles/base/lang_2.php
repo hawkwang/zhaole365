@@ -3734,6 +3734,5 @@ http://class1.local/zhaole365/',
   'questions+question_list_no_items' => '暂时没有问题',
   'questions+widget_title' => '问题',
   'ocstopusers+index_widget_title' => '最棒乐友',
-  'zlareas+main_menu_list' => '找乐地盘',
 );
 ?>

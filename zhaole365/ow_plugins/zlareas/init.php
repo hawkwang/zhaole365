@@ -10,14 +10,6 @@ OW::getRouter()->addRoute(new OW_Route('zlareas.index', 'areas', 'ZLAREAS_CTRL_A
 //测试解决首页问题 FIXME
 OW::getRouter()->addRoute(new OW_Route('zlareas.index.default', '/', 'ZLAREAS_CTRL_Areas', 'index'));
 
-//init components
-// OW::getRegistry()->addToArray(BASE_CMP_AddNewContent::REGISTRY_DATA_KEY,
-//     array(
-//         BASE_CMP_AddNewContent::DATA_KEY_ICON_CLASS => 'ow_ic_comment',
-//         BASE_CMP_AddNewContent::DATA_KEY_URL => OW::getRouter()->urlForRoute('groups-create'),
-//         BASE_CMP_AddNewContent::DATA_KEY_LABEL => OW::getLanguage()->text('groups', 'add_new_label')
-// ));
-
 //init event handler
 // $eventHandler = ZLAREAS_CLASS_EventHandler::getInstance();
 // $eventHandler->genericInit();

@@ -63,6 +63,11 @@ final class ZLAREAS_BOL_LocationService
         $this->save($dto);
     }
     
+    public function getLocationList()
+    {
+    	return ZLAREAS_BOL_LocationDao::getInstance()->findAll();
+    }
+    
     public function getAllLocations( )
     {
         return $this->locationDao->getAllLocations();
@@ -72,11 +77,22 @@ final class ZLAREAS_BOL_LocationService
     {
     	return $this->locationDao->findLocationByAddress( $address );
     }
+    
+    public function findLocationByLongitudeAndLatitude($longitude,$latitude)
+    {
+    	return $this->locationDao->findLocationByLongitudeAndLatitude($longitude,$latitude);
+    }
 
     public function deleteById( $id )
     {
-    	return $this->locationDao->deleteByIdList( array($id) );
+    	//return $this->locationDao->deleteByIdList( array($id) );
         //return $this->locationDao->deleteById( $id );
+    	$id = (int) $id;
+    	if ( $id > 0 )
+    	{
+    		$this->locationDao->deleteById($id);
+    	}
+    	
     }
     
     public function findById( $id )

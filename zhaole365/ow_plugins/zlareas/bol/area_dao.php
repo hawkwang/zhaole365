@@ -2,8 +2,11 @@
 
 class ZLAREAS_BOL_AreaDao extends OW_BaseDao
 {
-
-    /**
+	const ID = 'id';
+	const PROVINCE_STRING = 'province';
+	const CITY_STRING = 'city';		
+	const DISTRICT_STRING = 'area';
+/**
      * Constructor.
      *
      */
@@ -49,5 +52,19 @@ class ZLAREAS_BOL_AreaDao extends OW_BaseDao
     public function getTableName()
     {
         return OW_DB_PREFIX . 'zlareas_area';
+    }
+    
+    public function getAreaByDetailedinfo($province,$city, $district)
+    {
+    		if ( empty($province) || empty($city)|| empty($district))
+    		{
+    			return null;
+    		}
+    	
+    		$example = new OW_Example();
+    		$example->andFieldEqual(self::PROVINCE_STRING, $province);
+    		$example->andFieldEqual(self::CITY_STRING, $city);
+    		$example->andFieldEqual(self::DISTRICT_STRING, $district);
+    		return $this->findObjectByExample($example);
     }
 }

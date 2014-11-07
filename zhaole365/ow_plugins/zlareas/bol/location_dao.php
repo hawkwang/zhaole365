@@ -5,6 +5,8 @@ class ZLAREAS_BOL_LocationDao extends OW_BaseDao
 {
     const ID = 'id';
     const ADDRESS_STRING = 'address';
+    const LONGITUDE_STRING = 'longitude';
+    const LATITUDE_STRING = 'latitude';
     
     /**
      * Class constructor
@@ -33,7 +35,7 @@ class ZLAREAS_BOL_LocationDao extends OW_BaseDao
 
     public function getTableName()
     {
-        return OW_DB_PREFIX . 'zllocations';
+        return OW_DB_PREFIX . 'zlareas_location';
     }
     
     public function getAllLocations()
@@ -63,19 +65,40 @@ class ZLAREAS_BOL_LocationDao extends OW_BaseDao
         }
         
         $example = new OW_Example();
-        $example->andFieldEqual(self::ENTITY_ADDRESS, $address);
+        $example->andFieldEqual(self::ADDRESS_STRING, $address);
         return $this->findObjectByExample($example);
     }
     
-    public function deleteById( $id )
+    // FIXME - 这个方法有问题
+    public function findLocationByLongitudeAndLatitude($longitude,$latitude)
     {
-    	if ( empty($id) )
+    	if ( empty($longitude) || empty($latitude) )
     	{
     		return null;
     	}
-    
-    	$example = new OW_Example();
-    	$example->andFieldEqual(self::ID, $id);
-        return $this->deleteByExample($example);
+    	
+
+    	
+    	$query = "SELECT l.* FROM " . $this->getTableName() . " l
+                WHERE CAST(l.longitude AS DECIMAL) = CAST(:longitude AS DECIMAL) and CAST(l.latitude AS DECIMAL) = CAST(:latitude AS DECIMAL) ";
+    	
+    	return $this->dbo->queryForObject($query, $this->getDtoClassName(), array('longitude' => floatval($longitude), 'latitude' => floatval($latitude)));
+    	
+//     	$example = new OW_Example();
+//     	$example->andFieldEqual(self::LATITUDE_STRING, (floatval($latitude)));
+//     	$example->andFieldEqual(self::LONGITUDE_STRING, (floatval($longitude)));
+//     	return $this->findObjectByExample($example);
     }
+    
+//     public function deleteById( $id )
+//     {
+//     	if ( empty($id) )
+//     	{
+//     		return null;
+//     	}
+    
+//     	$example = new OW_Example();
+//     	$example->andFieldEqual(self::ID, $id);
+//         return $this->deleteByExample($example);
+//     }
 }

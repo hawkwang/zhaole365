@@ -47,6 +47,11 @@ class ZLAREAS_BOL_Service
             ZLAREAS_BOL_AreaDao::getInstance()->deleteById($id);
         }
     }
+    
+    public function getAreaByDetailedinfo($province,$city, $district)
+    {
+    	return ZLAREAS_BOL_AreaDao::getInstance()->getAreaByDetailedinfo($province,$city, $district);
+    }
 
 
     public function getAreaList()
