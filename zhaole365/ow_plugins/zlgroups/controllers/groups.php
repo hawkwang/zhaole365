@@ -1,52 +1,13 @@
 <?php
 
-/**
- * This software is intended for use with Oxwall Free Community Software http://www.oxwall.org/ and is
- * licensed under The BSD license.
-
- * ---
- * Copyright (c) 2011, Oxwall Foundation
- * All rights reserved.
-
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
- * following conditions are met:
- *
- *  - Redistributions of source code must retain the above copyright notice, this list of conditions and
- *  the following disclaimer.
- *
- *  - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
- *  the following disclaimer in the documentation and/or other materials provided with the distribution.
- *
- *  - Neither the name of the Oxwall Foundation nor the names of its contributors may be used to endorse or promote products
- *  derived from this software without specific prior written permission.
-
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- * Groups
- *
- * @author Sergey Kambalin <greyexpert@gmail.com>
- * @package ow_plugins.groups.controllers
- * @since 1.0
- */
-class GROUPS_CTRL_Groups extends OW_ActionController
+class ZLGROUPS_CTRL_Groups extends OW_ActionController
 {
-    /**
-     *
-     * @var GROUPS_BOL_Service
-     */
+
     private $service;
 
     public function __construct()
     {
-        $this->service = GROUPS_BOL_Service::getInstance();
+        $this->service = ZLGROUPS_BOL_Service::getInstance();
 
         if ( !OW::getRequest()->isAjax() )
         {
@@ -108,7 +69,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             $this->service->markInviteAsViewed($groupDto->id, OW::getUser()->getId());
         }
 
-        if ( $groupDto->whoCanView == GROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('groups') )
+        if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('groups') )
         {
             if ( !OW::getUser()->isAuthenticated() )
             {
@@ -119,7 +80,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
             $user = $this->service->findUser($groupDto->id, OW::getUser()->getId());
 
-            if ( $groupDto->whoCanView == GROUPS_BOL_Service::WCV_INVITE && $invite === null && $user === null )
+            if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && $invite === null && $user === null )
             {
                 $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
                     'groupId' => $groupDto->id
@@ -270,7 +231,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         OW::getDocument()->setTitle($language->text('groups', 'create_page_title'));
         OW::getDocument()->setDescription($language->text('groups', 'create_page_description'));
 
-        $form = new GROUPS_CreateGroupForm();
+        $form = new ZLGROUPS_CreateGroupForm();
 
         if ( OW::getRequest()->isPost() && $form->isValid($_POST) )
         {
@@ -344,7 +305,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             throw new Redirect404Exception();
         }
 
-        $form = new GROUPS_EditGroupForm($groupDto);
+        $form = new ZLGROUPS_EditGroupForm($groupDto);
 
         if ( OW::getRequest()->isPost() && $form->isValid($_POST) )
         {
@@ -359,7 +320,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         $this->assign('imageUrl', empty($groupDto->imageHash) ? false : $this->service->getGroupImageUrl($groupDto));
 
-        $deleteUrl = OW::getRouter()->urlFor('GROUPS_CTRL_Groups', 'delete', array('groupId' => $groupDto->id));
+        $deleteUrl = OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'delete', array('groupId' => $groupDto->id));
         $viewUrl = $this->service->getGroupUrl($groupDto);
         $lang = OW::getLanguage()->text('groups', 'delete_confirm_msg');
 
@@ -406,14 +367,14 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         {
             $this->service->markInviteAsViewed($groupDto->id, $userId);
         } 
-        else if ( $groupDto->whoCanView == GROUPS_BOL_Service::WCV_INVITE )
+        else if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE )
         {
             $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
                 'groupId' => $groupDto->id
             )));
         }
         
-        GROUPS_BOL_Service::getInstance()->addUser($groupId, $userId);
+        ZLGROUPS_BOL_Service::getInstance()->addUser($groupId, $userId);
 
         $redirectUrl = OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupId));
         OW::getFeedback()->info(OW::getLanguage()->text('groups', 'join_complete_message'));
@@ -436,7 +397,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $groupId = (int) $params['groupId'];
         $userId = OW::getUser()->getId();
 
-        GROUPS_BOL_Service::getInstance()->deleteInvite($groupId, $userId);
+        ZLGROUPS_BOL_Service::getInstance()->deleteInvite($groupId, $userId);
 
         $redirectUrl = OW::getRouter()->urlForRoute('groups-invite-list');
         OW::getFeedback()->info(OW::getLanguage()->text('groups', 'invite_declined_message'));
@@ -459,7 +420,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $groupId = (int) $params['groupId'];
         $userId = OW::getUser()->getId();
 
-        GROUPS_BOL_Service::getInstance()->deleteUser($groupId, $userId);
+        ZLGROUPS_BOL_Service::getInstance()->deleteUser($groupId, $userId);
 
         $redirectUrl = OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupId));
         OW::getFeedback()->info(OW::getLanguage()->text('groups', 'leave_complete_message'));
@@ -479,7 +440,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             throw new AuthenticateException();
         }
 
-        $groupDto = GROUPS_BOL_Service::getInstance()->findGroupById($params['groupId']);
+        $groupDto = ZLGROUPS_BOL_Service::getInstance()->findGroupById($params['groupId']);
 
         if ( $groupDto === null )
         {
@@ -496,7 +457,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $groupId = (int) $groupDto->id;
         $userId = $params['userId'];
 
-        GROUPS_BOL_Service::getInstance()->deleteUser($groupId, $userId);
+        ZLGROUPS_BOL_Service::getInstance()->deleteUser($groupId, $userId);
 
         //$redirectUrl = OW::getRouter()->urlForRoute('groups-user-list', array('groupId' => $groupId));
 
@@ -536,8 +497,8 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $first = ($page - 1) * $perPage;
         $count = $perPage;
 
-        $dtoList = $this->service->findGroupList(GROUPS_BOL_Service::LIST_MOST_POPULAR, $first, $count);
-        $listCount = $this->service->findGroupListCount(GROUPS_BOL_Service::LIST_MOST_POPULAR);
+        $dtoList = $this->service->findGroupList(ZLGROUPS_BOL_Service::LIST_MOST_POPULAR, $first, $count);
+        $listCount = $this->service->findGroupListCount(ZLGROUPS_BOL_Service::LIST_MOST_POPULAR);
 
         $paging = new BASE_CMP_Paging($page, ceil($listCount / $perPage), 5);
 
@@ -569,8 +530,8 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $first = ($page - 1) * $perPage;
         $count = $perPage;
 
-        $dtoList = $this->service->findGroupList(GROUPS_BOL_Service::LIST_LATEST, $first, $count);
-        $listCount = $this->service->findGroupListCount(GROUPS_BOL_Service::LIST_LATEST);
+        $dtoList = $this->service->findGroupList(ZLGROUPS_BOL_Service::LIST_LATEST, $first, $count);
+        $listCount = $this->service->findGroupListCount(ZLGROUPS_BOL_Service::LIST_LATEST);
 
         $paging = new BASE_CMP_Paging($page, ceil($listCount / $perPage), 5);
 
@@ -632,11 +593,11 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         foreach ( $dtoList as $group )
         {
-            $acceptUrls[$group->id] = OW::getRouter()->urlFor('GROUPS_CTRL_Groups', 'join', array(
+            $acceptUrls[$group->id] = OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'join', array(
                 'groupId' => $group->id
             ));
 
-            $declineUrls[$group->id] = OW::getRouter()->urlFor('GROUPS_CTRL_Groups', 'declineInvite', array(
+            $declineUrls[$group->id] = OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'declineInvite', array(
                 'groupId' => $group->id
             ));
         }
@@ -646,9 +607,9 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         foreach ( $dtoList as $item )
         {
-            /* @var $item GROUPS_BOL_Group */
+            /* @var $item ZLGROUPS_BOL_Group */
 
-            $userCount = GROUPS_BOL_Service::getInstance()->findUserListCount($item->id);
+            $userCount = ZLGROUPS_BOL_Service::getInstance()->findUserListCount($item->id);
             $title = strip_tags($item->title);
 
             $toolbar = array(
@@ -676,7 +637,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
                 'imageTitle' => $title,
                 'content' => strip_tags($item->description),
                 'time' => UTIL_DateTime::formatDate($item->timeStamp),
-                'imageSrc' => GROUPS_BOL_Service::getInstance()->getGroupImageUrl($item),
+                'imageSrc' => ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($item),
                 'users' => $userCount,
                 'toolbar' => $toolbar
             );
@@ -750,6 +711,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $this->displayGroupList($dtoList, $paging, $menu);
     }
 
+    // 显示指定用户的乐群列表（采用paging）
     public function userGroupList( $params )
     {
         $userDto = BOL_UserService::getInstance()->findByUsername(trim($params['user']));
@@ -760,23 +722,26 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         }
 
         // privacy check
+        // 得到被查看用户ID
         $userId = $userDto->id;
+        // 得到当前用户ID
         $viewerId = OW::getUser()->getId();
+        // 如果两者相等，说明是所有者
         $ownerMode = $userId == $viewerId;
-        $modPermissions = OW::getUser()->isAuthorized('groups');
+        $modPermissions = OW::getUser()->isAuthorized('zlgroups');
 
         if ( !$ownerMode && !$modPermissions )
         {
-            $privacyParams = array('action' => GROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS, 'ownerId' => $userId, 'viewerId' => $viewerId);
+            $privacyParams = array('action' => ZLGROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS, 'ownerId' => $userId, 'viewerId' => $viewerId);
             $event = new OW_Event('privacy_check_permission', $privacyParams);
 
             OW::getEventManager()->trigger($event);
         }
 
         $language = OW::getLanguage();
-        OW::getDocument()->setTitle($language->text('groups', 'user_groups_page_title'));
-        OW::getDocument()->setDescription($language->text('groups', 'user_groups_page_description'));
-        OW::getDocument()->setHeading($language->text('groups', 'user_group_list_heading', array(
+        OW::getDocument()->setTitle($language->text('zlgroups', 'user_groups_page_title'));
+        OW::getDocument()->setDescription($language->text('zlgroups', 'user_groups_page_description'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'user_group_list_heading', array(
                 'userName' => BOL_UserService::getInstance()->getDisplayName($userDto->id)
             )));
 
@@ -784,7 +749,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         if ( !$this->service->isCurrentUserCanViewList() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'view');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'view');
             throw new AuthorizationException($status['msg']);
         }
 
@@ -807,21 +772,21 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
     private function displayGroupList( $list, $paging, $menu = null )
     {
-        $templatePath = OW::getPluginManager()->getPlugin('groups')->getCtrlViewDir() . 'groups_list.html';
+        $templatePath = OW::getPluginManager()->getPlugin('zlgroups')->getCtrlViewDir() . 'groups_list.html';
         $this->setTemplate($templatePath);
 
         $out = array();
 
         foreach ( $list as $item )
         {
-            /* @var $item GROUPS_BOL_Group */
+            /* @var $item ZLGROUPS_BOL_Group */
 
-            $userCount = GROUPS_BOL_Service::getInstance()->findUserListCount($item->id);
+            $userCount = ZLGROUPS_BOL_Service::getInstance()->findUserListCount($item->id);
             $title = strip_tags($item->title);
 
             $toolbar = array(
                 array(
-                    'label' => OW::getLanguage()->text('groups', 'listing_users_label', array(
+                    'label' => OW::getLanguage()->text('zlgroups', 'listing_users_label', array(
                         'count' => $userCount
                     ))
                 )
@@ -829,12 +794,12 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
             $out[] = array(
                 'id' => $item->id,
-                'url' => OW::getRouter()->urlForRoute('groups-view', array('groupId' => $item->id)),
+                'url' => OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $item->id)),
                 'title' => $title,
                 'imageTitle' => $title,
                 'content' => UTIL_String::truncate(strip_tags($item->description), 300, '...'),
                 'time' => UTIL_DateTime::formatDate($item->timeStamp),
-                'imageSrc' => GROUPS_BOL_Service::getInstance()->getGroupImageUrl($item),
+                'imageSrc' => ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($item),
                 'users' => $userCount,
                 'toolbar' => $toolbar
             );
@@ -855,7 +820,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         
         if ( !$this->service->isCurrentUserCanCreate() )
         {
-            $authStatus = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'create');
+            $authStatus = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'create');
             if ( $authStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
             {
                 $this->assign("authMsg", json_encode($authStatus["msg"]));
@@ -869,6 +834,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $this->assign('list', $out);
     }
 
+    // 获得指定乐群的所有乐友列表
     public function userList( $params )
     {
         $groupId = (int) $params['groupId'];
@@ -879,11 +845,11 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             throw new Redirect404Exception();
         }
 
-        if ( $groupDto->whoCanView == GROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('groups') )
+        if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('zlgroups') )
         {
             if ( !OW::getUser()->isAuthenticated() )
             {
-                $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
+                $this->redirect(OW::getRouter()->urlForRoute('zlgroups-private-group', array(
                     'groupId' => $groupDto->id
                 )));
             }
@@ -891,9 +857,9 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             $invite = $this->service->findInvite($groupDto->id, OW::getUser()->getId());
             $user = $this->service->findUser($groupDto->id, OW::getUser()->getId());
 
-            if ( $groupDto->whoCanView == GROUPS_BOL_Service::WCV_INVITE && $invite === null && $user === null )
+            if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && $invite === null && $user === null )
             {
-                $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
+                $this->redirect(OW::getRouter()->urlForRoute('zlgroups-private-group', array(
                     'groupId' => $groupDto->id
                 )));
             }
@@ -907,9 +873,9 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $dtoList = $this->service->findUserList($groupId, $first, $count);
         $listCount = $this->service->findUserListCount($groupId);
 
-        $listCmp = new GROUPS_UserList($groupDto, $dtoList, $listCount, 20);
+        $listCmp = new ZLGROUPS_UserList($groupDto, $dtoList, $listCount, 20);  // TBU this component
         $this->addComponent('listCmp', $listCmp);
-        $this->addComponent('groupBriefInfo', new GROUPS_CMP_BriefInfo($groupId));
+        $this->addComponent('groupBriefInfo', new ZLGROUPS_CMP_BriefInfo($groupId));
         
         $this->assign("groupId", $groupId);
     }
@@ -965,7 +931,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         $groupId = (int) $_GET['groupId'];
 
-        $groupDto = GROUPS_BOL_Service::getInstance()->findGroupById($groupId);
+        $groupDto = ZLGROUPS_BOL_Service::getInstance()->findGroupById($groupId);
 
         if ( $groupDto === null )
         {
@@ -974,7 +940,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         $eventParams = array(
             'userId' => OW::getUser()->getId(),
-            'feedType' => GROUPS_BOL_Service::ENTITY_TYPE_GROUP,
+            'feedType' => ZLGROUPS_BOL_Service::ENTITY_TYPE_GROUP,
             'feedId' => $groupId
         );
 
@@ -996,6 +962,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $this->redirect(OW_URL_HOME . $_GET['backUri']);
     }
 
+    // 邀请选中的用户加入乐群
     public function invite()
     {
         if ( !OW::getRequest()->isAjax() )
@@ -1027,7 +994,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         }
 
         $respoce['messageType'] = 'info';
-        $respoce['message'] = OW::getLanguage()->text('groups', 'users_invite_success_message', array('count' => $count));
+        $respoce['message'] = OW::getLanguage()->text('zlgroups', 'users_invite_success_message', array('count' => $count));
         $respoce['allIdList'] = array_diff($allIdList, $userIds);
 
         exit(json_encode($respoce));
@@ -1058,15 +1025,15 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
 // Additional calsses
 
-class GROUPS_UserList extends BASE_CMP_Users
+class ZLGROUPS_UserList extends BASE_CMP_Users
 {
     /**
      *
-     * @var GROUPS_BOL_Group
+     * @var ZLGROUPS_BOL_Group
      */
     protected $groupDto;
 
-    public function __construct( GROUPS_BOL_Group $groupDto, $list, $itemCount, $usersOnPage, $showOnline = true)
+    public function __construct( ZLGROUPS_BOL_Group $groupDto, $list, $itemCount, $usersOnPage, $showOnline = true)
     {
         parent::__construct($list, $itemCount, $usersOnPage, $showOnline);
         $this->groupDto = $groupDto;
@@ -1098,7 +1065,7 @@ class GROUPS_UserList extends BASE_CMP_Users
             if ( $this->groupDto->userId != $userId )
             {
                 $callbackUri = OW::getRequest()->getRequestUri();
-                $deleteUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlFor('GROUPS_CTRL_Groups', 'deleteUser', array(
+                $deleteUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'deleteUser', array(
                     'groupId' => $this->groupDto->id,
                     'userId' => $userId
                 )), array(
@@ -1188,7 +1155,7 @@ class GROUPS_UserList extends BASE_CMP_Users
     }
 }
 
-class GROUPS_GroupForm extends Form
+class ZLGROUPS_GroupForm extends Form
 {
     public function __construct( $formName )
     {
@@ -1208,17 +1175,17 @@ class GROUPS_GroupForm extends Form
         $field->setRequired(true);
         $this->addElement($field);
 
-        $field = new GROUPS_Image('image');
+        $field = new ZLGROUPS_Image('image');
         $field->setLabel($language->text('groups', 'create_field_image_label'));
-        $field->addValidator(new GROUPS_ImageValidator());
+        $field->addValidator(new ZLGROUPS_ImageValidator());
         $this->addElement($field);
 
         $whoCanView = new RadioField('whoCanView');
         $whoCanView->setRequired();
         $whoCanView->addOptions(
             array(
-                GROUPS_BOL_Service::WCV_ANYONE => $language->text('groups', 'form_who_can_view_anybody'),
-                GROUPS_BOL_Service::WCV_INVITE => $language->text('groups', 'form_who_can_view_invite')
+                ZLGROUPS_BOL_Service::WCV_ANYONE => $language->text('groups', 'form_who_can_view_anybody'),
+                ZLGROUPS_BOL_Service::WCV_INVITE => $language->text('groups', 'form_who_can_view_invite')
             )
         );
         $whoCanView->setLabel($language->text('groups', 'form_who_can_view_label'));
@@ -1228,8 +1195,8 @@ class GROUPS_GroupForm extends Form
         $whoCanInvite->setRequired();
         $whoCanInvite->addOptions(
             array(
-                GROUPS_BOL_Service::WCI_PARTICIPANT => $language->text('groups', 'form_who_can_invite_participants'),
-                GROUPS_BOL_Service::WCI_CREATOR => $language->text('groups', 'form_who_can_invite_creator')
+                ZLGROUPS_BOL_Service::WCI_PARTICIPANT => $language->text('groups', 'form_who_can_invite_participants'),
+                ZLGROUPS_BOL_Service::WCI_CREATOR => $language->text('groups', 'form_who_can_invite_creator')
             )
         );
         $whoCanInvite->setLabel($language->text('groups', 'form_who_can_invite_label'));
@@ -1238,20 +1205,20 @@ class GROUPS_GroupForm extends Form
 
     /**
      *
-     * @param GROUPS_BOL_Group $group
-     * @return GROUPS_BOL_Group
+     * @param ZLGROUPS_BOL_Group $group
+     * @return ZLGROUPS_BOL_Group
      */
-    public function processGroup( GROUPS_BOL_Group $group )
+    public function processGroup( ZLGROUPS_BOL_Group $group )
     {
         $values = $this->getValues();
-        $service = GROUPS_BOL_Service::getInstance();
+        $service = ZLGROUPS_BOL_Service::getInstance();
 
         if ( $values['image'] )
         {
             if ( !empty($group->imageHash) )
             {
                 OW::getStorage()->removeFile($service->getGroupImagePath($group));
-                OW::getStorage()->removeFile($service->getGroupImagePath($group, GROUPS_BOL_Service::IMAGE_SIZE_BIG));
+                OW::getStorage()->removeFile($service->getGroupImagePath($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG));
             }
 
             $group->imageHash = uniqid();
@@ -1275,21 +1242,21 @@ class GROUPS_GroupForm extends Form
         return $group;
     }
 
-    protected function saveImages( $postFile, GROUPS_BOL_Group $group )
+    protected function saveImages( $postFile, ZLGROUPS_BOL_Group $group )
     {
-        $service = GROUPS_BOL_Service::getInstance();
+        $service = ZLGROUPS_BOL_Service::getInstance();
         
-        $smallFile = $service->getGroupImagePath($group, GROUPS_BOL_Service::IMAGE_SIZE_SMALL);
-        $bigFile = $service->getGroupImagePath($group, GROUPS_BOL_Service::IMAGE_SIZE_BIG);
+        $smallFile = $service->getGroupImagePath($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_SMALL);
+        $bigFile = $service->getGroupImagePath($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
         
         $tmpDir = OW::getPluginManager()->getPlugin('groups')->getPluginFilesDir();
         $smallTmpFile = $tmpDir . uniqid('small_') . '.jpg';
         $bigTmpFile = $tmpDir . uniqid('big_') . '.jpg';
 
         $image = new UTIL_Image($postFile['tmp_name']);
-        $image->resizeImage(GROUPS_BOL_Service::IMAGE_WIDTH_BIG, null)
+        $image->resizeImage(ZLGROUPS_BOL_Service::IMAGE_WIDTH_BIG, null)
             ->saveImage($bigTmpFile)
-            ->resizeImage(GROUPS_BOL_Service::IMAGE_WIDTH_SMALL, GROUPS_BOL_Service::IMAGE_WIDTH_SMALL, true)
+            ->resizeImage(ZLGROUPS_BOL_Service::IMAGE_WIDTH_SMALL, ZLGROUPS_BOL_Service::IMAGE_WIDTH_SMALL, true)
             ->saveImage($smallTmpFile);
 
         try
@@ -1309,14 +1276,14 @@ class GROUPS_GroupForm extends Form
     }
 }
 
-class GROUPS_CreateGroupForm extends GROUPS_GroupForm
+class ZLGROUPS_CreateGroupForm extends ZLGROUPS_GroupForm
 {
 
     public function __construct()
     {
-        parent::__construct('GROUPS_CreateGroupForm');
+        parent::__construct('ZLGROUPS_CreateGroupForm');
 
-        $this->getElement('title')->addValidator(new GROUPS_UniqueValidator());
+        $this->getElement('title')->addValidator(new ZLGROUPS_UniqueValidator());
 
         $field = new Submit('save');
         $field->setValue(OW::getLanguage()->text('groups', 'create_submit_btn_label'));
@@ -1325,11 +1292,11 @@ class GROUPS_CreateGroupForm extends GROUPS_GroupForm
 
     /**
      * (non-PHPdoc)
-     * @see ow_plugins/groups/controllers/GROUPS_GroupForm#process()
+     * @see ow_plugins/groups/controllers/ZLGROUPS_GroupForm#process()
      */
     public function process()
     {
-        $groupDto = new GROUPS_BOL_Group();
+        $groupDto = new ZLGROUPS_BOL_Group();
         $groupDto->timeStamp = time();
         $groupDto->userId = OW::getUser()->getId();
 
@@ -1339,7 +1306,7 @@ class GROUPS_CreateGroupForm extends GROUPS_GroupForm
             $data[$key] = $value;
         }
 
-        $event = new OW_Event(GROUPS_BOL_Service::EVENT_BEFORE_CREATE, array('groupId' => $groupDto->id), $data);
+        $event = new OW_Event(ZLGROUPS_BOL_Service::EVENT_BEFORE_CREATE, array('groupId' => $groupDto->id), $data);
         OW::getEventManager()->trigger($event);
         $data = $event->getData();
 
@@ -1362,7 +1329,7 @@ class GROUPS_CreateGroupForm extends GROUPS_GroupForm
         
         if ( $group )
         {
-            $event = new OW_Event(GROUPS_BOL_Service::EVENT_CREATE, array('groupId' => $groupDto->id));
+            $event = new OW_Event(ZLGROUPS_BOL_Service::EVENT_CREATE, array('groupId' => $groupDto->id));
             OW::getEventManager()->trigger($event);
         }
 
@@ -1370,22 +1337,22 @@ class GROUPS_CreateGroupForm extends GROUPS_GroupForm
     }
 }
 
-class GROUPS_EditGroupForm extends GROUPS_GroupForm
+class ZLGROUPS_EditGroupForm extends ZLGROUPS_GroupForm
 {
     /**
      *
-     * @var GROUPS_BOL_Group
+     * @var ZLGROUPS_BOL_Group
      */
     private $groupDto;
 
-    public function __construct( GROUPS_BOL_Group $group )
+    public function __construct( ZLGROUPS_BOL_Group $group )
     {
-        parent::__construct('GROUPS_EditGroupForm');
+        parent::__construct('ZLGROUPS_EditGroupForm');
 
         $this->groupDto = $group;
 
         $this->getElement('title')->setValue($group->title);
-        $this->getElement('title')->addValidator(new GROUPS_UniqueValidator($group->title));
+        $this->getElement('title')->addValidator(new ZLGROUPS_UniqueValidator($group->title));
         $this->getElement('description')->setValue($group->description);
         $this->getElement('whoCanView')->setValue($group->whoCanView);
         $this->getElement('whoCanInvite')->setValue($group->whoCanInvite);
@@ -1397,7 +1364,7 @@ class GROUPS_EditGroupForm extends GROUPS_GroupForm
 
     /**
      * (non-PHPdoc)
-     * @see ow_plugins/groups/controllers/GROUPS_GroupForm#process()
+     * @see ow_plugins/groups/controllers/ZLGROUPS_GroupForm#process()
      */
     public function process()
     {
@@ -1405,7 +1372,7 @@ class GROUPS_EditGroupForm extends GROUPS_GroupForm
 
         if ( $result )
         {
-            $event = new OW_Event(GROUPS_BOL_Service::EVENT_EDIT, array('groupId' => $this->groupDto->id));
+            $event = new OW_Event(ZLGROUPS_BOL_Service::EVENT_EDIT, array('groupId' => $this->groupDto->id));
             OW::getEventManager()->trigger($event);
         }
 
@@ -1413,7 +1380,7 @@ class GROUPS_EditGroupForm extends GROUPS_GroupForm
     }
 }
 
-class GROUPS_ImageValidator extends OW_Validator
+class ZLGROUPS_ImageValidator extends OW_Validator
 {
 
     public function __construct()
@@ -1451,7 +1418,7 @@ class GROUPS_ImageValidator extends OW_Validator
     }
 }
 
-class GROUPS_Image extends FileField
+class ZLGROUPS_Image extends FileField
 {
 
     public function getValue()
@@ -1460,7 +1427,7 @@ class GROUPS_Image extends FileField
     }
 }
 
-class GROUPS_UniqueValidator extends OW_Validator
+class ZLGROUPS_UniqueValidator extends OW_Validator
 {
     private $exception;
 
@@ -1478,7 +1445,7 @@ class GROUPS_UniqueValidator extends OW_Validator
             return true;
         }
 
-        $dto = GROUPS_BOL_Service::getInstance()->findByTitle($value);
+        $dto = ZLGROUPS_BOL_Service::getInstance()->findByTitle($value);
 
         if ( $dto === null )
         {

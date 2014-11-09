@@ -360,6 +360,7 @@ final class OW_ThemeManager
         $viewRenderer->assignVar('data', $params);
         $markup = $viewRenderer->renderTemplate(OW::getThemeManager()->getDecorator($name));
 
+        // 恢复之前的变量
         $viewRenderer->clearAssignedVars();
         $viewRenderer->assignVars($prevVars);
 

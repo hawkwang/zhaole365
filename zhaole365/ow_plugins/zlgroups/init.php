@@ -20,7 +20,8 @@ OW::getRouter()->addRoute(new OW_Route('zlgroups-invite-list', 'zlgroups/invitat
 OW::getRouter()->addRoute(new OW_Route('zlgroups-my-list', 'zlgroups/my', 'ZLGROUPS_CTRL_Groups', 'myGroupList'));
 
 OW::getRouter()->addRoute(new OW_Route('zlgroups-index', 'zlgroups', 'ZLGROUPS_CTRL_Groups', 'index'));
-OW::getRouter()->addRoute(new OW_Route('zlgroups-user-zlgroups', 'users/:user/zlgroups', 'ZLGROUPS_CTRL_Groups', 'userGroupList'));
+// 用于显示指定用户的所有乐群
+OW::getRouter()->addRoute(new OW_Route('zlgroups-user-groups', 'users/:user/zlgroups', 'ZLGROUPS_CTRL_Groups', 'userGroupList'));
 OW::getRouter()->addRoute(new OW_Route('zlgroups-leave', 'zlgroups/:groupId/leave', 'ZLGROUPS_CTRL_Groups', 'leave'));
 
 OW::getRouter()->addRoute(new OW_Route('zlgroups-user-list', 'zlgroups/:groupId/users', 'ZLGROUPS_CTRL_Groups', 'userList'));

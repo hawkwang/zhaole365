@@ -9,11 +9,11 @@
 
 <script type="text/javascript">
 {literal}
-function GROUPS_InitInviteButton( options )
+function ZLGROUPS_InitInviteButton( options )
 {
     var floatBox, userIdList = options.userList;
 
-    $('#GROUPS_InviteLink').click(
+    $('#ZLGROUPS_InviteLink').click(
         function()
         {
             floatBox = OW.ajaxFloatBox('BASE_CMP_AvatarUserListSelect', [userIdList],
@@ -45,6 +45,7 @@ function GROUPS_InitInviteButton( options )
                     else
                     {
                         OW.info(data.message);
+                        // 更新可邀请的用户列表，以便继续邀请（这样实现页面不需要刷新而知道可邀请的用户信息）
                         userIdList = data.allIdList;
                     }
                 }
@@ -57,5 +58,5 @@ function GROUPS_InitInviteButton( options )
 </script>
 
 <div class="groups-invite-link ow_std_margin">
-    {decorator name='button' class='ow_ic_add' type='button' langLabel='groups+invite_btn_label' id='GROUPS_InviteLink'}
+    {decorator name='button' class='ow_ic_add' type='button' langLabel='zlgroups+invite_btn_label' id='ZLGROUPS_InviteLink'}
 </div>

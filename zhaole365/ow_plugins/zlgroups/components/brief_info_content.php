@@ -1,42 +1,6 @@
 <?php
 
-/**
- * This software is intended for use with Oxwall Free Community Software http://www.oxwall.org/ and is
- * licensed under The BSD license.
-
- * ---
- * Copyright (c) 2011, Oxwall Foundation
- * All rights reserved.
-
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
- * following conditions are met:
- *
- *  - Redistributions of source code must retain the above copyright notice, this list of conditions and
- *  the following disclaimer.
- *
- *  - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
- *  the following disclaimer in the documentation and/or other materials provided with the distribution.
- *
- *  - Neither the name of the Oxwall Foundation nor the names of its contributors may be used to endorse or promote products
- *  derived from this software without specific prior written permission.
-
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- * Group Brief Info Content
- *
- * @author Sergey Kambalin <greyexpert@gmail.com>
- * @package ow_plugins.groups.components
- * @since 1.0
- */
-class GROUPS_CMP_BriefInfoContent extends OW_Component
+class ZLGROUPS_CMP_BriefInfoContent extends OW_Component
 {
 
     /**
@@ -46,7 +10,7 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
     {
         parent::__construct();
 
-        $service = GROUPS_BOL_Service::getInstance();
+        $service = ZLGROUPS_BOL_Service::getInstance();
         $groupDto = $service->findGroupById($groupId);
 
         $group = array(
@@ -54,7 +18,7 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
             'description' => $groupDto->description,
             'time' => $groupDto->timeStamp,
             'imgUrl' => empty($groupDto->imageHash) ? false : $service->getGroupImageUrl($groupDto),
-            'url' => OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupDto->id)),
+            'url' => OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupDto->id)),
             "id" => $groupDto->id
         );
 
@@ -67,9 +31,9 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
         $adminUrl = BOL_UserService::getInstance()->getUserUrl($groupDto->userId);
 
         $js = UTIL_JsGenerator::newInstance()
-                ->jQueryEvent('#groups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "groups+flags", {$ownerId});',
+                ->jQueryEvent('#groups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "zlgroups+flags", {$ownerId});',
                         array(
-                            'entity' => GROUPS_BOL_Service::WIDGET_PANEL_NAME,
+                            'entity' => ZLGROUPS_BOL_Service::WIDGET_PANEL_NAME,
                             'id' => $groupDto->id,
                             'title' => $group['title'],
                             'href' => $group['url'],
@@ -80,17 +44,17 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
 
         $toolbar = array(
             array(
-                'label' => OW::getLanguage()->text('groups', 'widget_brief_info_create_date', array('date' => $createDate))
+                'label' => OW::getLanguage()->text('zlgroups', 'widget_brief_info_create_date', array('date' => $createDate))
             ),
             array(
-                'label' => OW::getLanguage()->text('groups', 'widget_brief_info_admin', array('name' => $adminName, 'url' => $adminUrl))
+                'label' => OW::getLanguage()->text('zlgroups', 'widget_brief_info_admin', array('name' => $adminName, 'url' => $adminUrl))
             ));
 
         if ( $service->isCurrentUserCanEdit($groupDto) )
         {
             $toolbar[] = array(
-                'label' => OW::getLanguage()->text('groups', 'edit_btn_label'),
-                'href' => OW::getRouter()->urlForRoute('groups-edit', array('groupId' => $groupId))
+                'label' => OW::getLanguage()->text('zlgroups', 'edit_btn_label'),
+                'href' => OW::getRouter()->urlForRoute('zlgroups-edit', array('groupId' => $groupId))
             );
         }
 
@@ -103,7 +67,7 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
             );
         }
 
-        $event = new BASE_CLASS_EventCollector('groups.on_toolbar_collect', array('groupId' => $groupId));
+        $event = new BASE_CLASS_EventCollector('zlgroups.on_toolbar_collect', array('groupId' => $groupId));
         OW::getEventManager()->trigger($event);
 
         foreach ( $event->getData() as $item )

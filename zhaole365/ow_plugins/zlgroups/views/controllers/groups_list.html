@@ -1,14 +1,14 @@
 <div class="clearfix">{add_content key='groups.add_content.list.top' listType=$listType}</div>
 
 {if empty($hideCreateNew) && !empty($showCreate)}
-    <div class="ow_right">{decorator name='button' class='ow_ic_add' id='btn-create-new-group' langLabel='groups+add_new'}</div>
+    <div class="ow_right">{decorator name='button' class='ow_ic_add' id='btn-create-new-group' langLabel='zlgroups+add_new'}</div>
     {if !empty($authMsg)}
         {script}
             $('#btn-create-new-group').click(function() { OW.authorizationLimitedFloatbox({$authMsg}); });
         {/script}
     {else}
         {script}{literal}
-                $('#btn-create-new-group').click(function(){location.href='{/literal}{url_for_route for="groups-create"}{literal}'})
+                $('#btn-create-new-group').click(function(){location.href='{/literal}{url_for_route for="zlgroups-create"}{literal}'})
         {/literal}{/script}
     {/if}
 {/if}
@@ -21,7 +21,7 @@
 <div class="ow_group_list clearfix">
     <div class="ow_automargin ow_superwide">
       {if empty($list) }
-        <div class="ow_nocontent">{text key="groups+listing_no_items_msg"}</div>
+        <div class="ow_nocontent">{text key="zlgroups+listing_no_items_msg"}</div>
       {else}
           {foreach from=$list key='key' item='group'}
                 {decorator name='ipc' addClass='ow_smallmargin' data=$group infoString="<a href=\"`$group.url`\">`$group.title`</a>"}
