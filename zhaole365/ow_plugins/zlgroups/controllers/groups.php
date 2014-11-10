@@ -11,7 +11,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         if ( !OW::getRequest()->isAjax() )
         {
-            $mainMenuItem = OW::getDocument()->getMasterPage()->getMenu(OW_Navigation::MAIN)->getElement('main_menu_list', 'groups');
+            $mainMenuItem = OW::getDocument()->getMasterPage()->getMenu(OW_Navigation::MAIN)->getElement('main_menu_list', 'zlgroups');
             if ( $mainMenuItem !== null )
             {
                 $mainMenuItem->setActive(true);
@@ -19,11 +19,13 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         }
     }
 
+    // 乐群列表首页面action
     public function index()
     {
         $this->mostPopularList();
     }
 
+    // 显示定制的乐群页面
     public function customize( $params )
     {
         $params['mode'] = 'customize';
@@ -31,6 +33,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->view($params);
     }
 
+    // 显示乐群页面
     public function view( $params )
     {
         $groupId = (int) $params['groupId'];
@@ -56,7 +59,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         if ( !$this->service->isCurrentUserCanView($groupDto->userId) )
         {
-            $this->assign('permissionMessage', $language->text('groups', 'view_no_permission'));
+            $this->assign('permissionMessage', $language->text('zlgroups', 'view_no_permission'));
             return;
         }
 
@@ -64,16 +67,16 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         if ( $invite !== null )
         {
-            OW::getRegistry()->set('groups.hide_console_invite_item', true);
+            OW::getRegistry()->set('zlgroups.hide_console_invite_item', true);
 
             $this->service->markInviteAsViewed($groupDto->id, OW::getUser()->getId());
         }
 
-        if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('groups') )
+        if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && !OW::getUser()->isAuthorized('zlgroups') )
         {
             if ( !OW::getUser()->isAuthenticated() )
             {
-                $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
+                $this->redirect(OW::getRouter()->urlForRoute('zlgroups-private-group', array(
                     'groupId' => $groupDto->id
                 )));
             }
@@ -82,25 +85,25 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
             if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE && $invite === null && $user === null )
             {
-                $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
+                $this->redirect(OW::getRouter()->urlForRoute('zlgroups-private-group', array(
                     'groupId' => $groupDto->id
                 )));
             }
         }
 
-        OW::getDocument()->setTitle($language->text('groups', 'view_page_title', array(
+        OW::getDocument()->setTitle($language->text('zlgroups', 'view_page_title', array(
             'group_name' => strip_tags($groupDto->title)
         )));
 
-        OW::getDocument()->setDescription($language->text('groups', 'view_page_description', array(
+        OW::getDocument()->setDescription($language->text('zlgroups', 'view_page_description', array(
             'description' => UTIL_String::truncate(strip_tags($groupDto->description), 200)
         )));
 
-        $place = 'group';
+        $place = 'zlgroup';
 
         $customizeUrls = array(
-            'customize' => OW::getRouter()->urlForRoute('groups-customize', array('mode' => 'customize', 'groupId' => $groupId)),
-            'normal' => OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupId))
+            'customize' => OW::getRouter()->urlForRoute('zlgroups-customize', array('mode' => 'customize', 'groupId' => $groupId)),
+            'normal' => OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupId))
         );
 
         $componentAdminService = BOL_ComponentAdminService::getInstance();
@@ -108,7 +111,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         $userCustomizeAllowed = $componentAdminService->findPlace($place)->editableByUser;
         $ownerMode = $groupDto->userId == OW::getUser()->getId();
-        $allowCustomize = $ownerMode || OW::getUser()->isAuthorized("groups");
+        $allowCustomize = $ownerMode || OW::getUser()->isAuthorized("zlgroups");
 
         $customize = !empty($params['mode']) && $params['mode'] == 'customize';
 
@@ -171,7 +174,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $componentPanel = new BASE_CMP_DragAndDropEntityPanel($place, $groupId, $defaultComponents, $customize, $template);
         $componentPanel->setAdditionalSettingList(array(
             'entityId' => $groupId,
-            'entity' => 'groups'
+            'entity' => 'zlgroups'
         ));
 
         if ( $allowCustomize )
@@ -210,6 +213,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->assign('componentPanel', $componentPanel->render());
     }
 
+    // 创建乐群action
     public function create()
     {
         if ( !OW::getUser()->isAuthenticated() )
@@ -219,17 +223,17 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         if ( !$this->service->isCurrentUserCanCreate() )
         {
-            $permissionStatus = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'create');
+            $permissionStatus = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'create');
             
             throw new AuthorizationException($permissionStatus['msg']);
         }
         
         $language = OW::getLanguage();
 
-        OW::getDocument()->setHeading($language->text('groups', 'create_heading'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'create_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_new');
-        OW::getDocument()->setTitle($language->text('groups', 'create_page_title'));
-        OW::getDocument()->setDescription($language->text('groups', 'create_page_description'));
+        OW::getDocument()->setTitle($language->text('zlgroups', 'create_page_title'));
+        OW::getDocument()->setDescription($language->text('zlgroups', 'create_page_description'));
 
         $form = new ZLGROUPS_CreateGroupForm();
 
@@ -242,15 +246,22 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
                 $this->redirect();
             }
 
+            // 将当前用户添加到乐群中
             $this->service->addUser($groupDto->id, OW::getUser()->getId());
 
-            OW::getFeedback()->info($language->text('groups', 'create_success_msg'));
+            // 显示乐群创建成功的消息
+            OW::getFeedback()->info($language->text('zlgroups', 'create_success_msg'));
+            
+            // TBD 
+            // 1 － 邀请好友加入
+            // 2 － 创建乐子
             $this->redirect($this->service->getGroupUrl($groupDto));
         }
 
         $this->addForm($form);
     }
 
+    // 删除指定的乐群
     public function delete( $params )
     {
         if ( empty($params['groupId']) )
@@ -271,7 +282,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         }
 
         $isOwner = OW::getUser()->getId() == $groupDto->userId;
-        $isModerator = OW::getUser()->isAuthorized('groups');
+        $isModerator = OW::getUser()->isAuthorized('zlgroups');
 
         if ( !$isOwner && !$isModerator )
         {
@@ -279,11 +290,13 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         }
 
         $this->service->deleteGroup($groupDto->id);
-        OW::getFeedback()->info(OW::getLanguage()->text('groups', 'delete_complete_msg'));
+        
+        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'delete_complete_msg'));
 
-        $this->redirect(OW::getRouter()->urlForRoute('groups-index'));
+        $this->redirect(OW::getRouter()->urlForRoute('zlgroups-index'));
     }
 
+    // 编辑指定的乐群
     public function edit( $params )
     {
         $groupId = (int) $params['groupId'];
@@ -311,7 +324,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         {
             if ( $form->process() )
             {
-                OW::getFeedback()->info(OW::getLanguage()->text('groups', 'edit_success_msg'));
+                OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'edit_success_msg'));
             }
             $this->redirect();
         }
@@ -322,11 +335,11 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         $deleteUrl = OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'delete', array('groupId' => $groupDto->id));
         $viewUrl = $this->service->getGroupUrl($groupDto);
-        $lang = OW::getLanguage()->text('groups', 'delete_confirm_msg');
+        $lang = OW::getLanguage()->text('zlgroups', 'delete_confirm_msg');
 
         $js = UTIL_JsGenerator::newInstance();
         $js->newFunction('window.location.href=url', array('url'), 'redirect');
-        $js->jQueryEvent('#groups-delete_btn', 'click', UTIL_JsGenerator::composeJsString(
+        $js->jQueryEvent('#zlgroups-delete_btn', 'click', UTIL_JsGenerator::composeJsString(
                 'if( confirm({$lang}) ) redirect({$url});', array('url' => $deleteUrl, 'lang' => $lang)));
         $js->jQueryEvent('#groups-back_btn', 'click', UTIL_JsGenerator::composeJsString(
                 'redirect({$url});', array('url' => $viewUrl)));
@@ -334,6 +347,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         OW::getDocument()->addOnloadScript($js);
     }
 
+    // 当前用户加入指定乐群
     public function join( $params )
     {
         if ( empty($params['groupId']) )
@@ -369,19 +383,20 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         } 
         else if ( $groupDto->whoCanView == ZLGROUPS_BOL_Service::WCV_INVITE )
         {
-            $this->redirect(OW::getRouter()->urlForRoute('groups-private-group', array(
+            $this->redirect(OW::getRouter()->urlForRoute('zlgroups-private-group', array(
                 'groupId' => $groupDto->id
             )));
         }
         
         ZLGROUPS_BOL_Service::getInstance()->addUser($groupId, $userId);
 
-        $redirectUrl = OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupId));
-        OW::getFeedback()->info(OW::getLanguage()->text('groups', 'join_complete_message'));
+        $redirectUrl = OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupId));
+        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'join_complete_message'));
 
         $this->redirect($redirectUrl);
     }
 
+    // 拒绝邀请
     public function declineInvite( $params )
     {
         if ( empty($params['groupId']) )
@@ -399,12 +414,13 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         ZLGROUPS_BOL_Service::getInstance()->deleteInvite($groupId, $userId);
 
-        $redirectUrl = OW::getRouter()->urlForRoute('groups-invite-list');
-        OW::getFeedback()->info(OW::getLanguage()->text('groups', 'invite_declined_message'));
+        $redirectUrl = OW::getRouter()->urlForRoute('zlgroups-invite-list');
+        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'invite_declined_message'));
 
         $this->redirect($redirectUrl);
     }
 
+    // 退出乐群（自己）
     public function leave( $params )
     {
         if ( empty($params['groupId']) )
@@ -422,12 +438,13 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         ZLGROUPS_BOL_Service::getInstance()->deleteUser($groupId, $userId);
 
-        $redirectUrl = OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupId));
-        OW::getFeedback()->info(OW::getLanguage()->text('groups', 'leave_complete_message'));
+        $redirectUrl = OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupId));
+        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'leave_complete_message'));
 
         $this->redirect($redirectUrl);
     }
 
+    // 删除指定乐群的指定用户（moderator）
     public function deleteUser( $params )
     {
         if ( empty($params['groupId']) || empty($params['userId']) )
@@ -447,7 +464,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
             throw new Redirect404Exception();
         }
 
-        $isModerator = OW::getUser()->isAuthorized('groups');
+        $isModerator = OW::getUser()->isAuthorized('zlgroups');
 
         if ( !$isModerator && $groupDto->userId != OW::getUser()->getId()  )
         {
@@ -461,12 +478,17 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         //$redirectUrl = OW::getRouter()->urlForRoute('groups-user-list', array('groupId' => $groupId));
 
-        OW::getFeedback()->info(OW::getLanguage()->text('groups', 'delete_user_success_message'));
+        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'delete_user_success_message'));
 
         $redirectUri = urldecode($_GET['redirectUri']);
         $this->redirect(OW_URL_HOME . $redirectUri);
     }
 
+    // 构造paging信息
+    // page    - 第几个页面 
+    // perPage - 每个页面的item个数
+    // first   - item offset
+    // count   - 每个页面的item个数 (limit)
     private function getPaging( $page, $perPage, $onPage )
     {
         $paging['page'] = (!empty($_GET['page']) && intval($_GET['page']) > 0 ) ? $_GET['page'] : 1;
@@ -476,52 +498,63 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $paging['count'] = $paging['perPage'];
     }
 
+    // 根据page请求显示popular乐群列表
     public function mostPopularList()
     {
         $language = OW::getLanguage();
 
-        OW::getDocument()->setHeading($language->text('groups', 'group_list_heading'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'group_list_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_files');
 
-        OW::getDocument()->setTitle($language->text('groups', 'popular_list_page_title'));
-        OW::getDocument()->setDescription($language->text('groups', 'popular_list_page_description'));
+        OW::getDocument()->setTitle($language->text('zlgroups', 'popular_list_page_title'));
+        OW::getDocument()->setDescription($language->text('zlgroups', 'popular_list_page_description'));
 
         if ( !$this->service->isCurrentUserCanViewList() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'view');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'view');
             throw new AuthorizationException($status['msg']);
         }
 
+        // 根据请求获得页面索引号$page
         $page = (!empty($_GET['page']) && intval($_GET['page']) > 0 ) ? $_GET['page'] : 1;
         $perPage = 20;
+        // 得到需要开始显示的乐群偏移量offset
         $first = ($page - 1) * $perPage;
         $count = $perPage;
 
+        // 得到乐群列表
         $dtoList = $this->service->findGroupList(ZLGROUPS_BOL_Service::LIST_MOST_POPULAR, $first, $count);
+        // 得到所有该类型的乐群总数
         $listCount = $this->service->findGroupListCount(ZLGROUPS_BOL_Service::LIST_MOST_POPULAR);
 
+        // 创建paging组件（component）
         $paging = new BASE_CMP_Paging($page, ceil($listCount / $perPage), 5);
 
+        // 创建菜单，并设置活动菜单项
         $menu = $this->getGroupListMenu();
         $menu->getElement('popular')->setActive(true);
+        
+        // 设置当前乐群列表类型变量listType,用于显示
         $this->assign('listType', 'popular');
 
+        // 
         $this->displayGroupList($dtoList, $paging, $menu);
     }
 
+    // 根据page请求显示latest乐群列表
     public function latestList()
     {
         $language = OW::getLanguage();
 
-        OW::getDocument()->setHeading($language->text('groups', 'group_list_heading'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'group_list_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_files');
 
-        OW::getDocument()->setTitle($language->text('groups', 'latest_list_page_title'));
-        OW::getDocument()->setDescription($language->text('groups', 'latest_list_page_description'));
+        OW::getDocument()->setTitle($language->text('zlgroups', 'latest_list_page_title'));
+        OW::getDocument()->setDescription($language->text('zlgroups', 'latest_list_page_description'));
 
         if ( !$this->service->isCurrentUserCanViewList() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'view');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'view');
             throw new AuthorizationException($status['msg']);
         }
 
@@ -542,6 +575,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->displayGroupList($dtoList, $paging, $menu);
     }
 
+    // 根据page请求显示invite乐群列表
     public function inviteList()
     {
         $userId = OW::getUser()->getId();
@@ -553,18 +587,18 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         $language = OW::getLanguage();
 
-        OW::getDocument()->setHeading($language->text('groups', 'group_list_heading'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'group_list_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_files');
 
-        OW::getDocument()->setTitle($language->text('groups', 'invite_list_page_title'));
+        OW::getDocument()->setTitle($language->text('zlgroups', 'invite_list_page_title'));
 
         if ( !$this->service->isCurrentUserCanViewList() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'view');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'view');
             throw new AuthorizationException($status['msg']);
         }
 
-        OW::getRegistry()->set('groups.hide_console_invite_item', true);
+        OW::getRegistry()->set('zlgroups.hide_console_invite_item', true);
 
         $this->service->markAllInvitesAsViewed($userId);
 
@@ -582,7 +616,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $menu->getElement('invite')->setActive(true);
         $this->assign('listType', 'invite');
 
-        $templatePath = OW::getPluginManager()->getPlugin('groups')->getCtrlViewDir() . 'groups_list.html';
+        $templatePath = OW::getPluginManager()->getPlugin('zlgroups')->getCtrlViewDir() . 'groups_list.html';
 
         $this->setTemplate($templatePath);
 
@@ -602,8 +636,8 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
             ));
         }
 
-        $acceptLabel = OW::getLanguage()->text('groups', 'invite_accept_label');
-        $declineLabel = OW::getLanguage()->text('groups', 'invite_decline_label');
+        $acceptLabel = OW::getLanguage()->text('zlgroups', 'invite_accept_label');
+        $declineLabel = OW::getLanguage()->text('zlgroups', 'invite_decline_label');
 
         foreach ( $dtoList as $item )
         {
@@ -614,7 +648,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
             $toolbar = array(
                 array(
-                    'label' => OW::getLanguage()->text('groups', 'listing_users_label', array(
+                    'label' => OW::getLanguage()->text('zlgroups', 'listing_users_label', array(
                         'count' => $userCount
                     ))
                 ),
@@ -632,7 +666,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
             $out[] = array(
                 'id' => $item->id,
-                'url' => OW::getRouter()->urlForRoute('groups-view', array('groupId' => $item->id)),
+                'url' => OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $item->id)),
                 'title' => $title,
                 'imageTitle' => $title,
                 'content' => strip_tags($item->description),
@@ -656,7 +690,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         if ( !$this->service->isCurrentUserCanCreate() )
         {
-            $authStatus = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'create');
+            $authStatus = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'create');
             if ( $authStatus['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
             {
                 $this->assign("authMsg", json_encode($authStatus["msg"]));
@@ -671,7 +705,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->assign('list', $out);
     }
 
-
+    // 根据page请求显示我的乐群列表
     public function myGroupList()
     {
         $userId = OW::getUser()->getId();
@@ -683,14 +717,14 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
 
         $language = OW::getLanguage();
 
-        OW::getDocument()->setHeading($language->text('groups', 'group_list_heading'));
+        OW::getDocument()->setHeading($language->text('zlgroups', 'group_list_heading'));
         OW::getDocument()->setHeadingIconClass('ow_ic_files');
 
-        OW::getDocument()->setTitle($language->text('groups', 'my_list_page_title'));
+        OW::getDocument()->setTitle($language->text('zlgroups', 'my_list_page_title'));
 
         if ( !$this->service->isCurrentUserCanViewList() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('groups', 'view');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlgroups', 'view');
             throw new AuthorizationException($status['msg']);
         }
 
@@ -770,6 +804,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->displayGroupList($dtoList, $paging);
     }
 
+    // 显示乐群列表，给定参数为 乐群列表 － paging组件 － 菜单
     private function displayGroupList( $list, $paging, $menu = null )
     {
         $templatePath = OW::getPluginManager()->getPlugin('zlgroups')->getCtrlViewDir() . 'groups_list.html';
@@ -880,6 +915,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->assign("groupId", $groupId);
     }
 
+    // 创建乐群列表页菜单
     private function getGroupListMenu()
     {
 
@@ -888,16 +924,16 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $items = array();
 
         $items[0] = new BASE_MenuItem();
-        $items[0]->setLabel($language->text('groups', 'group_list_menu_item_popular'))
+        $items[0]->setLabel($language->text('zlgroups', 'group_list_menu_item_popular'))
             ->setKey('popular')
-            ->setUrl(OW::getRouter()->urlForRoute('groups-most-popular'))
+            ->setUrl(OW::getRouter()->urlForRoute('zlgroups-most-popular'))
             ->setOrder(1)
             ->setIconClass('ow_ic_comment');
 
         $items[1] = new BASE_MenuItem();
-        $items[1]->setLabel($language->text('groups', 'group_list_menu_item_latest'))
+        $items[1]->setLabel($language->text('zlgroups', 'group_list_menu_item_latest'))
             ->setKey('latest')
-            ->setUrl(OW::getRouter()->urlForRoute('groups-latest'))
+            ->setUrl(OW::getRouter()->urlForRoute('zlgroups-latest'))
             ->setOrder(2)
             ->setIconClass('ow_ic_clock');
 
@@ -905,16 +941,16 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         if ( OW::getUser()->isAuthenticated() )
         {
             $items[2] = new BASE_MenuItem();
-            $items[2]->setLabel($language->text('groups', 'group_list_menu_item_my'))
+            $items[2]->setLabel($language->text('zlgroups', 'group_list_menu_item_my'))
                 ->setKey('my')
-                ->setUrl(OW::getRouter()->urlForRoute('groups-my-list'))
+                ->setUrl(OW::getRouter()->urlForRoute('zlgroups-my-list'))
                 ->setOrder(3)
                 ->setIconClass('ow_ic_files');
 
             $items[3] = new BASE_MenuItem();
-            $items[3]->setLabel($language->text('groups', 'group_list_menu_item_invite'))
+            $items[3]->setLabel($language->text('zlgroups', 'group_list_menu_item_invite'))
                 ->setKey('invite')
-                ->setUrl(OW::getRouter()->urlForRoute('groups-invite-list'))
+                ->setUrl(OW::getRouter()->urlForRoute('zlgroups-invite-list'))
                 ->setOrder(4)
                 ->setIconClass('ow_ic_bookmark');
         }
@@ -1004,8 +1040,8 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
     {
         $language = OW::getLanguage();
 
-        $this->setPageTitle($language->text('groups', 'private_page_title'));
-        $this->setPageHeading($language->text('groups', 'private_page_heading'));
+        $this->setPageTitle($language->text('zlgroups', 'private_page_title'));
+        $this->setPageHeading($language->text('zlgroups', 'private_page_heading'));
         $this->setPageHeadingIconClass('ow_ic_lock');
 
         $groupId = $params['groupId'];
@@ -1019,7 +1055,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $this->assign('avatar', $avatarList[$group->userId]);
         $this->assign('displayName', $displayName);
         $this->assign('userUrl', $userUrl);
-        $this->assign('creator', $language->text('groups', 'creator'));
+        $this->assign('creator', $language->text('zlgroups', 'creator'));
     }
 }
 
@@ -1047,7 +1083,7 @@ class ZLGROUPS_UserList extends BASE_CMP_Users
         }
 
         $isOwner = $this->groupDto->userId == OW::getUser()->getId();
-        $isGroupModerator = OW::getUser()->isAuthorized('groups');
+        $isGroupModerator = OW::getUser()->isAuthorized('zlgroups');
 
         $contextActionMenu = new BASE_CMP_ContextAction();
 
@@ -1060,7 +1096,7 @@ class ZLGROUPS_UserList extends BASE_CMP_Users
             $contextAction = new BASE_ContextAction();
             $contextAction->setParentKey($contextParentAction->getKey());
             $contextAction->setKey('delete_group_user');
-            $contextAction->setLabel(OW::getLanguage()->text('groups', 'delete_group_user_label'));
+            $contextAction->setLabel(OW::getLanguage()->text('zlgroups', 'delete_group_user_label'));
 
             if ( $this->groupDto->userId != $userId )
             {
@@ -1074,13 +1110,13 @@ class ZLGROUPS_UserList extends BASE_CMP_Users
 
                 $contextAction->setUrl($deleteUrl);
 
-                $contextAction->addAttribute('data-message', OW::getLanguage()->text('groups', 'delete_group_user_confirmation'));
+                $contextAction->addAttribute('data-message', OW::getLanguage()->text('zlgroups', 'delete_group_user_confirmation'));
                 $contextAction->addAttribute('onclick', "return confirm($(this).data().message)");
             }
             else
             {
                 $contextAction->setUrl('javascript://');
-                $contextAction->addAttribute('data-message', OW::getLanguage()->text('groups', 'group_owner_delete_error'));
+                $contextAction->addAttribute('data-message', OW::getLanguage()->text('zlgroups', 'group_owner_delete_error'));
                 $contextAction->addAttribute('onclick', "OW.error($(this).data().message); return false;");
             }
 
@@ -1155,6 +1191,7 @@ class ZLGROUPS_UserList extends BASE_CMP_Users
     }
 }
 
+// 乐群表单
 class ZLGROUPS_GroupForm extends Form
 {
     public function __construct( $formName )
@@ -1165,41 +1202,48 @@ class ZLGROUPS_GroupForm extends Form
 
         $language = OW::getLanguage();
 
+        // 乐群标题项
         $field = new TextField('title');
         $field->setRequired(true);
-        $field->setLabel($language->text('groups', 'create_field_title_label'));
+        $field->setLabel($language->text('zlgroups', 'create_field_title_label'));
         $this->addElement($field);
 
+        // 乐群描述项
         $field = new WysiwygTextarea('description');
-        $field->setLabel($language->text('groups', 'create_field_description_label'));
+        $field->setLabel($language->text('zlgroups', 'create_field_description_label'));
         $field->setRequired(true);
         $this->addElement($field);
 
+        // 乐群LOGO项
         $field = new ZLGROUPS_Image('image');
-        $field->setLabel($language->text('groups', 'create_field_image_label'));
+        $field->setLabel($language->text('zlgroups', 'create_field_image_label'));
         $field->addValidator(new ZLGROUPS_ImageValidator());
         $this->addElement($field);
 
+        // TBD - 乐群地址项
+        
+        // 谁可以查看乐群项
         $whoCanView = new RadioField('whoCanView');
         $whoCanView->setRequired();
         $whoCanView->addOptions(
             array(
-                ZLGROUPS_BOL_Service::WCV_ANYONE => $language->text('groups', 'form_who_can_view_anybody'),
-                ZLGROUPS_BOL_Service::WCV_INVITE => $language->text('groups', 'form_who_can_view_invite')
+                ZLGROUPS_BOL_Service::WCV_ANYONE => $language->text('zlgroups', 'form_who_can_view_anybody'),
+                ZLGROUPS_BOL_Service::WCV_INVITE => $language->text('zlgroups', 'form_who_can_view_invite')
             )
         );
-        $whoCanView->setLabel($language->text('groups', 'form_who_can_view_label'));
+        $whoCanView->setLabel($language->text('zlgroups', 'form_who_can_view_label'));
         $this->addElement($whoCanView);
 
+        // 谁可以邀请项
         $whoCanInvite = new RadioField('whoCanInvite');
         $whoCanInvite->setRequired();
         $whoCanInvite->addOptions(
             array(
-                ZLGROUPS_BOL_Service::WCI_PARTICIPANT => $language->text('groups', 'form_who_can_invite_participants'),
-                ZLGROUPS_BOL_Service::WCI_CREATOR => $language->text('groups', 'form_who_can_invite_creator')
+                ZLGROUPS_BOL_Service::WCI_PARTICIPANT => $language->text('zlgroups', 'form_who_can_invite_participants'),
+                ZLGROUPS_BOL_Service::WCI_CREATOR => $language->text('zlgroups', 'form_who_can_invite_creator')
             )
         );
-        $whoCanInvite->setLabel($language->text('groups', 'form_who_can_invite_label'));
+        $whoCanInvite->setLabel($language->text('zlgroups', 'form_who_can_invite_label'));
         $this->addElement($whoCanInvite);
     }
 
@@ -1276,6 +1320,8 @@ class ZLGROUPS_GroupForm extends Form
     }
 }
 
+// 乐群创建表单
+// TBD - 添加乐群地址
 class ZLGROUPS_CreateGroupForm extends ZLGROUPS_GroupForm
 {
 
@@ -1286,7 +1332,7 @@ class ZLGROUPS_CreateGroupForm extends ZLGROUPS_GroupForm
         $this->getElement('title')->addValidator(new ZLGROUPS_UniqueValidator());
 
         $field = new Submit('save');
-        $field->setValue(OW::getLanguage()->text('groups', 'create_submit_btn_label'));
+        $field->setValue(OW::getLanguage()->text('zlgroups', 'create_submit_btn_label'));
         $this->addElement($field);
     }
 
@@ -1337,6 +1383,8 @@ class ZLGROUPS_CreateGroupForm extends ZLGROUPS_GroupForm
     }
 }
 
+// 乐群编辑表单
+// TBD － 乐群地点
 class ZLGROUPS_EditGroupForm extends ZLGROUPS_GroupForm
 {
     /**
@@ -1358,7 +1406,7 @@ class ZLGROUPS_EditGroupForm extends ZLGROUPS_GroupForm
         $this->getElement('whoCanInvite')->setValue($group->whoCanInvite);
 
         $field = new Submit('save');
-        $field->setValue(OW::getLanguage()->text('groups', 'edit_submit_btn_label'));
+        $field->setValue(OW::getLanguage()->text('zlgroups', 'edit_submit_btn_label'));
         $this->addElement($field);
     }
 
@@ -1380,6 +1428,7 @@ class ZLGROUPS_EditGroupForm extends ZLGROUPS_GroupForm
     }
 }
 
+// 乐群LOGO验证器
 class ZLGROUPS_ImageValidator extends OW_Validator
 {
 
@@ -1406,11 +1455,11 @@ class ZLGROUPS_ImageValidator extends OW_Validator
         switch ( false )
         {
             case is_uploaded_file($tmpName):
-                $this->setErrorMessage(OW::getLanguage()->text('groups', 'errors_image_upload'));
+                $this->setErrorMessage(OW::getLanguage()->text('zlgroups', 'errors_image_upload'));
                 return false;
 
             case UTIL_File::validateImage($realName):
-                $this->setErrorMessage(OW::getLanguage()->text('groups', 'errors_image_invalid'));
+                $this->setErrorMessage(OW::getLanguage()->text('zlgroups', 'errors_image_invalid'));
                 return false;
         }
 
@@ -1418,6 +1467,7 @@ class ZLGROUPS_ImageValidator extends OW_Validator
     }
 }
 
+// 乐群LOGO控件
 class ZLGROUPS_Image extends FileField
 {
 
@@ -1427,13 +1477,14 @@ class ZLGROUPS_Image extends FileField
     }
 }
 
+// 乐群标题唯一性验证器
 class ZLGROUPS_UniqueValidator extends OW_Validator
 {
     private $exception;
 
     public function __construct( $exception = null )
     {
-        $this->setErrorMessage(OW::getLanguage()->text('groups', 'group_already_exists'));
+        $this->setErrorMessage(OW::getLanguage()->text('zlgroups', 'group_already_exists'));
 
         $this->exception = $exception;
     }
