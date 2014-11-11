@@ -75,6 +75,7 @@ class GROUPS_Cron extends OW_Cron
             if ( empty($groups) )
             {
                 BOL_PluginService::getInstance()->uninstall('groups');
+                $config->saveConfig('groups', 'uninstall_inprogress', 0);
                 OW::getApplication()->setMaintenanceMode(false);
 
                 return;

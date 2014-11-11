@@ -11,7 +11,7 @@
         {block_decorator name='box' iconClass="ow_ic_forum" langLabel='forum+forum_settings' addClass='ow_center'  type='empty'}
             <p>{text key="forum+connect_forum_to_entity"}</p>
 
-            {capture assign='onclick'}window.location.href='{url_for for="GROUPS_CTRL_Admin:connect_forum"}?isForumConnected=yes'{/capture}
+            {capture assign='onclick'}window.location.href='{url_for for="ZLGROUPS_CTRL_Admin:connect_forum"}?isForumConnected=yes'{/capture}
             {decorator name='button' type='button' id='btn-connect-forum' langLabel='forum+connect_forum_button' class='ow_ic_add' onclick=$onclick }
 
         {/block_decorator}

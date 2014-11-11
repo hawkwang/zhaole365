@@ -61,7 +61,6 @@ CREATE TABLE `{$dbPrefix}zlgroups_invite` (
   KEY `viewed` (`viewed`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
-INSERT INTO `{$dbPrefix}base_place` (`id`, `name`, `editableByUser`) VALUES (5, 'zlgroup', 1);
 EOT;
 
 OW::getDbo()->query($sql);
@@ -102,8 +101,10 @@ $placeWidget = $widgetService->addWidgetToPlace($widget, 'zlgroup');
 $widget = $widgetService->addWidget('BASE_CMP_RssWidget', true);
 $placeWidget = $widgetService->addWidgetToPlace($widget, 'zlgroup');
 
+// 设置语言包
 BOL_LanguageService::getInstance()->importPrefixFromZip($plugin->getRootDir() . 'langs.zip', 'zlgroups');
 
+// 设置访问权限
 $authorization = OW::getAuthorization();
 $groupName = 'zlgroups';
 $authorization->addGroup($groupName);
@@ -112,7 +113,7 @@ $authorization->addAction($groupName, 'add_comment');
 $authorization->addAction($groupName, 'create');
 $authorization->addAction($groupName, 'view', true);
 
-
+// 设置乐群论坛关联配置
 $config = OW::getConfig();
 
 if ( !$config->configExists('zlgroups', 'is_forum_connected') )

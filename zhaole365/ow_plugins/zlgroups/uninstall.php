@@ -18,6 +18,7 @@ BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_BriefInfoWi
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_UserListWidget');
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_WallWidget');
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_LeaveButtonWidget');
+BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_InviteWidget');
 
 if ( OW::getConfig()->getValue('zlgroups', 'is_forum_connected') )
 {

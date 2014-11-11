@@ -40,6 +40,8 @@ class ZLGROUPS_Cron extends OW_Cron
             if ( empty($groups) )
             {
                 BOL_PluginService::getInstance()->uninstall('zlgroups');
+                // 这行不需要，因为在上面一行中已经删除了该插件的所有配置信息
+                //$config->saveConfig('zlgroups', 'uninstall_inprogress', 0);
                 OW::getApplication()->setMaintenanceMode(false);
 
                 return;

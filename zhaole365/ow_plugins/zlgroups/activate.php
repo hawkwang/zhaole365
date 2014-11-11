@@ -32,7 +32,6 @@ $event = new OW_Event('feed.install_widget', array(
     'section' => BOL_ComponentService::SECTION_RIGHT,
     'order' => 0
 ));
-
 OW::getEventManager()->trigger($event);
 
 if ( OW::getConfig()->getValue('zlgroups', 'is_forum_connected') )
