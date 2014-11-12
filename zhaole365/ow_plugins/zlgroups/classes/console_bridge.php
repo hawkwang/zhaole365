@@ -274,7 +274,7 @@ class ZLGROUPS_CLASS_ConsoleBridge
     			'string' => array(
     					'key' => 'zlgroups+invitation_join_string_1',
     					'vars' => array(
-    							'zlgroup' => '<a href="' . $groupUrl . '">' . $groupTitle . '</a>',
+    							'group' => '<a href="' . $groupUrl . '">' . $groupTitle . '</a>',
     							'user1' => '<a href="' . $avatar['url'] . '">' . $avatar['title'] . '</a>'
     					)
     			),

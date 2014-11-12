@@ -13,7 +13,6 @@ CREATE TABLE IF NOT EXISTS `{$dbPrefix}zlgroups_group` (
   `title` varchar(255) NOT NULL,
   `description` longtext NOT NULL,
   `imageHash` varchar(32) default NULL,
-  `location` text NOT NULL,
   `timeStamp` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
   `privacy` varchar(100) NOT NULL default 'everybody',
@@ -61,6 +60,8 @@ CREATE TABLE `{$dbPrefix}zlgroups_invite` (
   KEY `viewed` (`viewed`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
+INSERT INTO `{$dbPrefix}base_place` (`name`, `editableByUser`) VALUES ('zlgroup', 1);
+		
 EOT;
 
 OW::getDbo()->query($sql);
