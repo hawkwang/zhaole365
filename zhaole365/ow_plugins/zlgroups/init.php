@@ -49,22 +49,5 @@ OW::getRegistry()->addToArray(BASE_CMP_AddNewContent::REGISTRY_DATA_KEY,
 $eventHandler = ZLGROUPS_CLASS_EventHandler::getInstance();
 $eventHandler->genericInit();
 
-// 建立论坛事件和相应handler的关联
-OW::getEventManager()->bind('forum.activate_plugin', array($eventHandler, "onForumActivate"));
-OW::getEventManager()->bind('forum.find_forum_caption', array($eventHandler, "onForumFindCaption"));
-OW::getEventManager()->bind('forum.uninstall_plugin', array($eventHandler, "onForumUninstall"));
-OW::getEventManager()->bind('forum.collect_widget_places', array($eventHandler, "onForumCollectWidgetPlaces"));
-
-// 建立feed事件和相应handler的关联
-OW::getEventManager()->bind('feed.collect_widgets', array($eventHandler, "onFeedCollectWidgets"));
-OW::getEventManager()->bind('feed.on_widget_construct', array($eventHandler, "onFeedWidgetConstruct"));
-OW::getEventManager()->bind('feed.on_item_render', array($eventHandler, "onFeedItemRender"));
-
-// 建立admin.add_admin_notification事件和相应handler的关联
-OW::getEventManager()->bind('admin.add_admin_notification', array($eventHandler, "onCollectAdminNotifications"));
-
-// 建立base.add_quick_link事件和相应handler的关联
-OW::getEventManager()->bind(BASE_CMP_QuickLinksWidget::EVENT_NAME, array($eventHandler, 'onCollectQuickLinks'));
-
 //
-ZLGROUPS_CLASS_ConsoleBridge::getInstance()->init();
+ZLGROUPS_CLASS_ConsoleBridge::getInstance()->genericInit();

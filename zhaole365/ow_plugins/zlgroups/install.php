@@ -118,5 +118,5 @@ $config = OW::getConfig();
 
 if ( !$config->configExists('zlgroups', 'is_forum_connected') )
 {
-    OW::getConfig()->addConfig('zlgroups', 'is_forum_connected', 0, 'Add Forum to Zlgroups plugin');
+    OW::getConfig()->addConfig('zlgroups', 'is_forum_connected', 0, 'Add Forum to zlgroups plugin');
 }

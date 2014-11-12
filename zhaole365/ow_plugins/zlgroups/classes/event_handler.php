@@ -35,6 +35,7 @@ class ZLGROUPS_CLASS_EventHandler
         $this->service = ZLGROUPS_BOL_Service::getInstance();
     }
     
+    // BASE_CMP_AddNewContent widget 构建时 fire 事件BASE_CMP_AddNewContent::EVENT_NAME，相关 event handler
     public function onAddNewContent( BASE_CLASS_EventCollector $event )
     {
         $uniqId = uniqid("zlgroups-create-");
@@ -224,7 +225,7 @@ class ZLGROUPS_CLASS_EventHandler
         // Add latest topic widget if forum plugin is connected
         if ( $is_forum_connected )
         {
-            $event->setData(array('forum_connected' => true, 'place' => 'group', 'section' => BOL_ComponentAdminService::SECTION_RIGHT));
+            $event->setData(array('forum_connected' => true, 'place' => 'zlgroup', 'section' => BOL_ComponentAdminService::SECTION_RIGHT));
         }
     }
     
@@ -349,6 +350,7 @@ class ZLGROUPS_CLASS_EventHandler
         }
     }
     
+    // 乐群加入用户后事件处理，发事件以更新动态信息项
     public function onGroupUserJoin( OW_Event $e )
     {
         $params = $e->getParams();
@@ -360,11 +362,13 @@ class ZLGROUPS_CLASS_EventHandler
         $groupService = ZLGROUPS_BOL_Service::getInstance();
         $group = $groupService->findGroupById($groupId);
 
+        // 如果是owner就不处理
         if ( $group->userId == $userId )
         {
             return;
         }
 
+        // 发事件以更新动态信息项
         OW::getEventManager()->trigger(new OW_Event('feed.activity', array(
             'activityType' => 'zlgroups-join',
             'activityId' => $userId,
@@ -416,11 +420,26 @@ class ZLGROUPS_CLASS_EventHandler
 
         OW::getEventManager()->trigger($event);
     }
+
+    // 乐群加入用户后事件处理，将用户加为follower
+    public function onGroupUserJoinFeedAddFollow( OW_Event $event )
+    {
+    	$params = $event->getParams();
+    
+    	$groupId = $params['groupId'];
+    	$userId = $params['userId'];
+    
+    	OW::getEventManager()->call('feed.add_follow', array(
+    	'feedType' => 'zlgroups',
+    	'feedId' => $groupId,
+    	'userId' => $userId
+    	));
+    }    
     
     public function onFeedCollectWidgets( BASE_CLASS_EventCollector $e )
     {
         $e->add(array(
-            'place' => 'group',
+            'place' => 'zlgroup',
             'section' => BOL_ComponentService::SECTION_RIGHT,
             'order' => 0
         ));
@@ -431,7 +450,7 @@ class ZLGROUPS_CLASS_EventHandler
         if ( OW::getConfig()->getValue('zlgroups', 'is_forum_connected') )
         {
             $e->add(array(
-                'place' => 'group',
+                'place' => 'zlgroup',
                 'section' => BOL_ComponentService::SECTION_RIGHT,
                 'order' => 0
             ));
@@ -474,6 +493,8 @@ class ZLGROUPS_CLASS_EventHandler
         $e->setData($data);
     }
     
+    // 乐群介绍组件（ZLGROUPS_CMP_BriefInfoContent）构造工具栏的 event handler
+    // 更新事件数据以更新toolbar信息（添加了“关注”或“取消关注”）
     public function onGroupToolbarCollect( BASE_CLASS_EventCollector $e )
     {
         if ( !OW::getUser()->isAuthenticated() )
@@ -545,20 +566,7 @@ class ZLGROUPS_CLASS_EventHandler
             }
         }
     }
-    
-    public function onGroupUserJoinFeedAddFollow( OW_Event $event )
-    {
-        $params = $event->getParams();
 
-        $groupId = $params['groupId'];
-        $userId = $params['userId'];
-
-        OW::getEventManager()->call('feed.add_follow', array(
-            'feedType' => 'zlgroups',
-            'feedId' => $groupId,
-            'userId' => $userId
-        ));
-    }
     
     public function onFeedStatusAdd( OW_Event $event )
     {
@@ -805,12 +813,13 @@ class ZLGROUPS_CLASS_EventHandler
         $event->setData($data);
     }
     
+    // 设置访问权限 event handler
     public function onCollectAuthLabels( BASE_CLASS_EventCollector $event )
     {
         $language = OW::getLanguage();
         $event->add(
             array(
-                'zlgroups' => array(  // 可能是错的
+                'zlgroups' => array(  // 可能是错的。查看其他相应代码后感觉没错，可以不要key
                     'label' => $language->text('zlgroups', 'auth_group_label'),
                     'actions' => array(
                         'add_topic' => $language->text('zlgroups', 'auth_action_label_add_topic'),
@@ -832,22 +841,7 @@ class ZLGROUPS_CLASS_EventHandler
             'activity' => '*:' . ZLGROUPS_BOL_Service::FEED_ENTITY_TYPE
         ));
     }
-    
-    public function onPrivacyCollectActions( BASE_CLASS_EventCollector $event )
-    {
-        $language = OW::getLanguage();
 
-        $action = array(
-            'key' => ZLGROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS,
-            'pluginKey' => 'zlgroups',
-            'label' => $language->text('zlgroups', 'privacy_action_view_my_groups'),
-            'description' => '',
-            'defaultValue' => ZLGROUPS_BOL_Service::PRIVACY_EVERYBODY,
-            'sortOrder' => 1000
-        );
-
-        $event->add($action);
-    }
     
     public function onFeedCollectPrivacy( BASE_CLASS_EventCollector $event )
     {
@@ -872,6 +866,22 @@ class ZLGROUPS_CLASS_EventHandler
         ZLGROUPS_BOL_Service::getInstance()->setGroupUserPrivacy($userId, $actionList[ZLGROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS]);
         //ZLGROUPS_BOL_Service::getInstance()->setGroupsPrivacy($userId, $actionList[ZLGROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS]);
     }
+
+    public function onPrivacyCollectActions( BASE_CLASS_EventCollector $event )
+    {
+    	$language = OW::getLanguage();
+    
+    	$action = array(
+    			'key' => ZLGROUPS_BOL_Service::PRIVACY_ACTION_VIEW_MY_GROUPS,
+    			'pluginKey' => 'zlgroups',
+    			'label' => $language->text('zlgroups', 'privacy_action_view_my_groups'),
+    			'description' => '',
+    			'defaultValue' => ZLGROUPS_BOL_Service::PRIVACY_EVERYBODY,
+    			'sortOrder' => 1000
+    	);
+    
+    	$event->add($action);
+    }    
     
     // 用户加入前事件处理
     public function onBeforeUserJoin( OW_Event $event )
@@ -1022,6 +1032,7 @@ class ZLGROUPS_CLASS_EventHandler
         $event->setData($data);
     }
     
+    // 用户退出乐群后事件处理
     public function afterUserLeave( OW_Event $event )
     {
         $params = $event->getParams();
@@ -1032,8 +1043,10 @@ class ZLGROUPS_CLASS_EventHandler
             'feedId' => $params["groupId"]
         );
         
+        // 将用户作为乐群的follower信息删除
         OW::getEventManager()->call('feed.remove_follow', $eventParams);
         
+        // 删除feed中信息
         OW::getEventManager()->call("feed.delete_item", array(
             'entityType' => 'zlgroups-join',
             'entityId' => $params["groupUserId"]
@@ -1051,6 +1064,9 @@ class ZLGROUPS_CLASS_EventHandler
     public function genericInit()
     {
         $eventHandler = $this;
+        
+        // 建立admin.add_admin_notification事件和相应handler的关联
+        OW::getEventManager()->bind('admin.add_admin_notification', array($eventHandler, "onCollectAdminNotifications"));
         
         // 乐群创建event handler
         OW::getEventManager()->bind(ZLGROUPS_BOL_Service::EVENT_CREATE, array($eventHandler, "onAfterGroupCreate"));
@@ -1081,6 +1097,7 @@ class ZLGROUPS_CLASS_EventHandler
         // 未发现何处触发此事件
         OW::getEventManager()->bind('zlgroups.get_all_group_users', array($eventHandler, "findAllGroupsUsers"));
         
+        // newsfeed相关event handler
         OW::getEventManager()->bind('feed.on_entity_action', array($eventHandler, "onFeedEntityAction"));
         OW::getEventManager()->bind('feed.collect_follow', array($eventHandler, "onFeedCollectFollow"));
         OW::getEventManager()->bind('feed.collect_privacy', array($eventHandler, "onFeedCollectPrivacy"));
@@ -1089,25 +1106,41 @@ class ZLGROUPS_CLASS_EventHandler
         OW::getEventManager()->bind('feed.after_comment_add', array($eventHandler, "onAfterFeedCommentAdd"));
         OW::getEventManager()->bind('feed.on_item_render', array($eventHandler, "onFeedItemRenderActivity"));
         OW::getEventManager()->bind('feed.on_item_render', array($eventHandler, "onFeedItemRenderContext"));
+        OW::getEventManager()->bind('feed.collect_widgets', array($eventHandler, "onFeedCollectWidgets"));
+        OW::getEventManager()->bind('feed.on_widget_construct', array($eventHandler, "onFeedWidgetConstruct"));
+        OW::getEventManager()->bind('feed.on_item_render', array($eventHandler, "onFeedItemRender"));        
         
+        // plugin.privacy相关event handler
         OW::getEventManager()->bind('plugin.privacy.get_action_list', array($eventHandler, "onPrivacyCollectActions"));
         OW::getEventManager()->bind('plugin.privacy.on_change_action_privacy', array($eventHandler, "onPrivacyChange"));
         
+        // forum相关event handler
         OW::getEventManager()->bind('forum.check_permissions', array($eventHandler, "onForumCheckPermissions"));
         OW::getEventManager()->bind('forum.can_view', array($eventHandler, 'onForumCanView'));
+        OW::getEventManager()->bind('forum.activate_plugin', array($eventHandler, "onForumActivate"));
+        OW::getEventManager()->bind('forum.find_forum_caption', array($eventHandler, "onForumFindCaption"));
+        OW::getEventManager()->bind('forum.uninstall_plugin', array($eventHandler, "onForumUninstall"));
+        OW::getEventManager()->bind('forum.collect_widget_places', array($eventHandler, "onForumCollectWidgetPlaces"));
         
         // 用户销户 event handler
         OW::getEventManager()->bind(OW_EventManager::ON_USER_UNREGISTER, array($eventHandler, "onUserUnregister"));
         
+        // 广告相关 event handler
         OW::getEventManager()->bind('ads.enabled_plugins', array($eventHandler, "onAdsCollectEnabledPlugins"));
         
         // 设置访问权限 event handler
         OW::getEventManager()->bind('admin.add_auth_labels', array($eventHandler, "onCollectAuthLabels"));
         
-
+        // 建立base.add_quick_link事件和相应handler的关联
+        OW::getEventManager()->bind(BASE_CMP_QuickLinksWidget::EVENT_NAME, array($eventHandler, 'onCollectQuickLinks'));
+        
+        // 信用相关 event handler
         $credits = new ZLGROUPS_CLASS_Credits();
         OW::getEventManager()->bind('usercredits.on_action_collect', array($credits, 'bindCreditActionsCollect'));
         OW::getEventManager()->bind('usercredits.get_action_key', array($credits, 'getActionKey'));
+        
+        // BASE_CMP_AddNewContent widget 构建时 fire 事件BASE_CMP_AddNewContent::EVENT_NAME，相关 event handler
+        // 未发现BASE_CMP_AddNewContent widget 的构建？？？
         OW::getEventManager()->bind(BASE_CMP_AddNewContent::EVENT_NAME, array($this, 'onAddNewContent'));
         
     }

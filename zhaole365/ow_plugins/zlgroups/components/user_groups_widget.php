@@ -79,7 +79,7 @@ class ZLGROUPS_CMP_UserGroupsWidget extends BASE_CLASS_Widget
         $settingList = array();
         $settingList['count'] = array(
             'presentation' => self::PRESENTATION_NUMBER,
-            'label' => OW_Language::getInstance()->text('groups', 'widget_user_groups_settings_count'),
+            'label' => OW_Language::getInstance()->text('zlgroups', 'widget_user_groups_settings_count'),
             'value' => 3
         );
 
@@ -96,7 +96,7 @@ class ZLGROUPS_CMP_UserGroupsWidget extends BASE_CLASS_Widget
     public static function getStandardSettingValueList()
     {
         return array(
-            self::SETTING_TITLE => OW_Language::getInstance()->text('groups', 'widget_user_groups_title'),
+            self::SETTING_TITLE => OW_Language::getInstance()->text('zlgroups', 'widget_user_groups_title'),
             self::SETTING_ICON => self::ICON_COMMENT,
             self::SETTING_SHOW_TITLE => true,
             self::SETTING_WRAP_IN_BOX => true

@@ -86,7 +86,7 @@ class ZLGROUPS_BOL_GroupDao extends OW_BaseDao
         // TBU -  to be understood
         if ( !OW::getUser()->isAuthorized('zlgroups') ) //TODO TEMP Hack - checking if current user is moderator
         {
-            $example->andFieldEqual('whoCanView', GROUPS_BOL_Service::WCV_ANYONE);
+            $example->andFieldEqual('whoCanView', ZLGROUPS_BOL_Service::WCV_ANYONE);
         }
 
         return $this->countByExample($example);

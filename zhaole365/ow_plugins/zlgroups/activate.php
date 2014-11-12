@@ -18,7 +18,7 @@ $widget = $widgetService->addWidget('ZLGROUPS_CMP_UserGroupsWidget', false);
 $widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_PROFILE);
 $widgetService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_LEFT);
 
-/*$widget = $widgetService->addWidget('GROUPS_CMP_UserGroupsWidget', false);
+/*$widget = $widgetService->addWidget('ZLGROUPS_CMP_UserGroupsWidget', false);
 $widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_DASHBOARD);
 $widgetService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_RIGHT);*/
 

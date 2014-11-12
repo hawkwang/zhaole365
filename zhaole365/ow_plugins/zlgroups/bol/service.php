@@ -148,7 +148,9 @@ class ZLGROUPS_BOL_Service
             }
         }
 
+        // 删除邀请信息
         $this->groupInviteDao->deleteByUserId($userId);
+        // 删除乐群用户信息
         $this->groupUserDao->deleteByUserId($userId);
     }
 

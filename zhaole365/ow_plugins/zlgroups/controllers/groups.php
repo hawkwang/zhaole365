@@ -341,7 +341,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         $js->newFunction('window.location.href=url', array('url'), 'redirect');
         $js->jQueryEvent('#zlgroups-delete_btn', 'click', UTIL_JsGenerator::composeJsString(
                 'if( confirm({$lang}) ) redirect({$url});', array('url' => $deleteUrl, 'lang' => $lang)));
-        $js->jQueryEvent('#groups-back_btn', 'click', UTIL_JsGenerator::composeJsString(
+        $js->jQueryEvent('#zlgroups-back_btn', 'click', UTIL_JsGenerator::composeJsString(
                 'redirect({$url});', array('url' => $viewUrl)));
 
         OW::getDocument()->addOnloadScript($js);
@@ -986,12 +986,12 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         {
             case 'follow':
                 OW::getEventManager()->call('feed.add_follow', $eventParams);
-                OW::getFeedback()->info(OW::getLanguage()->text('groups', 'feed_follow_complete_msg', array('groupTitle' => $title)));
+                OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'feed_follow_complete_msg', array('groupTitle' => $title)));
                 break;
 
             case 'unfollow':
                 OW::getEventManager()->call('feed.remove_follow', $eventParams);
-                OW::getFeedback()->info(OW::getLanguage()->text('groups', 'feed_unfollow_complete_msg', array('groupTitle' => $title)));
+                OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'feed_unfollow_complete_msg', array('groupTitle' => $title)));
                 break;
         }
 
@@ -1088,7 +1088,7 @@ class ZLGROUPS_UserList extends BASE_CMP_Users
         $contextActionMenu = new BASE_CMP_ContextAction();
 
         $contextParentAction = new BASE_ContextAction();
-        $contextParentAction->setKey('group_user_' . $userId);
+        $contextParentAction->setKey('group_user_' . $userId); // TBU- 可能有错
         $contextActionMenu->addAction($contextParentAction);
 
         if ( ($isOwner || $isGroupModerator) && $userId != OW::getUser()->getId() )
@@ -1293,7 +1293,7 @@ class ZLGROUPS_GroupForm extends Form
         $smallFile = $service->getGroupImagePath($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_SMALL);
         $bigFile = $service->getGroupImagePath($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
         
-        $tmpDir = OW::getPluginManager()->getPlugin('groups')->getPluginFilesDir();
+        $tmpDir = OW::getPluginManager()->getPlugin('zlgroups')->getPluginFilesDir();
         $smallTmpFile = $tmpDir . uniqid('small_') . '.jpg';
         $bigTmpFile = $tmpDir . uniqid('big_') . '.jpg';
 
@@ -1363,13 +1363,13 @@ class ZLGROUPS_CreateGroupForm extends ZLGROUPS_GroupForm
 
         $group = $this->processGroup($groupDto);
         
-        BOL_AuthorizationService::getInstance()->trackAction('groups', 'create');
+        BOL_AuthorizationService::getInstance()->trackAction('zlgroups', 'create');
 
-        $is_forum_connected = OW::getConfig()->getValue('groups', 'is_forum_connected');
+        $is_forum_connected = OW::getConfig()->getValue('zlgroups', 'is_forum_connected');
         // Add forum group
         if ( $is_forum_connected )
         {
-            $event = new OW_Event('forum.create_group', array('entity' => 'groups', 'name' => $group->title, 'description' => $group->description, 'entityId' => $group->getId()));
+            $event = new OW_Event('forum.create_group', array('entity' => 'zlgroups', 'name' => $group->title, 'description' => $group->description, 'entityId' => $group->getId()));
             OW::getEventManager()->trigger($event);
         }
         
