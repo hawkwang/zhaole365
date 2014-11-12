@@ -59,8 +59,6 @@ CREATE TABLE `{$dbPrefix}zlgroups_invite` (
   KEY `groupId` (`groupId`),
   KEY `viewed` (`viewed`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
-
-INSERT INTO `{$dbPrefix}base_place` (`name`, `editableByUser`) VALUES ('zlgroup', 1);
 		
 EOT;
 
