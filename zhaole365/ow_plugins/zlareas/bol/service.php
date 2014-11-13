@@ -58,4 +58,15 @@ class ZLAREAS_BOL_Service
     {
         return ZLAREAS_BOL_AreaDao::getInstance()->findAll();
     }
+    
+    public function findAreaById( $id )
+    {
+    	return ZLAREAS_BOL_AreaDao::getInstance()->findAreaById($id);
+    }
+    
+    public function findByAreacode( $areacode )
+    {
+    	return ZLAREAS_BOL_AreaDao::getInstance()->findByAreacode($areacode);
+    }
+
 }

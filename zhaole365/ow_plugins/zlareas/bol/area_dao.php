@@ -3,6 +3,7 @@
 class ZLAREAS_BOL_AreaDao extends OW_BaseDao
 {
 	const ID = 'id';
+	const AREACODE = 'areacode';
 	const PROVINCE_STRING = 'province';
 	const CITY_STRING = 'city';		
 	const DISTRICT_STRING = 'area';
@@ -66,5 +67,29 @@ class ZLAREAS_BOL_AreaDao extends OW_BaseDao
     		$example->andFieldEqual(self::CITY_STRING, $city);
     		$example->andFieldEqual(self::DISTRICT_STRING, $district);
     		return $this->findObjectByExample($example);
+    }
+    
+    public function findAreaById( $id )
+    {
+    	if ( empty($id) )
+    	{
+    		return null;
+    	}
+    
+    	$example = new OW_Example();
+    	$example->andFieldEqual(self::ID, $id);
+    	return $this->findObjectByExample($example);
+    }
+    
+    public function findByAreacode( $areacode )
+    {
+    	if ( empty($areacode) )
+    	{
+    		return null;
+    	}
+    
+    	$example = new OW_Example();
+    	$example->andFieldEqual(self::AREACODE, $areacode);
+    	return $this->findObjectByExample($example);
     }
 }

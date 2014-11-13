@@ -234,6 +234,12 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         OW::getDocument()->setHeadingIconClass('ow_ic_new');
         OW::getDocument()->setTitle($language->text('zlgroups', 'create_page_title'));
         OW::getDocument()->setDescription($language->text('zlgroups', 'create_page_description'));
+        
+        OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
+
+        // FIXME
+        $searcharea = '北京市';
+        $this->assign('searcharea', $searcharea);
 
         $form = new ZLGROUPS_CreateGroupForm();
 
@@ -317,6 +323,12 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         {
             throw new Redirect404Exception();
         }
+        
+        OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
+        
+        // FIXME
+        $searcharea = '北京市';
+        $this->assign('searcharea', $searcharea);
 
         $form = new ZLGROUPS_EditGroupForm($groupDto);
 
@@ -1221,6 +1233,14 @@ class ZLGROUPS_GroupForm extends Form
         $this->addElement($field);
 
         // TBD - 乐群地址项
+        // 乐群location项
+        $field = new TextField('location');
+        $field->setLabel($language->text('zlgroups', 'create_field_location_label'));
+        $this->addElement($field);
+        
+        $field = new HiddenField('locationinfo');
+        $field->addValidator(new ZLGROUPS_RequiredLoactionValidator());
+        $this->addElement($field);
         
         // 谁可以查看乐群项
         $whoCanView = new RadioField('whoCanView');
@@ -1282,6 +1302,22 @@ class ZLGROUPS_GroupForm extends Form
         {
             $this->saveImages($values['image'], $group);
         }
+        
+        // added by hawk
+        // 更新乐群地址信息
+        $location = $values['location'];
+        $addressinfo = $values['locationinfo'];
+        $address_details = ZLAREAS_CLASS_Utility::getInstance()->getAddressInfo($addressinfo);
+        $service->saveLocation(
+        		$group->id, 
+        		$location, 
+        		$address_details['formated_address'],
+        		$address_details['province'],
+        		$address_details['city'],
+        		$address_details['district'],
+        		$address_details['longitude'],
+        		$address_details['latitude']
+        );        
 
         return $group;
     }
@@ -1404,7 +1440,19 @@ class ZLGROUPS_EditGroupForm extends ZLGROUPS_GroupForm
         $this->getElement('description')->setValue($group->description);
         $this->getElement('whoCanView')->setValue($group->whoCanView);
         $this->getElement('whoCanInvite')->setValue($group->whoCanInvite);
-
+        
+        // added by hawk, for location
+        $field = new HiddenField('origin_lng');
+        $this->addElement($field);
+        $field = new HiddenField('origin_lat');
+        $this->addElement($field);        
+        
+        $detailedLocationInfo = ZLGROUPS_BOL_Service::getInstance()->findLocationDetailedInfoByGroupId($group->id);
+        $this->getElement('origin_lng')->setValue($detailedLocationInfo['longitude']);
+        $this->getElement('origin_lat')->setValue($detailedLocationInfo['latitude']);
+        $this->getElement('location')->setValue($detailedLocationInfo['location']);
+        $this->getElement('locationinfo')->setValue($detailedLocationInfo['locationinfo']);
+        
         $field = new Submit('save');
         $field->setValue(OW::getLanguage()->text('zlgroups', 'edit_submit_btn_label'));
         $this->addElement($field);
@@ -1475,6 +1523,97 @@ class ZLGROUPS_Image extends FileField
     {
         return empty($_FILES[$this->getName()]['tmp_name']) ? null : $_FILES[$this->getName()];
     }
+}
+
+// 乐群地址验证器
+// class ZLGROUPS_LoactionValidator extends OW_Validator
+// {	
+// 	public function __construct()
+// 	{
+// 		$errorMessage = OW::getLanguage()->text('zlgroups', 'errors_location');
+	
+// 		if ( empty($errorMessage) )
+// 		{
+// 			$errorMessage = 'Required Validator Error!';
+// 		}
+	
+// 		$this->setErrorMessage($errorMessage);
+// 	}
+	
+// 	public function isValid( $value )
+// 	{
+// 		if ( is_array($value) )
+// 		{
+// 			if ( sizeof($value) === 0 )
+// 			{
+// 				return false;
+// 			}
+// 		}
+// 		else if ( $value === null || mb_strlen(trim($value)) === 0 )
+// 		{
+// 			return false;
+// 		}
+	
+// 		return true;
+// 	}
+// }
+
+class ZLGROUPS_RequiredLoactionValidator extends OW_Validator
+{
+	/**
+	 * Constructor.
+	 *
+	 * @param array $params
+	 */
+	public function __construct()
+	{
+		$errorMessage = OW::getLanguage()->text('zlgroups', 'errors_location');
+
+		if ( empty($errorMessage) )
+		{
+			$errorMessage = 'Required Validator Error!';
+		}
+
+		$this->setErrorMessage($errorMessage);
+	}
+
+	/**
+	 * @see OW_Validator::isValid()
+	 *
+	 * @param mixed $value
+	 */
+	public function isValid( $value )
+	{
+		if ( is_array($value) )
+		{
+			if ( sizeof($value) === 0 )
+			{
+				return false;
+			}
+		}
+		else if ( $value === null || mb_strlen(trim($value)) === 0 )
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @see OW_Validator::getJsValidator()
+	 *
+	 * @return string
+	 */
+	public function getJsValidator()
+	{
+		return "{
+        	validate : function( value ){
+                if(  $.isArray(value) ){ if(value.length == 0  ) throw " . json_encode($this->getError()) . "; return;}
+                else if( !value || $.trim(value).length == 0 ){ throw " . json_encode($this->getError()) . "; }
+        },
+        	getErrorMessage : function(){ return " . json_encode($this->getError()) . " }
+        }";
+	}
 }
 
 // 乐群标题唯一性验证器

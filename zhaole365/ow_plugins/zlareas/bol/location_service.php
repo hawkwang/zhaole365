@@ -63,6 +63,22 @@ final class ZLAREAS_BOL_LocationService
         $this->save($dto);
     }
     
+    public function addDetailedLocation( $formated_address, $province, $city, $district, $longitude, $latitude, $address )
+    {
+    	$area = ZLAREAS_BOL_Service::getInstance()->getAreaByDetailedinfo($province,$city, $district);
+    	$areacode = '0';
+    	if($area==null)
+    	{
+    		OW::getFeedback()->error("找不到相应的区域代码！将自动创建新的区域代码！");
+    		$areacode = uniqid();
+    		ZLAREAS_BOL_Service::getInstance()->addArea($areacode, $province, $city, $district);
+    	}
+    	else 
+    		$areacode = $area->areacode;
+    	
+    	$this->addLocation($formated_address, $longitude, $latitude, $areacode, $address);
+    }
+    
     public function getLocationList()
     {
     	return ZLAREAS_BOL_LocationDao::getInstance()->findAll();

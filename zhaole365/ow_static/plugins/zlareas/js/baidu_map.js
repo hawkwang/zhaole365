@@ -36,6 +36,9 @@ $(function() {
 	
     $(document).on('click', '.get-address', function() {
     	var address = $('input[name="l_origin_address"]').val();
+    	
+    	debug($('select[name="from"]').val());
+    	
     	debug(address);
     	
     	//$('#location_tag_error').hide();
@@ -104,7 +107,7 @@ $(function() {
 				  showErrorMessage($('#location_tag_error'), '无法识别您提供的地址！');
 		      }
 			}, 
-			"北京市"
+			$('select[name="from"]').val()
 			)
     });
     

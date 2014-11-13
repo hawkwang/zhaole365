@@ -42,6 +42,16 @@ class ZLGROUPS_BOL_GroupLocationDao extends OW_BaseDao
     
     	return $this->findListByExample($example);
     }
+    
+    //获得所有指定地址的信息
+    public function findByGroupIdAndLocation( $groupId, $location )
+    {
+    	$example = new OW_Example();
+    	$example->andFieldEqual('groupId', $groupId);
+    	$example->andFieldEqual('location', $location);
+    
+    	return $this->findListByExample($example);
+    }
 
     //获得指定乐群ID和地址ID的GroupLocation对象
     public function findGroupLocation( $groupId, $locationId )

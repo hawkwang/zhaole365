@@ -6,15 +6,8 @@ $(function() {
     var mapDiv = $("<div id='locationtag_autocomplite_map' class='ow_location_tag_map_item' style='width:100%; height:300px;'></div>");
     $(".newsfeed_update_status_info").append(mapDiv);
 
-//    if (!geocoder)
-//    {
-//        //geocoder = new google.maps.Geocoder();
-//    	geocoder = new BMap.Geocoder();
-//    }
-    
     if (!map)
     {
-        //map = new google.maps.Map(mapDiv.get(0), options);
         map = new BMap.Map("locationtag_autocomplite_map");
         var point = new BMap.Point(116.331398,39.897445);
         map.centerAndZoom(point,16);
@@ -35,23 +28,17 @@ $(function() {
     }
 	
     $(document).on('click', '.get-address', function() {
-    	var address = $('input[name="l_origin_address"]').val();
-    	
-    	debug($('select[name="from"]').val());
-    	
+    	var address = $('input[name="location"]').val();
     	debug(address);
     	
-    	//$('#location_tag_error').hide();
-    	
     	if(address=='')
-    		{
-    		showErrorMessage($('#location_tag_error'), '请输入地址信息！');
+    	{
+    		$('input[name="locationinfo"]').val('');
     		return;
-    		}
+    	}
     	
         // remove previous marker
         map.removeOverlay(marker);
-        $('input[name="l_description"]').val(address);
         var geocoder = new BMap.Geocoder();
         geocoder.getPoint(address, function(point){
 
@@ -79,35 +66,24 @@ $(function() {
                         var delta_lat = Math.abs(item.point.lat-invalid_lat);
                       	if( (delta_lng<0.0001) && (delta_lat<0.0001) )
                         {
-                      	  $('input[name="l_address"]').val('');
-                    	  $('input[name="l_province"]').val('');
-                    	  $('input[name="l_city"]').val('');
-                    	  $('input[name="l_district"]').val('');
-                    	  $('input[name="l_longitude"]').val('');
-                    	  $('input[name="l_latitude"]').val('');
-                    	  
-                    	  //$('#location_tag_error').show();
-                    	  showErrorMessage($('#location_tag_error'), '您确认这是正确的地址吗？');
+                      	  $('input[name="locationinfo"]').val('');
                         }
                       	else
                       	{
-                    	  $('input[name="l_address"]').val(item.address);
-                    	  $('input[name="l_province"]').val(item.addressComponents.province);
-                    	  $('input[name="l_city"]').val(item.addressComponents.city);
-                    	  $('input[name="l_district"]').val(item.addressComponents.district);
-                    	  $('input[name="l_longitude"]').val(item.point.lng);
-                    	  $('input[name="l_latitude"]').val(item.point.lat);
+                    	  var locationinfo = item.address + '||' + item.addressComponents.province 
+                    	  		+ '||' + item.addressComponents.city + '||' + item.addressComponents.district 
+                    	  		+ '||' + item.point.lng + '||' + item.point.lat;
+                    	  $('input[name="locationinfo"]').val(locationinfo);
                           debug(info);
-                          hideErrorMessage($('#location_tag_error'));
                       	}
                   	})  
 			  }
 			  else
 		      {
-				  showErrorMessage($('#location_tag_error'), '无法识别您提供的地址！');
+				  $('input[name="locationinfo"]').val('');
 		      }
 			}, 
-			$('select[name="from"]').val()
+			"北京市"
 			)
     });
     

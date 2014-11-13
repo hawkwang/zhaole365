@@ -2,11 +2,11 @@
 
 <!-- Nav tabs -->
 <ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" class="active"><a href="#area" role="tab" data-toggle="tab">找乐地盘</a></li>
-  <li role="presentation"><a href="#location" role="tab" data-toggle="tab">乐子集居地</a></li>
+  <li role="presentation" ><a href="#area" role="tab" data-toggle="tab">找乐地盘</a></li>
+  <li role="presentation" class="active"><a href="#location" role="tab" data-toggle="tab">乐子集居地</a></li>
 </ul>
 <div class="tab-content">
-  <div role="tabpanel" class="tab-pane fade in active" id="area" style="padding-top: 15px;">
+  <div role="tabpanel" class="tab-pane fade " id="area" style="padding-top: 15px;">
 
 	
 	{form name='add_area'}
@@ -38,11 +38,12 @@
 	</table>
   </div>
   
-  <div role="tabpanel" class="tab-pane fade" id="location" style="padding-top: 15px;">
+  <div role="tabpanel" class="tab-pane fade in active" id="location" style="padding-top: 15px;">
 
 	
 	{form name='add_location'}
 	<div style="width: 400px; margin:0 auto">
+				{input name='from'}
 				{input name='l_description'}
 				{input name='l_address'}
 				{input name='l_province'}

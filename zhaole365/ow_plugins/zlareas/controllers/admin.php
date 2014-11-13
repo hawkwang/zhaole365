@@ -97,6 +97,53 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
         $location_form = new Form('add_location');
         $this->addForm($location_form);
         
+        $fieldFrom = new Selectbox('from');
+        $provinces = array();
+        $provinces[] = '北京市';
+        $provinces[] = '天津市';
+        $provinces[] = '重庆市';
+        $provinces[] = '上海市';
+        $provinces[] = '河北省';
+        $provinces[] = '山西省';
+        $provinces[] = '辽宁省';
+        $provinces[] = '吉林省';
+        $provinces[] = '黑龙江省';
+        $provinces[] = '江苏省';
+        $provinces[] = '浙江省';
+        $provinces[] = '安徽省';
+        $provinces[] = '福建省';
+        $provinces[] = '江西省';
+        $provinces[] = '山东省';
+        $provinces[] = '河南省';
+        $provinces[] = '湖北省';
+        $provinces[] = '湖南省';
+        $provinces[] = '广东省';
+        $provinces[] = '海南省';
+        $provinces[] = '四川省';
+        $provinces[] = '贵州省';
+        $provinces[] = '云南省';
+        $provinces[] = '陕西省';
+        $provinces[] = '甘肃省';
+        $provinces[] = '青海省';
+        $provinces[] = '台湾省';
+        $provinces[] = '内蒙古自治区';
+        $provinces[] = '广西壮族自治区';
+        $provinces[] = '宁夏回族自治区';
+        $provinces[] = '新疆维吾尔自治区';
+        $provinces[] = '西藏自治区';
+        $provinces[] = '香港特别行政区';
+        $provinces[] = '澳门特别行政区';
+        
+        
+        foreach ( $provinces as $id => $value )
+        {
+        	$fieldFrom->addOption($value, $value);
+        }
+        $fieldFrom->setRequired();
+        $fieldFrom->setHasInvitation(false);
+        $fieldFrom->setLabel('选择省或直辖市');
+        $location_form->addElement($fieldFrom);
+        
         $fieldLocationDescription = new TextField('l_description');
         $fieldLocationDescription->setRequired();
         $fieldLocationDescription->setInvitation('原始地址');
@@ -176,34 +223,20 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
                 if($existing_location != null)
                 {
                 	// check if the original address is already located in the description, if yes, do nothing; else update the description
-                	if($this->containOriginAddress($existing_location->description, $description)==false)
+                	if(ZLAREAS_CLASS_Utility::getInstance()->containOriginAddress($existing_location->description, $description)==false)
                 	{
 	                	$existing_location->description = $existing_location->description . '||' . $description;
 	                	ZLAREAS_BOL_LocationService::getInstance()->save($existing_location);
                 	}
                 	$this->redirect();
                 }
-                // otherwise, we will add this new location here
-                $area = ZLAREAS_BOL_Service::getInstance()->getAreaByDetailedinfo($province,$city, $district);
-                if($area==null)
-                {
-                	//FIXME, show error
-                	$this->redirect();
-                }
                 
-                ZLAREAS_BOL_LocationService::getInstance()->addLocation($data['l_address'], $data['l_longitude'], $data['l_latitude'], $area->areacode, $data['l_description']);
+                // otherwise, we will add this new location here
+                ZLAREAS_BOL_LocationService::getInstance()->addDetailedLocation($address, $province, $city, $district, $longitude, $latitude, $description);
+                
                 $this->redirect();
             }
         }
-    }
-    
-    private function containOriginAddress($alladdressdescription, $description)
-    {
-    	$addresses = explode("||", $alladdressdescription);
-    	if(in_array($description, $addresses))
-    		return true;
-    	else 
-    		return false;
     }
 	
 	public function delete( $params )

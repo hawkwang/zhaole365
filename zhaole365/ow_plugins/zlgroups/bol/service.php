@@ -555,4 +555,61 @@ class ZLGROUPS_BOL_Service
     {
         OW::getCacheManager()->clean(array( ZLGROUPS_BOL_GroupDao::LIST_CACHE_TAG ));
     }
+    
+    // added by hawk
+    // 针对乐群地址信息的处理
+    public function saveLocation($groupid, $location, $formated_address, $province, $city, $district, $longitude, $latitude)
+    {
+    	// 删除已有乐群地址信息
+    	$this->groupLocationDao->deleteByGroupId($groupid);
+    	
+    	// 根据$formated_address获得地址信息，如果不存在，则创建相应地址信息
+    	$formated_address_info = ZLAREAS_BOL_LocationService::getInstance()->findLocationByAddress($formated_address);
+    	if($formated_address_info==null)
+    	{
+    		ZLAREAS_BOL_LocationService::getInstance()->addDetailedLocation($formated_address, $province, $city, $district, $longitude, $latitude, $location);
+    	}
+    	$formated_address_info = ZLAREAS_BOL_LocationService::getInstance()->findLocationByAddress($formated_address);
+    	
+		// 建立关联关系
+		$grouplocation = new ZLGROUPS_BOL_GroupLocation();
+		$grouplocation->groupId = $groupid;
+		$grouplocation->locationId = $formated_address_info->id;
+		$grouplocation->location = $location;
+		$this->groupLocationDao->save($grouplocation);
+    }
+    
+    // 得到乐群地址
+    public function findLocationByAddress($address)
+    {
+    	return $this->groupLocationDao->findByAddress($address);
+    }
+    
+    public function findLocationDetailedInfoByGroupId($groupid)
+    {
+    	$grouplocationdetails = array();
+    	
+    	$grouplocation = $this->groupLocationDao->findByGroupId($groupid);
+    	$grouplocationdetails['location'] = $grouplocation->location;
+    	
+    	$locationid = $grouplocation->locationId;
+    	$location = ZLAREAS_BOL_LocationService::getInstance()->findById($locationid);
+    	
+    	$grouplocationdetails['formated_address'] = $location->address;
+    	$grouplocationdetails['longitude'] = $location->longitude;
+    	$grouplocationdetails['latitude'] = $location->latitude;
+    	
+    	$areacode = $location->areacode;
+    	$area = ZLAREAS_BOL_Service::getInstance()->findByAreacode($areacode);
+    	$grouplocationdetails['province'] = $area->province;
+    	$grouplocationdetails['city'] = $area->city;
+    	$grouplocationdetails['area'] = $area->area;
+    	
+    	$grouplocationdetails['locationinfo'] =  $grouplocationdetails['formated_address'] + '||'
+    			+ $grouplocationdetails['province'] + '||' + $grouplocationdetails['city'] + '||' + $grouplocationdetails['area'] 
+    			+ '||' + $grouplocationdetails['longitude'] + '||' + $grouplocationdetails['latitude'];
+    	
+    	return $grouplocationdetails;
+    }
+    
 }
