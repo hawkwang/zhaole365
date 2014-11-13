@@ -70,6 +70,10 @@ OW::getPluginManager()->addUninstallRouteName('zlgroups', 'zlgroups-admin-uninst
 // Add widgets
 $widgetService = BOL_ComponentAdminService::getInstance();
 
+$widget = $widgetService->addWidget('ZLGROUPS_CMP_LocationWidget', false);
+$placeWidget = $widgetService->addWidgetToPlace($widget, 'zlgroup');
+$widgetService->addWidgetToPosition($placeWidget, BOL_ComponentAdminService::SECTION_LEFT);
+
 $widget = $widgetService->addWidget('ZLGROUPS_CMP_JoinButtonWidget', false);
 $placeWidget = $widgetService->addWidgetToPlace($widget, 'zlgroup');
 $widgetService->addWidgetToPosition($placeWidget, BOL_ComponentAdminService::SECTION_LEFT);

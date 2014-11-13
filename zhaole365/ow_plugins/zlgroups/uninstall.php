@@ -13,6 +13,7 @@ try
 }
 catch ( Exception $e ) {}
 
+BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_LocationWidget');
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_JoinButtonWidget');
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_BriefInfoWidget');
 BOL_ComponentAdminService::getInstance()->deleteWidget('ZLGROUPS_CMP_UserListWidget');
