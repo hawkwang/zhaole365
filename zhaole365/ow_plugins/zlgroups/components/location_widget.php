@@ -36,7 +36,7 @@ class ZLGROUPS_CMP_LocationWidget extends BASE_CLASS_Widget
             self::SETTING_SHOW_TITLE => true,
             self::SETTING_TITLE => OW::getLanguage()->text('zlgroups', 'widget_location_label'),
             self::SETTING_WRAP_IN_BOX => true,
-            self::SETTING_ICON => self::ICON_INFO
+            self::SETTING_ICON => "ow_ic_places" //self::ICON_INFO
         );
     }
 
