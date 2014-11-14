@@ -1,74 +1,39 @@
 <?php
 
-/**
- * This software is intended for use with Oxwall Free Community Software http://www.oxwall.org/ and is
- * licensed under The BSD license.
-
- * ---
- * Copyright (c) 2011, Oxwall Foundation
- * All rights reserved.
-
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
- * following conditions are met:
- *
- *  - Redistributions of source code must retain the above copyright notice, this list of conditions and
- *  the following disclaimer.
- *
- *  - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
- *  the following disclaimer in the documentation and/or other materials provided with the distribution.
- *
- *  - Neither the name of the Oxwall Foundation nor the names of its contributors may be used to endorse or promote products
- *  derived from this software without specific prior written permission.
-
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- * @author Sardar Madumarov <madumarov@gmail.com>, Podyachev Evgeny <joker.OW2@gmail.com>
- * @package ow_plugins.event.controllers
- * @since 1.0
- */
-class EVENT_CTRL_Base extends OW_ActionController
+class ZLEVENT_CTRL_Base extends OW_ActionController
 {
     /**
-     * @var EVENT_BOL_EventService
+     * @var ZLEVENT_BOL_EventService
      */
     private $eventService;
 
     public function __construct()
     {
         parent::__construct();
-        $this->eventService = EVENT_BOL_EventService::getInstance();
+        $this->eventService = ZLEVENT_BOL_EventService::getInstance();
     }
 
-    /**
-     * Add new event controller
-     */
+
+    // 添加新活动
     public function add()
     {
         $language = OW::getLanguage();
-        $this->setPageTitle($language->text('event', 'add_page_title'));
-        $this->setPageHeading($language->text('event', 'add_page_heading'));
+        $this->setPageTitle($language->text('zlevent', 'add_page_title'));
+        $this->setPageHeading($language->text('zlevent', 'add_page_heading'));
         $this->setPageHeadingIconClass('ow_ic_add');
 
-        OW::getDocument()->setDescription(OW::getLanguage()->text('event', 'add_event_meta_description'));
+        OW::getDocument()->setDescription(OW::getLanguage()->text('zlevent', 'add_event_meta_description'));
 
-        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'event', 'main_menu_item');
+        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
 
         // check permissions for this page
-        if ( !OW::getUser()->isAuthenticated() || !OW::getUser()->isAuthorized('event', 'add_event') )
+        if ( !OW::getUser()->isAuthenticated() || !OW::getUser()->isAuthorized('zlevent', 'add_event') )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('event', 'add_event');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'add_event');
             throw new AuthorizationException($status['msg']);
         }
         
-        $form = new EventAddForm('event_add');
+        $form = new ZLEventAddForm('event_add');
 
         if ( date('n', time()) == 12 && date('j', time()) == 31 )
         {
@@ -93,7 +58,7 @@ class EVENT_CTRL_Base extends OW_ActionController
         $this->assign('tdId', $tdId);
         $this->assign('chId', $checkboxId);
 
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin("event")->getStaticJsUrl() . 'event.js');
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin("zlevent")->getStaticJsUrl() . 'event.js');
         OW::getDocument()->addOnloadScript("new eventAddForm(". json_encode(array('checkbox_id' => $checkboxId, 'end_date_id' => $form->getElement('end_date')->getId(), 'tdId' => $tdId )) .")");
 
         if ( OW::getRequest()->isPost() )
@@ -107,7 +72,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             {
                 $data = $form->getValues();
                 
-                $serviceEvent = new OW_Event(EVENT_BOL_EventService::EVENT_BEFORE_EVENT_CREATE, array(), $data);
+                $serviceEvent = new OW_Event(ZLEVENT_BOL_EventService::EVENT_BEFORE_EVENT_CREATE, array(), $data);
                 OW::getEventManager()->trigger($serviceEvent);
                 $data = $serviceEvent->getData();
                 
@@ -169,12 +134,12 @@ class EVENT_CTRL_Base extends OW_ActionController
                 if ( !empty($endStamp) && $endStamp < $startStamp )
                 {
                     $datesAreValid = false;
-                    OW::getFeedback()->error($language->text('event', 'add_form_invalid_end_date_error_message'));
+                    OW::getFeedback()->error($language->text('zlevent', 'add_form_invalid_end_date_error_message'));
                 }
 
                 if ( $imageValid && $datesAreValid )
                 {
-                    $event = new EVENT_BOL_Event();
+                    $event = new ZLEVENT_BOL_Event();
                     $event->setStartTimeStamp($startStamp);
                     $event->setEndTimeStamp($endStamp);
                     $event->setCreateTimeStamp(time());
@@ -193,43 +158,46 @@ class EVENT_CTRL_Base extends OW_ActionController
                         $event->setImage(uniqid());
                     }
                     
-                    $serviceEvent = new OW_Event(EVENT_BOL_EventService::EVENT_ON_CREATE_EVENT, array('eventDto' => $event));
+                    $serviceEvent = new OW_Event(ZLEVENT_BOL_EventService::EVENT_ON_CREATE_EVENT, array('eventDto' => $event));
                     OW::getEventManager()->trigger($serviceEvent);
 
                     $this->eventService->saveEvent($event);
+                    
+                    // TBD - 保存乐群地址
+                    //
                     
                     if ( $imagePosted )
                     {
                         $this->eventService->saveEventImage($_FILES['image']['tmp_name'], $event->getImage());
                     }
 
-                    $eventUser = new EVENT_BOL_EventUser();
+                    $eventUser = new ZLEVENT_BOL_EventUser();
                     $eventUser->setEventId($event->getId());
                     $eventUser->setUserId(OW::getUser()->getId());
                     $eventUser->setTimeStamp(time());
-                    $eventUser->setStatus(EVENT_BOL_EventService::USER_STATUS_YES);
+                    $eventUser->setStatus(ZLEVENT_BOL_EventService::USER_STATUS_YES);
                     $this->eventService->saveEventUser($eventUser);
                     
-                    OW::getFeedback()->info($language->text('event', 'add_form_success_message'));
+                    OW::getFeedback()->info($language->text('zlevent', 'add_form_success_message'));
 
-//                    if ( $event->getWhoCanView() == EVENT_BOL_EventService::CAN_VIEW_ANYBODY )
+//                    if ( $event->getWhoCanView() == ZLEVENT_BOL_EventService::CAN_VIEW_ANYBODY )
 //                    {
 //                        $eventObj = new OW_Event('feed.action', array(
-//                                'pluginKey' => 'event',
-//                                'entityType' => 'event',
+//                                'pluginKey' => 'zlevent',
+//                                'entityType' => 'zlevent',
 //                                'entityId' => $event->getId(),
 //                                'userId' => $event->getUserId()
 //                            ));
 //                        OW::getEventManager()->trigger($eventObj);
 //                    }
                     
-                    BOL_AuthorizationService::getInstance()->trackAction('event', 'add_event');
+                    BOL_AuthorizationService::getInstance()->trackAction('zlevent', 'add_event');
 
                     
-                    $serviceEvent = new OW_Event(EVENT_BOL_EventService::EVENT_AFTER_CREATE_EVENT, array('eventId' => $event->id, 'eventDto' => $event));
+                    $serviceEvent = new OW_Event(ZLEVENT_BOL_EventService::EVENT_AFTER_CREATE_EVENT, array('eventId' => $event->id, 'eventDto' => $event));
                     OW::getEventManager()->trigger($serviceEvent);
                     
-                    $this->redirect(OW::getRouter()->urlForRoute('event.view', array('eventId' => $event->getId())));
+                    $this->redirect(OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->getId())));
                 }
             }
         }
@@ -253,7 +221,7 @@ class EVENT_CTRL_Base extends OW_ActionController
      * Get event by params(eventId)
      * 
      * @param array $params
-     * @return EVENT_BOL_Event 
+     * @return ZLEVENT_BOL_Event 
      */
     private function getEventForParams( $params )
     {
@@ -272,16 +240,13 @@ class EVENT_CTRL_Base extends OW_ActionController
         return $event;
     }
 
-    /**
-     * Update event controller
-     * 
-     * @param array $params 
-     */
+
+    // 编辑已有活动
     public function edit( $params )
     {
         $event = $this->getEventForParams($params);
         $language = OW::getLanguage();
-        $form = new EventAddForm('event_edit');
+        $form = new ZLEventAddForm('event_edit');
 
         $form->getElement('title')->setValue($event->getTitle());
         $form->getElement('desc')->setValue($event->getDescription());
@@ -322,14 +287,14 @@ class EVENT_CTRL_Base extends OW_ActionController
             $form->getElement('end_time')->setValue('all_day');
         }
 
-        $form->getSubmitElement('submit')->setValue(OW::getLanguage()->text('event', 'edit_form_submit_label'));
+        $form->getSubmitElement('submit')->setValue(OW::getLanguage()->text('zlevent', 'edit_form_submit_label'));
 
         $checkboxId = UTIL_HtmlTag::generateAutoId('chk');
         $tdId = UTIL_HtmlTag::generateAutoId('td');
         $this->assign('tdId', $tdId);
         $this->assign('chId', $checkboxId);
         
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin("event")->getStaticJsUrl() . 'event.js');
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin("zlevent")->getStaticJsUrl() . 'event.js');
         OW::getDocument()->addOnloadScript("new eventAddForm(". json_encode(array('checkbox_id' => $checkboxId, 'end_date_id' => $form->getElement('end_date')->getId(), 'tdId' => $tdId )) .")");
 
         if ( $event->getImage() )
@@ -349,7 +314,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             {
                 $data = $form->getValues();
                 
-                $serviceEvent = new OW_Event(EVENT_BOL_EventService::EVENT_BEFORE_EVENT_EDIT, array('eventId' => $event->id), $data);
+                $serviceEvent = new OW_Event(ZLEVENT_BOL_EventService::EVENT_BEFORE_EVENT_EDIT, array('eventId' => $event->id), $data);
                 OW::getEventManager()->trigger($serviceEvent);
                 $data = $serviceEvent->getData();
                 
@@ -394,7 +359,7 @@ class EVENT_CTRL_Base extends OW_ActionController
                 
                 if ( $startStamp > $endStamp )
                 {
-                    OW::getFeedback()->error($language->text('event', 'add_form_invalid_end_date_error_message'));
+                    OW::getFeedback()->error($language->text('zlevent', 'add_form_invalid_end_date_error_message'));
                     $this->redirect();
                 }
                 else
@@ -427,11 +392,11 @@ class EVENT_CTRL_Base extends OW_ActionController
 
                     $this->eventService->saveEvent($event);
                     
-                    $e = new OW_Event(EVENT_BOL_EventService::EVENT_AFTER_EVENT_EDIT, array('eventId' => $event->id));
+                    $e = new OW_Event(ZLEVENT_BOL_EventService::EVENT_AFTER_EVENT_EDIT, array('eventId' => $event->id));
                     OW::getEventManager()->trigger($e);
                     
-                    OW::getFeedback()->info($language->text('event', 'edit_form_success_message'));
-                    $this->redirect(OW::getRouter()->urlForRoute('event.view', array('eventId' => $event->getId())));
+                    OW::getFeedback()->info($language->text('zlevent', 'edit_form_success_message'));
+                    $this->redirect(OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->getId())));
                 }
             }
         }
@@ -450,37 +415,29 @@ class EVENT_CTRL_Base extends OW_ActionController
 
         $this->assign('endDateFlag', $endDateFlag);
 
-        $this->setPageHeading($language->text('event', 'edit_page_heading'));
-        $this->setPageTitle($language->text('event', 'edit_page_title'));
-        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'event', 'main_menu_item');
+        $this->setPageHeading($language->text('zlevent', 'edit_page_heading'));
+        $this->setPageTitle($language->text('zlevent', 'edit_page_title'));
+        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
         $this->addForm($form);
     }
 
-    /**
-     * Delete event controller
-     * 
-     * @param array $params 
-     */
+    // 删除指定活动
     public function delete( $params )
     {
         $event = $this->getEventForParams($params);
 
-        if ( !OW::getUser()->isAuthenticated() || ( OW::getUser()->getId() != $event->getUserId() && !OW::getUser()->isAuthorized('event') ) )
+        if ( !OW::getUser()->isAuthenticated() || ( OW::getUser()->getId() != $event->getUserId() && !OW::getUser()->isAuthorized('zlevent') ) )
         {
             throw new Redirect403Exception();
         }
 
         $this->eventService->deleteEvent($event->getId());
-        OW::getFeedback()->info(OW::getLanguage()->text('event', 'delete_success_message'));
-        $this->redirect(OW::getRouter()->urlForRoute('event.main_menu_route'));
+        OW::getFeedback()->info(OW::getLanguage()->text('zlevent', 'delete_success_message'));
+        $this->redirect(OW::getRouter()->urlForRoute('zlevent.main_menu_route'));
     }
 
     
-    /**
-     * View event controller
-     * 
-     * @param array $params
-     */
+	// 查看指定活动信息
     public function view( $params )
     {
         $event = $this->getEventForParams($params);
@@ -489,86 +446,89 @@ class EVENT_CTRL_Base extends OW_ActionController
 
         $this->assign('contId', $cmpId);
 
-        if ( !OW::getUser()->isAuthorized('event', 'view_event') && $event->getUserId() != OW::getUser()->getId() )
+        if ( !OW::getUser()->isAuthorized('zlevent', 'view_event') && $event->getUserId() != OW::getUser()->getId() )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('event', 'view_event');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'view_event');
             throw new AuthorizationException($status['msg']);
         }
 
         // guest gan't view private events
-        if ( (int) $event->getWhoCanView() === EVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && !OW::getUser()->isAuthenticated() )
+        if ( (int) $event->getWhoCanView() === ZLEVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && !OW::getUser()->isAuthenticated() )
         {
-            $this->redirect(OW::getRouter()->urlForRoute('event.private_event', array('eventId' => $event->getId())));
+            $this->redirect(OW::getRouter()->urlForRoute('zlevent.private_event', array('eventId' => $event->getId())));
         }
 
         $eventInvite = $this->eventService->findEventInvite($event->getId(), OW::getUser()->getId());
         $eventUser = $this->eventService->findEventUser($event->getId(), OW::getUser()->getId());
 
         // check if user can view event
-        if ( (int) $event->getWhoCanView() === EVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && $eventUser === null && $eventInvite === null && !OW::getUser()->isAuthorized('event') )
+        if ( (int) $event->getWhoCanView() === ZLEVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY 
+        		&& $eventUser === null && $eventInvite === null && !OW::getUser()->isAuthorized('zlevent') )
         {
-            $this->redirect(OW::getRouter()->urlForRoute('event.private_event', array('eventId' => $event->getId())));
+            $this->redirect(OW::getRouter()->urlForRoute('zlevent.private_event', array('eventId' => $event->getId())));
         }
 
-        if ( OW::getUser()->isAuthorized('event') || OW::getUser()->getId() == $event->getUserId() )
+        if ( OW::getUser()->isAuthorized('zlevent') || OW::getUser()->getId() == $event->getUserId() )
         {
             $this->assign('editArray', array(
-                'edit' => array('url' => OW::getRouter()->urlForRoute('event.edit', array('eventId' => $event->getId())), 'label' => OW::getLanguage()->text('event', 'edit_button_label')),
+                'edit' => array('url' => OW::getRouter()->urlForRoute('zlevent.edit', array('eventId' => $event->getId())), 'label' => OW::getLanguage()->text('zlevent', 'edit_button_label')),
                 'delete' =>
                 array(
-                    'url' => OW::getRouter()->urlForRoute('event.delete', array('eventId' => $event->getId())),
-                    'label' => OW::getLanguage()->text('event', 'delete_button_label'),
-                    'confirmMessage' => OW::getLanguage()->text('event', 'delete_confirm_message')
+                    'url' => OW::getRouter()->urlForRoute('zlevent.delete', array('eventId' => $event->getId())),
+                    'label' => OW::getLanguage()->text('zlevent', 'delete_button_label'),
+                    'confirmMessage' => OW::getLanguage()->text('zlevent', 'delete_confirm_message')
                 ),
                 )
             );
         }
         
-        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'event', 'main_menu_item');
+        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
         
         $this->setPageHeading($event->getTitle());
-        $this->setPageTitle(OW::getLanguage()->text('event', 'event_view_page_heading', array('event_title' => $event->getTitle())));
+        $this->setPageTitle(OW::getLanguage()->text('zlevent', 'event_view_page_heading', array('event_title' => $event->getTitle())));
         $this->setPageHeadingIconClass('ow_ic_calendar');
         OW::getDocument()->setDescription(UTIL_String::truncate(strip_tags($event->getDescription()), 200, '...'));
 
+        // 将活动详细信息作为变量传给视图（view）
         $infoArray = array(
             'id' => $event->getId(),
             'image' => ( $event->getImage() ? $this->eventService->generateImageUrl($event->getImage(), false) : null ),
             'date' => UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(), $event->getStartTimeDisable()),
             'endDate' => $event->getEndTimeStamp() === null || !$event->getEndDateFlag() ? null : UTIL_DateTime::formatSimpleDate($event->getEndTimeDisable() ? strtotime("-1 day", $event->getEndTimeStamp()) : $event->getEndTimeStamp(),$event->getEndTimeDisable()),
             'location' => $event->getLocation(),
+        	'locationinfo' => '', // TBD - 将地址详细信息作为数组
             'desc' => UTIL_HtmlTag::autoLink($event->getDescription()),
             'title' => $event->getTitle(),
             'creatorName' => BOL_UserService::getInstance()->getDisplayName($event->getUserId()),
             'creatorLink' => BOL_UserService::getInstance()->getUserUrl($event->getUserId())
         );
-
         $this->assign('info', $infoArray);
 
         // event attend form
+        // 用户改变参加状态部分
         if ( OW::getUser()->isAuthenticated() && $event->getEndTimeStamp() > time() )
         {
             if ( $eventUser !== null )
             {
-                $this->assign('currentStatus', OW::getLanguage()->text('event', 'user_status_label_' . $eventUser->getStatus()));
+                $this->assign('currentStatus', OW::getLanguage()->text('zlevent', 'user_status_label_' . $eventUser->getStatus()));
             }
-            $this->addForm(new AttendForm($event->getId(), $cmpId));
+            $this->addForm(new ZLAttendForm($event->getId(), $cmpId));
 
             $onloadJs = "
                 var \$context = $('#" . $cmpId . "');
                 $('#event_attend_yes_btn').click(
                     function(){
-                        $('input[name=attend_status]', \$context).val(" . EVENT_BOL_EventService::USER_STATUS_YES . ");
+                        $('input[name=attend_status]', \$context).val(" . ZLEVENT_BOL_EventService::USER_STATUS_YES . ");
                     }
                 );
                 $('#event_attend_maybe_btn').click(
                     function(){
-                        $('input[name=attend_status]', \$context).val(" . EVENT_BOL_EventService::USER_STATUS_MAYBE . ");
+                        $('input[name=attend_status]', \$context).val(" . ZLEVENT_BOL_EventService::USER_STATUS_MAYBE . ");
                     }
                 );
                 $('#event_attend_no_btn').click(
                     function(){
-                        $('input[name=attend_status]', \$context).val(" . EVENT_BOL_EventService::USER_STATUS_NO . ");
+                        $('input[name=attend_status]', \$context).val(" . ZLEVENT_BOL_EventService::USER_STATUS_NO . ");
                     }
                 );
 
@@ -586,7 +546,9 @@ class EVENT_CTRL_Base extends OW_ActionController
             $this->assign('no_attend_form', true);
         }
         
-        if ( $event->getEndTimeStamp() > time() && ((int) $event->getUserId() === OW::getUser()->getId() || ( (int) $event->getWhoCanInvite() === EVENT_BOL_EventService::CAN_INVITE_PARTICIPANT && $eventUser !== null) ) )
+        // 动态构建邀请部分代码
+        if ( $event->getEndTimeStamp() > time() && ((int) $event->getUserId() === OW::getUser()->getId() 
+        		|| ( (int) $event->getWhoCanInvite() === ZLEVENT_BOL_EventService::CAN_INVITE_PARTICIPANT && $eventUser !== null) ) )
         {
             $params = array(
                 $event->id
@@ -597,7 +559,7 @@ class EVENT_CTRL_Base extends OW_ActionController
                 var eventFloatBox;
                 $('#inviteLink', $('#" . $cmpId . "')).click(
                     function(){
-                        eventFloatBox = OW.ajaxFloatBox('EVENT_CMP_InviteUserListSelect', " . json_encode($params) . ", {width:600, iconClass: 'ow_ic_user', title: " . json_encode(OW::getLanguage()->text('event', 'friends_invite_button_label')) . "});
+                        eventFloatBox = OW.ajaxFloatBox('ZLZLEVENT_CMP_InviteUserListSelect', " . json_encode($params) . ", {width:600, iconClass: 'ow_ic_user', title: " . json_encode(OW::getLanguage()->text('zlevent', 'friends_invite_button_label')) . "});
                     }
                 );
                 OW.bind('base.avatar_user_list_select',
@@ -605,7 +567,7 @@ class EVENT_CTRL_Base extends OW_ActionController
                         eventFloatBox.close();
                         $.ajax({
                             type: 'POST',
-                            url: " . json_encode(OW::getRouter()->urlFor('EVENT_CTRL_Base', 'inviteResponder')) . ",
+                            url: " . json_encode(OW::getRouter()->urlFor('ZLEVENT_CTRL_Base', 'inviteResponder')) . ",
                             data: 'eventId=" . json_encode($event->getId()) . "&userIdList='+JSON.stringify(list),
                             dataType: 'json',
                             success : function(data){
@@ -625,26 +587,23 @@ class EVENT_CTRL_Base extends OW_ActionController
             ");
         }
 
-        $cmntParams = new BASE_CommentsParams('event', 'event');
+        // 添加组件： 1）评论； 2）活动用户列表
+        $cmntParams = new BASE_CommentsParams('zlevent', 'zlevent');
         $cmntParams->setEntityId($event->getId());
         $cmntParams->setOwnerId($event->getUserId());
         $this->addComponent('comments', new BASE_CMP_Comments($cmntParams));
-        $this->addComponent('userListCmp', new EVENT_CMP_EventUsers($event->getId()));
+        $this->addComponent('userListCmp', new ZLEVENT_CMP_EventUsers($event->getId()));
         
-        $event = new BASE_CLASS_EventCollector(EVENT_BOL_EventService::EVENT_COLLECT_TOOLBAR, array(
+
+        // 搜集工具栏项
+        $event = new BASE_CLASS_EventCollector(ZLEVENT_BOL_EventService::EVENT_COLLECT_TOOLBAR, array(
             "eventId" => $event->getId()
         ));
-
         OW::getEventManager()->trigger($event);
-        
         $this->assign("toolbar", $event->getData());
     }
 
-    /**
-     * Events list controller
-     * 
-     * @param array $params 
-     */
+	// 显示
     public function eventsList( $params )
     {
         if ( empty($params['list']) )
@@ -652,9 +611,9 @@ class EVENT_CTRL_Base extends OW_ActionController
             throw new Redirect404Exception();
         }
 
-        if ( !OW::getUser()->isAuthorized('event', 'view_event') )
+        if ( !OW::getUser()->isAuthorized('zlevent', 'view_event') )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('event', 'view_event');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'view_event');
             throw new AuthorizationException($status['msg']);
         }
 
@@ -667,47 +626,47 @@ class EVENT_CTRL_Base extends OW_ActionController
 
         switch ( trim($params['list']) )
         {
-            case 'created':
+            case 'created':		// 我创建的活动列表
                 if ( !OW::getUser()->isAuthenticated() )
                 {
                     throw new Redirect403Exception();
                 }
 
-                $this->setPageHeading($language->text('event', 'event_created_by_me_page_heading'));
-                $this->setPageTitle($language->text('event', 'event_created_by_me_page_title'));
+                $this->setPageHeading($language->text('zlevent', 'event_created_by_me_page_heading'));
+                $this->setPageTitle($language->text('zlevent', 'event_created_by_me_page_title'));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
                 $events = $this->eventService->findUserEvents(OW::getUser()->getId(), $page);
                 $eventsCount = $this->eventService->findUserEventsCount(OW::getUser()->getId());
                 break;
 
-            case 'joined':
+            case 'joined':		// 我参加的活动列表
                 if ( !OW::getUser()->isAuthenticated() )
                 {
                     throw new Redirect403Exception();
                 }
-                $contentMenu = EVENT_BOL_EventService::getInstance()->getContentMenu();
+                $contentMenu = ZLEVENT_BOL_EventService::getInstance()->getContentMenu();
                 $this->addComponent('contentMenu', $contentMenu);
-                $this->setPageHeading($language->text('event', 'event_joined_by_me_page_heading'));
-                $this->setPageTitle($language->text('event', 'event_joined_by_me_page_title'));
+                $this->setPageHeading($language->text('zlevent', 'event_joined_by_me_page_heading'));
+                $this->setPageTitle($language->text('zlevent', 'event_joined_by_me_page_title'));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
 
                 $events = $this->eventService->findUserParticipatedEvents(OW::getUser()->getId(), $page);
                 $eventsCount = $this->eventService->findUserParticipatedEventsCount(OW::getUser()->getId());
                 break;
 
-            case 'latest':
-                $contentMenu = EVENT_BOL_EventService::getInstance()->getContentMenu();
+            case 'latest':		// 最近要发生的活动列表
+                $contentMenu = ZLEVENT_BOL_EventService::getInstance()->getContentMenu();
                 $contentMenu->getElement('latest')->setActive(true);
                 $this->addComponent('contentMenu', $contentMenu);
-                $this->setPageHeading($language->text('event', 'latest_events_page_heading'));
-                $this->setPageTitle($language->text('event', 'latest_events_page_title'));
+                $this->setPageHeading($language->text('zlevent', 'latest_events_page_heading'));
+                $this->setPageTitle($language->text('zlevent', 'latest_events_page_title'));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
-                OW::getDocument()->setDescription($language->text('event', 'latest_events_page_desc'));
+                OW::getDocument()->setDescription($language->text('zlevent', 'latest_events_page_desc'));
                 $events = $this->eventService->findPublicEvents($page);
                 $eventsCount = $this->eventService->findPublicEventsCount();
                 break;
 
-            case 'user-participated-events':
+            case 'user-participated-events':	// 用户参与的活动列表
 
                 if ( empty($_GET['userId']) )
                 {
@@ -722,7 +681,7 @@ class EVENT_CTRL_Base extends OW_ActionController
                 }
 
                 $eventParams = array(
-                    'action' => 'event_view_attend_events',
+                    'action' => 'zlevent_view_attend_events',
                     'ownerId' => $user->getId(),
                     'viewerId' => OW::getUser()->getId()
                 );
@@ -731,26 +690,26 @@ class EVENT_CTRL_Base extends OW_ActionController
 
                 $displayName = BOL_UserService::getInstance()->getDisplayName($user->getId());
 
-                $this->setPageHeading($language->text('event', 'user_participated_events_page_heading', array('display_name' => $displayName)));
-                $this->setPageTitle($language->text('event', 'user_participated_events_page_title', array('display_name' => $displayName)));
-                OW::getDocument()->setDescription($language->text('event', 'user_participated_events_page_desc', array('display_name' => $displayName)));
+                $this->setPageHeading($language->text('zlevent', 'user_participated_events_page_heading', array('display_name' => $displayName)));
+                $this->setPageTitle($language->text('zlevent', 'user_participated_events_page_title', array('display_name' => $displayName)));
+                OW::getDocument()->setDescription($language->text('zlevent', 'user_participated_events_page_desc', array('display_name' => $displayName)));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
                 $events = $this->eventService->findUserParticipatedPublicEvents($user->getId(), $page);
                 $eventsCount = $this->eventService->findUserParticipatedPublicEventsCount($user->getId());
                 break;
 
-            case 'past':
-                $contentMenu = EVENT_BOL_EventService::getInstance()->getContentMenu();
+            case 'past':		// 已发生活动列表
+                $contentMenu = ZLEVENT_BOL_EventService::getInstance()->getContentMenu();
                 $this->addComponent('contentMenu', $contentMenu);
-                $this->setPageHeading($language->text('event', 'past_events_page_heading'));
-                $this->setPageTitle($language->text('event', 'past_events_page_title'));
+                $this->setPageHeading($language->text('zlevent', 'past_events_page_heading'));
+                $this->setPageTitle($language->text('zlevent', 'past_events_page_title'));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
-                OW::getDocument()->setDescription($language->text('event', 'past_events_page_desc'));
+                OW::getDocument()->setDescription($language->text('zlevent', 'past_events_page_desc'));
                 $events = $this->eventService->findPublicEvents($page, null, true);
                 $eventsCount = $this->eventService->findPublicEventsCount(true);
                 break;
 
-            case 'invited':
+            case 'invited':		// 被邀请参加的活动列表
                 if ( !OW::getUser()->isAuthenticated() )
                 {
                     throw new Redirect403Exception();
@@ -758,10 +717,10 @@ class EVENT_CTRL_Base extends OW_ActionController
 
                 $this->eventService->hideInvitationByUserId(OW::getUser()->getId());
 
-                $contentMenu = EVENT_BOL_EventService::getInstance()->getContentMenu();
+                $contentMenu = ZLEVENT_BOL_EventService::getInstance()->getContentMenu();
                 $this->addComponent('contentMenu', $contentMenu);
-                $this->setPageHeading($language->text('event', 'invited_events_page_heading'));
-                $this->setPageTitle($language->text('event', 'invited_events_page_title'));
+                $this->setPageHeading($language->text('zlevent', 'invited_events_page_heading'));
+                $this->setPageTitle($language->text('zlevent', 'invited_events_page_title'));
                 $this->setPageHeadingIconClass('ow_ic_calendar');
                 $events = $this->eventService->findUserInvitedEvents(OW::getUser()->getId(), $page);
                 $eventsCount = $this->eventService->findUserInvitedEventsCount(OW::getUser()->getId());
@@ -772,11 +731,11 @@ class EVENT_CTRL_Base extends OW_ActionController
 
                     $paramsList = array( 'eventId' => $event->getId(), 'page' => $page, 'list' => trim($params['list']) );
 
-                    $acceptUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlForRoute('event.invite_accept', $paramsList), array('page' => $page));
-                    $ignoreUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlForRoute('event.invite_decline', $paramsList), array('page' => $page));
+                    $acceptUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlForRoute('zlevent.invite_accept', $paramsList), array('page' => $page));
+                    $ignoreUrl = OW::getRequest()->buildUrlQueryString(OW::getRouter()->urlForRoute('zlevent.invite_decline', $paramsList), array('page' => $page));
 
-                    $toolbarList[$event->getId()][] = array('label' => $language->text('event', 'accept_request'),'href' => $acceptUrl);
-                    $toolbarList[$event->getId()][] = array('label' => $language->text('event', 'ignore_request'),'href' => $ignoreUrl);
+                    $toolbarList[$event->getId()][] = array('label' => $language->text('zlevent', 'accept_request'),'href' => $acceptUrl);
+                    $toolbarList[$event->getId()][] = array('label' => $language->text('zlevent', 'ignore_request'),'href' => $ignoreUrl);
                     
                 }
 
@@ -786,17 +745,19 @@ class EVENT_CTRL_Base extends OW_ActionController
                 throw new Redirect404Exception();
         }
 
-        $this->addComponent('paging', new BASE_CMP_Paging($page, ceil($eventsCount / $configs[EVENT_BOL_EventService::CONF_EVENTS_COUNT_ON_PAGE]), 5));
+        // 添加paging控件
+        $this->addComponent('paging', new BASE_CMP_Paging($page, ceil($eventsCount / $configs[ZLEVENT_BOL_EventService::CONF_EVENTS_COUNT_ON_PAGE]), 5));
 
-        $addUrl = OW::getRouter()->urlForRoute('event.add');
+        // 添加“建乐子”按钮
+        $addUrl = OW::getRouter()->urlForRoute('zlevent.add');
 
         $script = '$("input.add_event_button").click(function() {
                 window.location='.json_encode($addUrl).';
             });';
 
-        if ( !OW::getUser()->isAuthorized('event', 'add_event') )
+        if ( !OW::getUser()->isAuthorized('zlevent', 'add_event') )
         {
-            $status = BOL_AuthorizationService::getInstance()->getActionStatus('event', 'add_event');
+            $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'add_event');
 
             if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
             {
@@ -811,7 +772,8 @@ class EVENT_CTRL_Base extends OW_ActionController
         }
 
         OW::getDocument()->addOnloadScript($script);
-
+		// end of 添加“建乐子”按钮
+        
         if ( empty($events) )
         {
             $this->assign('no_events', true);
@@ -821,8 +783,10 @@ class EVENT_CTRL_Base extends OW_ActionController
         $this->assign('page', $page);
         $this->assign('events', $this->eventService->getListingDataWithToolbar($events, $toolbarList));
         $this->assign('toolbarList', $toolbarList);
-        $this->assign('add_new_url', OW::getRouter()->urlForRoute('event.add'));
-        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'event', 'main_menu_item');
+        $this->assign('add_new_url', OW::getRouter()->urlForRoute('zlevent.add'));
+        
+        // 激活主菜单上的“群乐”项
+        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
     }
 
     public function inviteListAccept( $params )
@@ -850,13 +814,13 @@ class EVENT_CTRL_Base extends OW_ActionController
 
             if ( $eventUser !== null && (int) $eventUser->getStatus() === (int) $attendedStatus )
             {
-                $feedback['message'] = OW::getLanguage()->text('event', 'user_status_not_changed_error');
+                $feedback['message'] = OW::getLanguage()->text('zlevent', 'user_status_not_changed_error');
                 //exit(json_encode($feedback));
             }
 
-            if ( $event->getUserId() == OW::getUser()->getId() && (int) $attendedStatus == EVENT_BOL_EventService::USER_STATUS_NO )
+            if ( $event->getUserId() == OW::getUser()->getId() && (int) $attendedStatus == ZLEVENT_BOL_EventService::USER_STATUS_NO )
             {
-                $feedback['message'] = OW::getLanguage()->text('event', 'user_status_author_cant_leave_error');
+                $feedback['message'] = OW::getLanguage()->text('zlevent', 'user_status_author_cant_leave_error');
                 //exit(json_encode($feedback));
             }
 
@@ -864,7 +828,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             {
                 if ( $eventUser === null )
                 {
-                    $eventUser = new EVENT_BOL_EventUser();
+                    $eventUser = new ZLEVENT_BOL_EventUser();
                     $eventUser->setUserId($userId);
                     $eventUser->setEventId((int) $params['eventId']);
                 }
@@ -874,27 +838,27 @@ class EVENT_CTRL_Base extends OW_ActionController
                 $this->eventService->saveEventUser($eventUser);
                 $this->eventService->deleteUserEventInvites((int)$params['eventId'], OW::getUser()->getId());
 
-                $feedback['message'] = OW::getLanguage()->text('event', 'user_status_updated');
+                $feedback['message'] = OW::getLanguage()->text('zlevent', 'user_status_updated');
                 $feedback['messageType'] = 'info';
 
-                if ( $eventUser->getStatus() == EVENT_BOL_EventService::USER_STATUS_YES && $event->getWhoCanView() == EVENT_BOL_EventService::CAN_VIEW_ANYBODY )
+                if ( $eventUser->getStatus() == ZLEVENT_BOL_EventService::USER_STATUS_YES && $event->getWhoCanView() == ZLEVENT_BOL_EventService::CAN_VIEW_ANYBODY )
                 {
                     $userName = BOL_UserService::getInstance()->getDisplayName($event->getUserId());
                     $userUrl = BOL_UserService::getInstance()->getUserUrl($event->getUserId());
                     $userEmbed = '<a href="' . $userUrl . '">' . $userName . '</a>';
 
                     OW::getEventManager()->trigger(new OW_Event('feed.activity', array(
-                            'activityType' => 'event-join',
+                            'activityType' => 'zlevent-join',
                             'activityId' => $eventUser->getId(),
                             'entityId' => $event->getId(),
-                            'entityType' => 'event',
+                            'entityType' => 'zlevent',
                             'userId' => $eventUser->getUserId(),
-                            'pluginKey' => 'event'
+                            'pluginKey' => 'zlevent'
                             ), array(
                             'eventId' => $event->getId(),
                             'userId' => $eventUser->getUserId(),
                             'eventUserId' => $eventUser->getId(),
-                            'string' =>  OW::getLanguage()->text('event', 'feed_actiovity_attend_string' ,  array( 'user' => $userEmbed )),
+                            'string' =>  OW::getLanguage()->text('zlevent', 'feed_actiovity_attend_string' ,  array( 'user' => $userEmbed )),
                             'feature' => array()
                         )));
                 }
@@ -902,7 +866,7 @@ class EVENT_CTRL_Base extends OW_ActionController
         }
         else
         {
-            $feedback['message'] = OW::getLanguage()->text('event', 'user_status_update_error');
+            $feedback['message'] = OW::getLanguage()->text('zlevent', 'user_status_update_error');
         }
 
         if ( !empty($feedback['message']) )
@@ -933,7 +897,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             $paramsList['list'] = $params['list'];
         }
 
-        $this->redirect(OW::getRouter()->urlForRoute('event.view_event_list', $paramsList));
+        $this->redirect(OW::getRouter()->urlForRoute('zlevent.view_event_list', $paramsList));
     }
 
     public function inviteListDecline( $params )
@@ -941,11 +905,11 @@ class EVENT_CTRL_Base extends OW_ActionController
         if ( !empty($params['eventId']) )
         {
             $this->eventService->deleteUserEventInvites((int)$params['eventId'], OW::getUser()->getId());
-            OW::getLanguage()->text('event', 'user_status_updated');
+            OW::getLanguage()->text('zlevent', 'user_status_updated');
         }
         else
         {
-            OW::getLanguage()->text('event', 'user_status_update_error');
+            OW::getLanguage()->text('zlevent', 'user_status_update_error');
         }
 
         if ( !empty($params['page']) )
@@ -958,7 +922,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             $paramsList['list'] = $params['list'];
         }
 
-        $this->redirect(OW::getRouter()->urlForRoute('event.view_event_list', $paramsList));
+        $this->redirect(OW::getRouter()->urlForRoute('zlevent.view_event_list', $paramsList));
     }
 
     /**
@@ -987,25 +951,25 @@ class EVENT_CTRL_Base extends OW_ActionController
             throw new Redirect404Exception();
         }
 
-        if ( !OW::getUser()->isAuthorized('event', 'view_event') && $event->getUserId() != OW::getUser()->getId() && !OW::getUser()->isAuthorized('event') )
+        if ( !OW::getUser()->isAuthorized('zlevent', 'view_event') && $event->getUserId() != OW::getUser()->getId() && !OW::getUser()->isAuthorized('zlevent') )
         {
-            $this->assign('authErrorText', OW::getLanguage()->text('event', 'event_view_permission_error_message'));
+            $this->assign('authErrorText', OW::getLanguage()->text('zlevent', 'event_view_permission_error_message'));
             return;
         }
 
         // guest gan't view private events
-        if ( (int) $event->getWhoCanView() === EVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && !OW::getUser()->isAuthenticated() )
+        if ( (int) $event->getWhoCanView() === ZLEVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && !OW::getUser()->isAuthenticated() )
         {
-            $this->redirect(OW::getRouter()->urlForRoute('event.private_event', array('eventId' => $event->getId())));
+            $this->redirect(OW::getRouter()->urlForRoute('zlevent.private_event', array('eventId' => $event->getId())));
         }
 
         $eventInvite = $this->eventService->findEventInvite($event->getId(), OW::getUser()->getId());
         $eventUser = $this->eventService->findEventUser($event->getId(), OW::getUser()->getId());
 
         // check if user can view event
-        if ( (int) $event->getWhoCanView() === EVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && $eventUser === null && $eventInvite === null && !OW::getUser()->isAuthorized('event') )
+        if ( (int) $event->getWhoCanView() === ZLEVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY && $eventUser === null && $eventInvite === null && !OW::getUser()->isAuthorized('zlevent') )
         {
-            $this->redirect(OW::getRouter()->urlForRoute('event.private_event', array('eventId' => $event->getId())));
+            $this->redirect(OW::getRouter()->urlForRoute('zlevent.private_event', array('eventId' => $event->getId())));
         }
 
         $language = OW::getLanguage();
@@ -1017,7 +981,7 @@ class EVENT_CTRL_Base extends OW_ActionController
 
         $userIdList = array();
 
-        /* @var $eventUser EVENT_BOL_EventUser */
+        /* @var $eventUser ZLEVENT_BOL_EventUser */
         foreach ( $eventUsers as $eventUser )
         {
             $userIdList[] = $eventUser->getUserId();
@@ -1025,13 +989,13 @@ class EVENT_CTRL_Base extends OW_ActionController
 
         $userDtoList = BOL_UserService::getInstance()->findUserListByIdList($userIdList);
 
-        $this->addComponent('users', new EVENT_CMP_EventUsersList($userDtoList, $eventUsersCount, $configs[EVENT_BOL_EventService::CONF_EVENT_USERS_COUNT_ON_PAGE], true));
+        $this->addComponent('users', new ZLEVENT_CMP_EventUsersList($userDtoList, $eventUsersCount, $configs[ZLEVENT_BOL_EventService::CONF_EVENT_USERS_COUNT_ON_PAGE], true));
 
-        $this->setPageHeading($language->text('event', 'user_list_page_heading_' . $status, array('eventTitle' => $event->getTitle())));
-        $this->setPageTitle($language->text('event', 'user_list_page_heading_' . $status, array('eventTitle' => $event->getTitle())));
-        OW::getDocument()->setDescription($language->text('event', 'user_list_page_desc_' . $status, array('eventTitle' => $event->getTitle())));
+        $this->setPageHeading($language->text('zlevent', 'user_list_page_heading_' . $status, array('eventTitle' => $event->getTitle())));
+        $this->setPageTitle($language->text('zlevent', 'user_list_page_heading_' . $status, array('eventTitle' => $event->getTitle())));
+        OW::getDocument()->setDescription($language->text('zlevent', 'user_list_page_desc_' . $status, array('eventTitle' => $event->getTitle())));
 
-        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'event', 'main_menu_item');
+        OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
         
         $this->assign("eventId", $event->id);
     }
@@ -1040,8 +1004,8 @@ class EVENT_CTRL_Base extends OW_ActionController
     {
         $language = OW::getLanguage();
 
-        $this->setPageTitle($language->text('event', 'private_page_title'));
-        $this->setPageHeading($language->text('event', 'private_page_heading'));
+        $this->setPageTitle($language->text('zlevent', 'private_page_title'));
+        $this->setPageHeading($language->text('zlevent', 'private_page_heading'));
         $this->setPageHeadingIconClass('ow_ic_lock');
 
         $eventId = $params['eventId'];
@@ -1051,11 +1015,11 @@ class EVENT_CTRL_Base extends OW_ActionController
         $displayName = BOL_UserService::getInstance()->getDisplayName($event->userId);
         $userUrl = BOL_UserService::getInstance()->getUserUrl($event->userId);
 
-        $this->assign('event', $event);
+        $this->assign('zlevent', $event);
         $this->assign('avatar', $avatarList[$event->userId]);
         $this->assign('displayName', $displayName);
         $this->assign('userUrl', $userUrl);
-        $this->assign('creator', $language->text('event', 'creator'));
+        $this->assign('creator', $language->text('zlevent', 'creator'));
     }
     
     /**
@@ -1084,19 +1048,19 @@ class EVENT_CTRL_Base extends OW_ActionController
 
             if ( $eventUser !== null && (int) $eventUser->getStatus() === (int) $_POST['attend_status'] )
             {
-                $respondArray['message'] = OW::getLanguage()->text('event', 'user_status_not_changed_error');
+                $respondArray['message'] = OW::getLanguage()->text('zlevent', 'user_status_not_changed_error');
                 exit(json_encode($respondArray));
             }
 
-            if ( $event->getUserId() == OW::getUser()->getId() && (int) $_POST['attend_status'] == EVENT_BOL_EventService::USER_STATUS_NO )
+            if ( $event->getUserId() == OW::getUser()->getId() && (int) $_POST['attend_status'] == ZLEVENT_BOL_EventService::USER_STATUS_NO )
             {
-                $respondArray['message'] = OW::getLanguage()->text('event', 'user_status_author_cant_leave_error');
+                $respondArray['message'] = OW::getLanguage()->text('zlevent', 'user_status_author_cant_leave_error');
                 exit(json_encode($respondArray));
             }
 
             if ( $eventUser === null )
             {
-                $eventUser = new EVENT_BOL_EventUser();
+                $eventUser = new ZLEVENT_BOL_EventUser();
                 $eventUser->setUserId($userId);
                 $eventUser->setEventId((int) $_POST['eventId']);
             }
@@ -1107,34 +1071,34 @@ class EVENT_CTRL_Base extends OW_ActionController
 
             $this->eventService->deleteUserEventInvites((int)$_POST['eventId'], OW::getUser()->getId());
 
-            $e = new OW_Event(EVENT_BOL_EventService::EVENT_ON_CHANGE_USER_STATUS, array('eventId' => $event->id, 'userId' => $eventUser->userId));
+            $e = new OW_Event(ZLEVENT_BOL_EventService::EVENT_ON_CHANGE_USER_STATUS, array('eventId' => $event->id, 'userId' => $eventUser->userId));
             OW::getEventManager()->trigger($e);
             
-            $respondArray['message'] = OW::getLanguage()->text('event', 'user_status_updated');
+            $respondArray['message'] = OW::getLanguage()->text('zlevent', 'user_status_updated');
             $respondArray['messageType'] = 'info';
-            $respondArray['currentLabel'] = OW::getLanguage()->text('event', 'user_status_label_' . $eventUser->getStatus());
+            $respondArray['currentLabel'] = OW::getLanguage()->text('zlevent', 'user_status_label_' . $eventUser->getStatus());
             $respondArray['eventId'] = (int) $_POST['eventId'];
-            //$eventUsersCmp = new EVENT_CMP_EventUsers((int) $_POST['eventId']);
+            //$eventUsersCmp = new ZLEVENT_CMP_EventUsers((int) $_POST['eventId']);
             //$respondArray['eventUsersCmp'] = $eventUsersCmp->render();
             $respondArray['newInvCount'] = $this->eventService->findUserInvitedEventsCount(OW::getUser()->getId());
 
-            if ( $eventUser->getStatus() == EVENT_BOL_EventService::USER_STATUS_YES && $event->getWhoCanView() == EVENT_BOL_EventService::CAN_VIEW_ANYBODY )
+            if ( $eventUser->getStatus() == ZLEVENT_BOL_EventService::USER_STATUS_YES && $event->getWhoCanView() == ZLEVENT_BOL_EventService::CAN_VIEW_ANYBODY )
             {
 //                $params = array(
-//                    'pluginKey' => 'event',
-//                    'entityType' => 'event_join',
+//                    'pluginKey' => 'zlevent',
+//                    'entityType' => 'zlevent_join',
 //                    'entityId' => $eventUser->getUserId(),
 //                    'userId' => $eventUser->getUserId()
 //                );
 //
-//                $url = OW::getRouter()->urlForRoute('event.view', array('eventId' => $event->getId()));
+//                $url = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->getId()));
 //                $thumb = $this->eventService->generateImageUrl($event->getId(), true);
 //
 //
 //
 //                $dataValue = array(
 //                    'time' => $eventUser->getTimeStamp(),
-//                    'string' => OW::getLanguage()->text('event', 'feed_user_join_string'),
+//                    'string' => OW::getLanguage()->text('zlevent', 'feed_user_join_string'),
 //                    'content' => '<div class="clearfix"><div class="ow_newsfeed_item_picture">
 //                        <a href="' . $url . '"><img src="' . $thumb . '" /></a>
 //                        </div><div class="ow_newsfeed_item_content">
@@ -1152,24 +1116,24 @@ class EVENT_CTRL_Base extends OW_ActionController
                 $userEmbed = '<a href="' . $userUrl . '">' . $userName . '</a>';
 
                 OW::getEventManager()->trigger(new OW_Event('feed.activity', array(
-                        'activityType' => 'event-join',
+                        'activityType' => 'zlevent-join',
                         'activityId' => $eventUser->getId(),
                         'entityId' => $event->getId(),
-                        'entityType' => 'event',
+                        'entityType' => 'zlevent',
                         'userId' => $eventUser->getUserId(),
-                        'pluginKey' => 'event'
+                        'pluginKey' => 'zlevent'
                         ), array(
                         'eventId' => $event->getId(),
                         'userId' => $eventUser->getUserId(),
                         'eventUserId' => $eventUser->getId(),
-                        'string' =>  OW::getLanguage()->text('event', 'feed_actiovity_attend_string' ,  array( 'user' => $userEmbed )),
+                        'string' =>  OW::getLanguage()->text('zlevent', 'feed_actiovity_attend_string' ,  array( 'user' => $userEmbed )),
                         'feature' => array()
                     )));
             }
         }
         else
         {
-            $respondArray['message'] = OW::getLanguage()->text('event', 'user_status_update_error');
+            $respondArray['message'] = OW::getLanguage()->text('zlevent', 'user_status_update_error');
         }
 
         exit(json_encode($respondArray));
@@ -1215,7 +1179,7 @@ class EVENT_CTRL_Base extends OW_ActionController
             exit;
         }
 
-        if ( (int) $event->getUserId() === OW::getUser()->getId() || (int) $event->getWhoCanInvite() === EVENT_BOL_EventService::CAN_INVITE_PARTICIPANT )
+        if ( (int) $event->getUserId() === OW::getUser()->getId() || (int) $event->getWhoCanInvite() === ZLEVENT_BOL_EventService::CAN_INVITE_PARTICIPANT )
         {
             $count = 0;
 
@@ -1229,7 +1193,7 @@ class EVENT_CTRL_Base extends OW_ActionController
                 if ( $eventInvite === null )
                 {
                     $eventInvite = $this->eventService->inviteUser($event->getId(), $userId, OW::getUser()->getId());
-                    $eventObj = new OW_Event('event.invite_user', array('userId' => $userId, 'inviterId' => OW::getUser()->getId(), 'eventId' => $event->getId(), 'imageId' => $event->getImage(), 'eventTitle' => $event->getTitle(), 'eventDesc' => $event->getDescription(), 'displayInvitation' => $eventInvite->displayInvitation));
+                    $eventObj = new OW_Event('zlevent.invite_user', array('userId' => $userId, 'inviterId' => OW::getUser()->getId(), 'eventId' => $event->getId(), 'imageId' => $event->getImage(), 'eventTitle' => $event->getTitle(), 'eventDesc' => $event->getDescription(), 'displayInvitation' => $eventInvite->displayInvitation));
                     OW::getEventManager()->trigger($eventObj);
                     $count++;
                 }
@@ -1237,7 +1201,7 @@ class EVENT_CTRL_Base extends OW_ActionController
         }
 
         $respondArray['messageType'] = 'info';
-        $respondArray['message'] = OW::getLanguage()->text('event', 'users_invite_success_message', array('count' => $count));
+        $respondArray['message'] = OW::getLanguage()->text('zlevent', 'users_invite_success_message', array('count' => $count));
 
         exit(json_encode($respondArray));
     }
@@ -1247,16 +1211,16 @@ class EVENT_CTRL_Base extends OW_ActionController
  * Event attend form
  * 
  * @author Sardar Madumarov <madumarov@gmail.com>
- * @package ow_plugins.event.forms
+ * @package ow_plugins.zlevent.forms
  * @since 1.0
  */
-class AttendForm extends Form
+class ZLAttendForm extends Form
 {
 
     public function __construct( $eventId, $contId )
     {
         parent::__construct('event_attend');
-        $this->setAction(OW::getRouter()->urlFor('EVENT_CTRL_Base', 'attendFormResponder'));
+        $this->setAction(OW::getRouter()->urlFor('ZLEVENT_CTRL_Base', 'attendFormResponder'));
         $this->setAjax();
         $hidden = new HiddenField('attend_status');
         $this->addElement($hidden);
@@ -1279,7 +1243,7 @@ class AttendForm extends Form
 
                 if ( data.eventId != 'undefuned' )
                 {
-                    OW.loadComponent('EVENT_CMP_EventUsers', {eventId: data.eventId},
+                    OW.loadComponent('ZLEVENT_CMP_EventUsers', {eventId: data.eventId},
                     {
                       onReady: function( html ){
                          $('.userList', \$context).empty().html(html);
@@ -1289,7 +1253,7 @@ class AttendForm extends Form
                 }
 
                 $('.userList', \$context).empty().html(data.eventUsersCmp);
-                OW.trigger('event_notifications_update', {count:data.newInvCount});
+                OW.trigger('zlevent_notifications_update', {count:data.newInvCount});
                 OW.info(data.message);
             }
         }");
@@ -1301,13 +1265,13 @@ class AttendForm extends Form
  * Add new event form
  * 
  * @author Sardar Madumarov <madumarov@gmail.com>
- * @package ow_plugins.event.forms
+ * @package ow_plugins.zlevent.forms
  * @since 1.0
  */
-class EventAddForm extends Form
+class ZLEventAddForm extends Form
 {
 
-    const EVENT_NAME = 'event.event_add_form.get_element';
+    const EVENT_NAME = 'zlevent.event_add_form.get_element';
 
     public function __construct( $name )
     {
@@ -1321,7 +1285,7 @@ class EventAddForm extends Form
 
         $title = new TextField('title');
         $title->setRequired();
-        $title->setLabel($language->text('event', 'add_form_title_label'));
+        $title->setLabel($language->text('zlevent', 'add_form_title_label'));
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'title' ), $title);
         OW::getEventManager()->trigger($event);
@@ -1375,7 +1339,7 @@ class EventAddForm extends Form
 
         $location = new TextField('location');
         $location->setRequired();
-        $location->setLabel($language->text('event', 'add_form_location_label'));
+        $location->setLabel($language->text('zlevent', 'add_form_location_label'));
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'location' ), $location);
         OW::getEventManager()->trigger($event);
@@ -1387,11 +1351,11 @@ class EventAddForm extends Form
         $whoCanView->setRequired();
         $whoCanView->addOptions(
             array(
-                '1' => $language->text('event', 'add_form_who_can_view_option_anybody'),
-                '2' => $language->text('event', 'add_form_who_can_view_option_invit_only')
+                '1' => $language->text('zlevent', 'add_form_who_can_view_option_anybody'),
+                '2' => $language->text('zlevent', 'add_form_who_can_view_option_invit_only')
             )
         );
-        $whoCanView->setLabel($language->text('event', 'add_form_who_can_view_label'));
+        $whoCanView->setLabel($language->text('zlevent', 'add_form_who_can_view_label'));
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'who_can_view' ), $whoCanView);
         OW::getEventManager()->trigger($event);
@@ -1403,11 +1367,11 @@ class EventAddForm extends Form
         $whoCanInvite->setRequired();
         $whoCanInvite->addOptions(
             array(
-                EVENT_BOL_EventService::CAN_INVITE_PARTICIPANT => $language->text('event', 'add_form_who_can_invite_option_participants'),
-                EVENT_BOL_EventService::CAN_INVITE_CREATOR => $language->text('event', 'add_form_who_can_invite_option_creator')
+                ZLEVENT_BOL_EventService::CAN_INVITE_PARTICIPANT => $language->text('zlevent', 'add_form_who_can_invite_option_participants'),
+                ZLEVENT_BOL_EventService::CAN_INVITE_CREATOR => $language->text('zlevent', 'add_form_who_can_invite_option_creator')
             )
         );
-        $whoCanInvite->setLabel($language->text('event', 'add_form_who_can_invite_label'));
+        $whoCanInvite->setLabel($language->text('zlevent', 'add_form_who_can_invite_label'));
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'who_can_invite' ), $whoCanInvite);
         OW::getEventManager()->trigger($event);
@@ -1416,11 +1380,11 @@ class EventAddForm extends Form
         $this->addElement($whoCanInvite);
 
         $submit = new Submit('submit');
-        $submit->setValue($language->text('event', 'add_form_submit_label'));
+        $submit->setValue($language->text('zlevent', 'add_form_submit_label'));
         $this->addElement($submit);
 
         $desc = new WysiwygTextarea('desc');
-        $desc->setLabel($language->text('event', 'add_form_desc_label'));
+        $desc->setLabel($language->text('zlevent', 'add_form_desc_label'));
         $desc->setRequired();
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'desc' ), $desc);
@@ -1430,7 +1394,7 @@ class EventAddForm extends Form
         $this->addElement($desc);
 
         $imageField = new FileField('image');
-        $imageField->setLabel($language->text('event', 'add_form_image_label'));
+        $imageField->setLabel($language->text('zlevent', 'add_form_image_label'));
         $this->addElement($imageField);
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'image' ), $imageField);
@@ -1570,7 +1534,7 @@ class EventTimeField extends FormElement
             $valuesArray[$hour . ':30'] = array('label' => $this->getTimeString($hour, '30'), 'hour' => $hour, 'minute' => 30);
         }
 
-        $optionsString = UTIL_HtmlTag::generateTag('option', array('value' => ""), true, OW::getLanguage()->text('event', 'time_field_invitation_label'));
+        $optionsString = UTIL_HtmlTag::generateTag('option', array('value' => ""), true, OW::getLanguage()->text('zlevent', 'time_field_invitation_label'));
 
         $allDayAttrs = array( 'value' => "all_day"  );
         
@@ -1579,7 +1543,7 @@ class EventTimeField extends FormElement
             $allDayAttrs['selected'] = 'selected';
         }
         
-        $optionsString = UTIL_HtmlTag::generateTag('option', $allDayAttrs, true, OW::getLanguage()->text('event', 'all_day'));
+        $optionsString = UTIL_HtmlTag::generateTag('option', $allDayAttrs, true, OW::getLanguage()->text('zlevent', 'all_day'));
 
         foreach ( $valuesArray as $value => $labelArr )
         {
@@ -1597,7 +1561,7 @@ class EventTimeField extends FormElement
     }
 }
 
-class EVENT_CMP_EventUsersList extends BASE_CMP_Users
+class ZLEVENT_CMP_EventUsersList extends BASE_CMP_Users
 {
 
     public function getFields( $userIdList )

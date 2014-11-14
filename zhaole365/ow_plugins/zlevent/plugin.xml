@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+	<name>乐群</name>
+	<key>zlevent</key>
+	<description>维护隶属乐群的活动</description>
+    <author>找乐365团队</author>
+    <authorEmail>zhaole365@yahoo.com</authorEmail>
+	<authorUrl>http://www.zhaole365.com</authorUrl>
+	<developerKey>723eba8b203379988e1b0d8058e608d7</developerKey>
+    <build>1</build>
+    <copyright>(C) 2014 找乐365. All rights reserved.</copyright>
+    <license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

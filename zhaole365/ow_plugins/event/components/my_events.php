@@ -99,7 +99,7 @@ class EVENT_CMP_MyEvents extends BASE_CLASS_Widget
 
         $toolbarArray = array();
 
-        if ( $eventService->findUsersEventsCount(OW::getUser()->getId()) > $params['events_count'] )
+        if ( $eventService->findUserEventsCount(OW::getUser()->getId()) > $params['events_count'] )
         {
             $toolbarArray['my'] = array(array('href' => OW::getRouter()->urlForRoute('event.view_event_list', array('list' => 'created')), 'label' => $language->text('event', 'view_all_label')));
         }

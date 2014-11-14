@@ -1,97 +1,61 @@
 <?php
 
-/**
- * This software is intended for use with Oxwall Free Community Software http://www.oxwall.org/ and is
- * licensed under The BSD license.
-
- * ---
- * Copyright (c) 2011, Oxwall Foundation
- * All rights reserved.
-
- * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
- * following conditions are met:
- *
- *  - Redistributions of source code must retain the above copyright notice, this list of conditions and
- *  the following disclaimer.
- *
- *  - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
- *  the following disclaimer in the documentation and/or other materials provided with the distribution.
- *
- *  - Neither the name of the Oxwall Foundation nor the names of its contributors may be used to endorse or promote products
- *  derived from this software without specific prior written permission.
-
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
- * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
- * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
-/**
- *  Events Service.
- * 
- * @author Sardar Madumarov <madumarov@gmail.com>, Podyachev Evgeny <joker.OW2@gmail.com>
- * @package ow_plugins.event.bol
- * @since 1.0
- */
-final class EVENT_BOL_EventService
+final class ZLEVENT_BOL_EventService
 {
-    const USER_STATUS_YES = EVENT_BOL_EventUserDao::VALUE_STATUS_YES;
-    const USER_STATUS_MAYBE = EVENT_BOL_EventUserDao::VALUE_STATUS_MAYBE;
-    const USER_STATUS_NO = EVENT_BOL_EventUserDao::VALUE_STATUS_NO;
+    const USER_STATUS_YES = ZLEVENT_BOL_EventUserDao::VALUE_STATUS_YES;
+    const USER_STATUS_MAYBE = ZLEVENT_BOL_EventUserDao::VALUE_STATUS_MAYBE;
+    const USER_STATUS_NO = ZLEVENT_BOL_EventUserDao::VALUE_STATUS_NO;
 
-    const CAN_INVITE_PARTICIPANT = EVENT_BOL_EventDao::VALUE_WHO_CAN_INVITE_PARTICIPANT;
-    const CAN_INVITE_CREATOR = EVENT_BOL_EventDao::VALUE_WHO_CAN_INVITE_CREATOR;
+    const CAN_INVITE_PARTICIPANT = ZLEVENT_BOL_EventDao::VALUE_WHO_CAN_INVITE_PARTICIPANT;
+    const CAN_INVITE_CREATOR = ZLEVENT_BOL_EventDao::VALUE_WHO_CAN_INVITE_CREATOR;
 
-    const CAN_VIEW_ANYBODY = EVENT_BOL_EventDao::VALUE_WHO_CAN_VIEW_ANYBODY;
-    const CAN_VIEW_INVITATION_ONLY = EVENT_BOL_EventDao::VALUE_WHO_CAN_VIEW_INVITATION_ONLY;
+    const CAN_VIEW_ANYBODY = ZLEVENT_BOL_EventDao::VALUE_WHO_CAN_VIEW_ANYBODY;
+    const CAN_VIEW_INVITATION_ONLY = ZLEVENT_BOL_EventDao::VALUE_WHO_CAN_VIEW_INVITATION_ONLY;
 
-    const CONF_EVENT_USERS_COUNT = 'event_users_count';
-    const CONF_EVENT_USERS_COUNT_ON_PAGE = 'event_users_count_on_page';
-    const CONF_EVENTS_COUNT_ON_PAGE = 'events_count_on_page';
-    const CONF_WIDGET_EVENTS_COUNT = 'events_widget_count';
-    const CONF_WIDGET_EVENTS_COUNT_OPTION_LIST = 'events_widget_count_select_set';
-    const CONF_DASH_WIDGET_EVENTS_COUNT = 'events_dash_widget_count';
+    const CONF_EVENT_USERS_COUNT = 'zlevent_users_count';
+    const CONF_EVENT_USERS_COUNT_ON_PAGE = 'zlevent_users_count_on_page';
+    const CONF_EVENTS_COUNT_ON_PAGE = 'zlevents_count_on_page';
+    const CONF_WIDGET_EVENTS_COUNT = 'zlevents_widget_count';
+    const CONF_WIDGET_EVENTS_COUNT_OPTION_LIST = 'zlevents_widget_count_select_set';
+    const CONF_DASH_WIDGET_EVENTS_COUNT = 'zlevents_dash_widget_count';
 
-    const EVENT_AFTER_EVENT_EDIT = 'event_after_event_edit';
-    const EVENT_ON_DELETE_EVENT = 'event_on_delete_event';
-    const EVENT_ON_CREATE_EVENT = 'event_on_create_event';
-    const EVENT_ON_CHANGE_USER_STATUS = 'event_on_change_user_status';
-    const EVENT_AFTER_CREATE_EVENT = 'event_after_create_event';
+    const EVENT_AFTER_EVENT_EDIT = 'zlevent_after_event_edit';
+    const EVENT_ON_DELETE_EVENT = 'zlevent_on_delete_event';
+    const EVENT_ON_CREATE_EVENT = 'zlevent_on_create_event';
+    const EVENT_ON_CHANGE_USER_STATUS = 'zlevent_on_change_user_status';
+    const EVENT_AFTER_CREATE_EVENT = 'zlevent_after_create_event';
     
-    const EVENT_BEFORE_EVENT_CREATE = 'events.before_event_create';
-    const EVENT_BEFORE_EVENT_EDIT = 'events.before_event_edit';
-    const EVENT_COLLECT_TOOLBAR = 'events.collect_toolbar';
+    const EVENT_BEFORE_EVENT_CREATE = 'zlevents.before_event_create';
+    const EVENT_BEFORE_EVENT_EDIT = 'zlevents.before_event_edit';
+    const EVENT_COLLECT_TOOLBAR = 'zlevents.collect_toolbar';
 
     /**
      * @var array
      */
     private $configs = array();
     /**
-     * @var EVENT_BOL_EventDao
+     * @var ZLEVENT_BOL_EventDao
      */
     private $eventDao;
     /**
-     * @var EVENT_BOL_EventUserDao
+     * @var ZLEVENT_BOL_EventUserDao
      */
     private $eventUserDao;
     /**
-     * @var EVENT_BOL_EventInviteDao
+     * @var ZLEVENT_BOL_EventInviteDao
      */
     private $eventInviteDao;
     /**
      * Singleton instance.
      *
-     * @var EVENT_BOL_EventService
+     * @var ZLEVENT_BOL_EventService
      */
     private static $classInstance;
 
     /**
      * Returns an instance of class (singleton pattern implementation).
      *
-     * @return EVENT_BOL_EventService
+     * @return ZLEVENT_BOL_EventService
      */
     public static function getInstance()
     {
@@ -108,9 +72,9 @@ final class EVENT_BOL_EventService
      */
     private function __construct()
     {
-        $this->eventDao = EVENT_BOL_EventDao::getInstance();
-        $this->eventUserDao = EVENT_BOL_EventUserDao::getInstance();
-        $this->eventInviteDao = EVENT_BOL_EventInviteDao::getInstance();
+        $this->eventDao = ZLEVENT_BOL_EventDao::getInstance();
+        $this->eventUserDao = ZLEVENT_BOL_EventUserDao::getInstance();
+        $this->eventInviteDao = ZLEVENT_BOL_EventInviteDao::getInstance();
 
         $this->configs[self::CONF_EVENT_USERS_COUNT] = 10;
         $this->configs[self::CONF_EVENTS_COUNT_ON_PAGE] = 15;
@@ -131,9 +95,9 @@ final class EVENT_BOL_EventService
     /**
      * Saves event dto.
      *
-     * @param EVENT_BOL_Event $event
+     * @param ZLEVENT_BOL_Event $event
      */
-    public function saveEvent( EVENT_BOL_Event $event )
+    public function saveEvent( ZLEVENT_BOL_Event $event )
     {
         $this->eventDao->save($event);
     }
@@ -154,7 +118,7 @@ final class EVENT_BOL_EventService
             $storage->removeFile($this->generateImagePath($imageId, false));
         }
 
-        $pluginfilesDir = Ow::getPluginManager()->getPlugin('event')->getPluginFilesDir();
+        $pluginfilesDir = Ow::getPluginManager()->getPlugin('zlevent')->getPluginFilesDir();
 
         $tmpImgPath = $pluginfilesDir . 'img_' .uniqid() . '.jpg';
         $tmpIconPath = $pluginfilesDir . 'icon_' . uniqid() . '.jpg';
@@ -199,8 +163,8 @@ final class EVENT_BOL_EventService
         $this->eventUserDao->deleteByEventId($eventDto->getId());
         $this->eventDao->deleteById($eventDto->getId());
         $this->eventInviteDao->deleteByEventId($eventDto->getId());
-        BOL_InvitationService::getInstance()->deleteInvitationByEntity('event', $eventId);
-        BOL_InvitationService::getInstance()->deleteInvitationByEntity('event-invitation', $eventId);
+        BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent', $eventId);
+        BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent-invitation', $eventId);
     }
 
     /**
@@ -212,8 +176,8 @@ final class EVENT_BOL_EventService
      */
     public function generateImagePath( $imageId, $icon = true )
     {
-        $imagesDir = OW::getPluginManager()->getPlugin('event')->getUserFilesDir();
-        return $imagesDir . ( $icon ? 'event_icon_' : 'event_image_' ) . $imageId . '.jpg';
+        $imagesDir = OW::getPluginManager()->getPlugin('zlevent')->getUserFilesDir();
+        return $imagesDir . ( $icon ? 'zlevent_icon_' : 'zlevent_image_' ) . $imageId . '.jpg';
     }
 
     /**
@@ -240,7 +204,7 @@ final class EVENT_BOL_EventService
      * Finds event by id.
      *
      * @param integer $id
-     * @return EVENT_BOL_Event
+     * @return ZLEVENT_BOL_Event
      */
     public function findEvent( $id )
     {
@@ -252,7 +216,7 @@ final class EVENT_BOL_EventService
      *
      * @param integer $eventId
      * @param integer $status
-     * @return array<EVENT_BOL_EventUser>
+     * @return array<ZLEVENT_BOL_EventUser>
      */
     public function findEventUsers( $eventId, $status, $page, $usersCount = null )
     {
@@ -286,9 +250,9 @@ final class EVENT_BOL_EventService
     /**
      * Saves event user objects.
      *
-     * @param EVENT_BOL_EventUser $eventUser
+     * @param ZLEVENT_BOL_EventUser $eventUser
      */
-    public function saveEventUser( EVENT_BOL_EventUser $eventUser )
+    public function saveEventUser( ZLEVENT_BOL_EventUser $eventUser )
     {
         $this->eventUserDao->save($eventUser);
     }
@@ -296,11 +260,11 @@ final class EVENT_BOL_EventService
     /**
      * Saves event user objects.
      *
-     * @param EVENT_BOL_EventUser $eventUser
+     * @param ZLEVENT_BOL_EventUser $eventUser
      */
     public function addEventUser( $userId, $eventId, $status, $timestamp = null )
     {
-        $statusList = array( EVENT_BOL_EventUserDao::VALUE_STATUS_YES, EVENT_BOL_EventUserDao::VALUE_STATUS_MAYBE, EVENT_BOL_EventUserDao::VALUE_STATUS_NO );
+        $statusList = array( ZLEVENT_BOL_EventUserDao::VALUE_STATUS_YES, ZLEVENT_BOL_EventUserDao::VALUE_STATUS_MAYBE, ZLEVENT_BOL_EventUserDao::VALUE_STATUS_NO );
 
         if( (int) $userId <= 0 || $eventId <=0 || !in_array($status, $statusList) )
         {
@@ -323,7 +287,7 @@ final class EVENT_BOL_EventService
 
         if ( empty($eventUser) )
         {
-            $eventUser = new EVENT_BOL_EventUser();
+            $eventUser = new ZLEVENT_BOL_EventUser();
 
             $eventUser->eventId = $eventId;
             $eventUser->userId = $userId;
@@ -342,7 +306,7 @@ final class EVENT_BOL_EventService
      *
      * @param integer $eventId
      * @param integer $userId
-     * @return EVENT_BOL_EventUser
+     * @return ZLEVENT_BOL_EventUser
      */
     public function findEventUser( $eventId, $userId )
     {
@@ -359,7 +323,7 @@ final class EVENT_BOL_EventService
     public function canUserView( $eventId, $userId )
     {
         $event = $this->eventDao->findById($eventId);
-        /* @var $event EVENT_BOL_Event */
+        /* @var $event ZLEVENT_BOL_Event */
         if ( $event === null )
         {
             return false;
@@ -385,7 +349,7 @@ final class EVENT_BOL_EventService
     public function canUserInvite( $eventId, $userId )
     {
         $event = $this->eventDao->findById($eventId);
-        /* @var $event EVENT_BOL_Event */
+        /* @var $event ZLEVENT_BOL_Event */
         if ( $event === null || ( $event->getWhoCanInvite() == self::CAN_INVITE_CREATOR && $userId != $event->getUserId() ) )
         {
             return false;
@@ -405,7 +369,7 @@ final class EVENT_BOL_EventService
      * Returns latest events list.
      *
      * @param integer $page
-     * @return array<EVENT_BOL_Event>
+     * @return array<ZLEVENT_BOL_Event>
      */
     public function findPublicEvents( $page, $eventsCount = null, $past = false )
     {
@@ -441,7 +405,7 @@ final class EVENT_BOL_EventService
      * @param integer $userId
      * @param integer $inviterId
      *
-     * @return EVENT_BOL_EventInvite
+     * @return ZLEVENT_BOL_EventInvite
      */
     public function inviteUser( $eventId, $userId, $inviterId )
     {
@@ -452,7 +416,7 @@ final class EVENT_BOL_EventService
             return false;
         }
 
-        $eventInvite = new EVENT_BOL_EventInvite();
+        $eventInvite = new ZLEVENT_BOL_EventInvite();
         $eventInvite->setEventId($eventId);
         $eventInvite->setInviterId($inviterId);
         $eventInvite->setUserId($userId);
@@ -469,7 +433,7 @@ final class EVENT_BOL_EventService
      *
      * @param integer $eventId
      * @param integer $userId
-     * @return EVENT_BOL_EventInvite
+     * @return ZLEVENT_BOL_EventInvite
      */
     public function findEventInvite( $eventId, $userId )
     {
@@ -507,7 +471,7 @@ final class EVENT_BOL_EventService
      */
     public function findUserEventsCount( $userId )
     {
-        return $this->eventDao->findUserCretedEventsCount($userId);
+        return $this->eventDao->findUserCreatedEventsCount($userId);
     }
 
     /**
@@ -596,14 +560,14 @@ final class EVENT_BOL_EventService
     /**
      * Prepares data for ipc listing.
      *
-     * @param array<EVENT_BOL_Event> $events
+     * @param array<ZLEVENT_BOL_Event> $events
      * @return array
      */
     public function getListingData( array $events )
     {
         $resultArray = array();
 
-        /* @var $eventItem EVENT_BOL_Event */
+        /* @var $eventItem ZLEVENT_BOL_Event */
         foreach ( $events as $eventItem )
         {
             $title = UTIL_String::truncate(strip_tags($eventItem->getTitle()), 80, "...") ;
@@ -612,7 +576,7 @@ final class EVENT_BOL_EventService
             $resultArray[$eventItem->getId()] = array(
                 'content' => $content,
                 'title' => $title,
-                'eventUrl' => OW::getRouter()->urlForRoute('event.view', array('eventId' => $eventItem->getId())),
+                'eventUrl' => OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $eventItem->getId())),
                 'imageSrc' => ( $eventItem->getImage() ? $this->generateImageUrl($eventItem->getImage(), true) : $this->generateDefaultImageUrl() ),
                 'imageTitle' => $title
             );
@@ -624,7 +588,7 @@ final class EVENT_BOL_EventService
     /**
      * Prepares data for ipc listing with toolbar.
      *
-     * @param array<EVENT_BOL_Event> $events
+     * @param array<ZLEVENT_BOL_Event> $events
      * @return array
      */
     public function getListingDataWithToolbar( array $events, $toolbarList = array() )
@@ -634,7 +598,7 @@ final class EVENT_BOL_EventService
 
         $idArray = array();
 
-        /* @var $event EVENT_BOL_Event */
+        /* @var $event ZLEVENT_BOL_Event */
         foreach ( $events as $event )
         {
             $idArray[] = $event->getUserId();
@@ -644,7 +608,7 @@ final class EVENT_BOL_EventService
         $urls = $userService->getUserUrlsForList($idArray);
 
         $language = OW::getLanguage();
-        /* @var $eventItem EVENT_BOL_Event */
+        /* @var $eventItem ZLEVENT_BOL_Event */
         foreach ( $events as $eventItem )
         {
             $resultArray[$eventItem->getId()]['toolbar'][] = array('label' => $usernames[$eventItem->getUserId()], 'href' => $urls[$eventItem->getUserId()], 'class' => 'ow_icon_control ow_ic_user');
@@ -680,7 +644,7 @@ final class EVENT_BOL_EventService
      * @param integer $userId
      * @param integer $page
      * @param integer $eventsCount
-     * @return array<EVENT_BOL_Event>
+     * @return array<ZLEVENT_BOL_Event>
      */
     public function findUserInvitedEvents( $userId, $page, $eventsCount = null )
     {
@@ -741,7 +705,7 @@ final class EVENT_BOL_EventService
     {
         $events = $this->eventDao->findAllUserEvents($userId);
 
-        /* @var $event EVENT_BOL_Event */
+        /* @var $event ZLEVENT_BOL_Event */
         foreach ( $events as $event )
         {
             $this->deleteEvent($event->getId());
@@ -772,6 +736,7 @@ final class EVENT_BOL_EventService
          return $this->eventInviteDao->findUserListForInvite($eventId, $first, $count, $friendList );
     }
     
+    // 构造活动列表首页内容菜单
     public function getContentMenu()
     {
         $menuItems = array();
@@ -797,13 +762,13 @@ final class EVENT_BOL_EventService
         {
             $menuItem = new BASE_MenuItem();
             $menuItem->setKey($listKey);
-            $menuItem->setUrl(OW::getRouter()->urlForRoute('event.view_event_list', array('list' => $listKey)));
-            $menuItem->setLabel(OW::getLanguage()->text('event', 'common_list_type_' . $listKey . '_label'));
+            $menuItem->setUrl(OW::getRouter()->urlForRoute('zlevent.view_event_list', array('list' => $listKey)));
+            $menuItem->setLabel(OW::getLanguage()->text('zlevent', 'common_list_type_' . $listKey . '_label'));
             $menuItem->setIconClass($listArr['iconClass']);
             $menuItems[] = $menuItem;
         }
         
-        $event = new BASE_CLASS_EventCollector('event.add_content_menu_item');
+        $event = new BASE_CLASS_EventCollector('zlevent.add_content_menu_item');
         OW::getEventManager()->getInstance()->trigger($event);
         
         $data = $event->getData();
@@ -818,9 +783,9 @@ final class EVENT_BOL_EventService
     
     public function clearEventInvitations( $eventId )
     {        
-        BOL_InvitationService::getInstance()->deleteInvitationByEntity('event', (int)$eventId);
-        BOL_InvitationService::getInstance()->deleteInvitationByEntity('event-invitation', (int)$eventId);
-        BOL_InvitationService::getInstance()->deleteInvitationByEntity(EVENT_CLASS_InvitationHandler::INVITATION_JOIN, (int)$eventId);
+        BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent', (int)$eventId);
+        BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent-invitation', (int)$eventId);
+        BOL_InvitationService::getInstance()->deleteInvitationByEntity(ZLEVENT_CLASS_InvitationHandler::INVITATION_JOIN, (int)$eventId);
         
         $this->eventInviteDao->deleteByEventId($eventId);
     }

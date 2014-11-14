@@ -105,7 +105,8 @@ $widget = $widgetService->addWidget('BASE_CMP_RssWidget', true);
 $placeWidget = $widgetService->addWidgetToPlace($widget, 'zlgroup');
 
 // 设置语言包
-BOL_LanguageService::getInstance()->importPrefixFromZip($plugin->getRootDir() . 'langs.zip', 'zlgroups');
+//BOL_LanguageService::getInstance()->importPrefixFromZip($plugin->getRootDir() . 'langs.zip', 'zlgroups');
+OW::getLanguage()->importPluginLangs(OW::getPluginManager()->getPlugin('zlgroups')->getRootDir() . 'langs.zip', 'zlgroups');
 
 // 设置访问权限
 $authorization = OW::getAuthorization();
