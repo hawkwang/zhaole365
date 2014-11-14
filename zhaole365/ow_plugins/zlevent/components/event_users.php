@@ -52,17 +52,18 @@ class ZLEVENT_CMP_EventUsers extends OW_Component
         $contId = UTIL_HtmlTag::generateAutoId('cont');
 
         $this->userLists[] = array(
-            'contId' => $contId,
-            'cmp' => $usersCmp->render(),
+            'contId' => $contId,			// 需要和菜单项中的'contId'对应
+            'cmp' => $usersCmp->render(),   // 产出相应的html代码
             'bottomLinkEnable' => ($usersCount > $serviceConfigs[ZLEVENT_BOL_EventService::CONF_EVENT_USERS_COUNT]),
             'toolbarArray' => array(
                 array(
                     'label' => $language->text('zlevent', 'avatar_user_list_bottom_link_label', array('count' => $usersCount)),
-                    'href' => OW::getRouter()->urlForRoute('zlevent.user_list', array('eventId' => $event->getId(), 'list' => $listTypes[(int) $status]))
+                    'href' => OW::getRouter()->urlForRoute('zlevent.user_list', array('eventId' => $event->getId(), 'list' => $listTypes[(int) $status])) // 用于查看该活动的所有指定类型的用户信息
                 )
             )
         );
 
+        // 构建组件菜单项
         $this->userListMenu[] = array(
             'label' => $language->text('zlevent', 'avatar_user_list_link_label_' . $status),
             'id' => $linkId,

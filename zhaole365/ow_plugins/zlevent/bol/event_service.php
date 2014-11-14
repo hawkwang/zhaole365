@@ -629,6 +629,7 @@ final class ZLEVENT_BOL_EventService
         return $resultArray;
     }
 
+    // 得到用户参加类型列表数组
     public function getUserListsArray()
     {
         return array(
@@ -638,14 +639,8 @@ final class ZLEVENT_BOL_EventService
         );
     }
 
-    /**
-     * Returns user invited events.
-     *
-     * @param integer $userId
-     * @param integer $page
-     * @param integer $eventsCount
-     * @return array<ZLEVENT_BOL_Event>
-     */
+
+    // 根据page和数量得到指定用户被邀请的活动
     public function findUserInvitedEvents( $userId, $page, $eventsCount = null )
     {
         if ( $page === null )
@@ -663,12 +658,7 @@ final class ZLEVENT_BOL_EventService
         return $this->eventDao->findUserInvitedEvents($userId, $first, $count);
     }
 
-    /**
-     * Returns user invited events count.
-     *
-     * @param integer $userId
-     * @return integer
-     */
+	// 根据page和数量得到指定用户被邀请的活动数
     public function findUserInvitedEventsCount( $userId )
     {
         return $this->eventDao->findUserInvitedEventsCount($userId);

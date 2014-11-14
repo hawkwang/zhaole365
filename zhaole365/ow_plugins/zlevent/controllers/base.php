@@ -593,7 +593,6 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $cmntParams->setOwnerId($event->getUserId());
         $this->addComponent('comments', new BASE_CMP_Comments($cmntParams));
         $this->addComponent('userListCmp', new ZLEVENT_CMP_EventUsers($event->getId()));
-        
 
         // 搜集工具栏项
         $event = new BASE_CLASS_EventCollector(ZLEVENT_BOL_EventService::EVENT_COLLECT_TOOLBAR, array(
@@ -789,6 +788,7 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
     }
 
+    // 接受活动参加邀请
     public function inviteListAccept( $params )
     {
         if ( !OW::getUser()->isAuthenticated() )
@@ -925,11 +925,8 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $this->redirect(OW::getRouter()->urlForRoute('zlevent.view_event_list', $paramsList));
     }
 
-    /**
-     * User's events list controller
-     * 
-     * @param array $params 
-     */
+
+    // 显示活动用户列表
     public function eventUserLists( $params )
     {
         if ( empty($params['eventId']) || empty($params['list']) )
@@ -1304,7 +1301,7 @@ class ZLEventAddForm extends Form
 
         $this->addElement($startDate);
 
-        $startTime = new EventTimeField('start_time');
+        $startTime = new ZLEventTimeField('start_time');
         $startTime->setMilitaryTime($militaryTime);
         
         if ( !empty($_POST['endDateFlag']) )
@@ -1328,7 +1325,7 @@ class ZLEventAddForm extends Form
 
         $this->addElement($endDate);
 
-        $endTime = new EventTimeField('end_time');
+        $endTime = new ZLEventTimeField('end_time');
         $endTime->setMilitaryTime($militaryTime);
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'end_time' ), $endTime);
@@ -1412,7 +1409,7 @@ class ZLEventAddForm extends Form
  * @package ow_core
  * @since 1.0
  */
-class EventTimeField extends FormElement
+class ZLEventTimeField extends FormElement
 {
     private $militaryTime;
 

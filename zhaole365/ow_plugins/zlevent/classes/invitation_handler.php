@@ -192,7 +192,7 @@ class ZLEVENT_CLASS_InvitationHandler
 
         $params = $event->getParams();
 
-        if ( !in_array($params['command'], array('zlevents.accept', 'events.ignore')) )
+        if ( !in_array($params['command'], array('zlevents.accept', 'zlevents.ignore')) )
         {
             return 'wrong command';
         }
@@ -278,9 +278,9 @@ class ZLEVENT_CLASS_InvitationHandler
     public function init()
     {
         OW::getEventManager()->bind('zlevent.invite_user', array($this, 'onInvite'));
-        OW::getEventManager()->bind('invitations.on_item_render', array($this, 'onItemRender'));
         OW::getEventManager()->bind(ZLEVENT_BOL_EventService::EVENT_ON_DELETE_EVENT, array($this, 'onEventDelete'));
 
+        OW::getEventManager()->bind('invitations.on_item_render', array($this, 'onItemRender'));
         OW::getEventManager()->bind('invitations.on_command', array($this, 'onCommand'));
     }
 }
