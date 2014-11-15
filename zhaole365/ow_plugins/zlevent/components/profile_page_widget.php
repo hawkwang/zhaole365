@@ -40,7 +40,7 @@ class ZLEVENT_CMP_ProfilePageWidget extends BASE_CLASS_Widget
         }
         
         $language = OW::getLanguage();
-        $eventService = EVENT_BOL_EventService::getInstance();
+        $eventService = ZLEVENT_BOL_EventService::getInstance();
 
         $userEvents = $eventService->findUserParticipatedPublicEvents($userId, null, $params['events_count']);
         
