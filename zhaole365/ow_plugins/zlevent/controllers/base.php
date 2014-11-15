@@ -33,6 +33,12 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
             throw new AuthorizationException($status['msg']);
         }
         
+        OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
+        
+        // FIXME
+        $searcharea = '北京市';
+        $this->assign('searcharea', $searcharea);
+        
         $form = new ZLEventAddForm('event_add');
 
         if ( date('n', time()) == 12 && date('j', time()) == 31 )
@@ -246,6 +252,13 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
     {
         $event = $this->getEventForParams($params);
         $language = OW::getLanguage();
+        
+        OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
+        
+        // FIXME
+        $searcharea = '北京市';
+        $this->assign('searcharea', $searcharea);
+        
         $form = new ZLEventAddForm('event_edit');
 
         $form->getElement('title')->setValue($event->getTitle());
@@ -1335,7 +1348,7 @@ class ZLEventAddForm extends Form
         $this->addElement($endTime);
 
         $location = new TextField('location');
-        $location->setRequired();
+        //$location->setRequired();
         $location->setLabel($language->text('zlevent', 'add_form_location_label'));
 
         $event = new OW_Event(self::EVENT_NAME, array( 'name' => 'location' ), $location);
@@ -1344,6 +1357,10 @@ class ZLEventAddForm extends Form
 
         $this->addElement($location);
 
+        $field = new HiddenField('locationinfo');
+        $field->addValidator(new ZLEVENT_RequiredLoactionValidator());
+        $this->addElement($field);
+        
         $whoCanView = new RadioField('who_can_view');
         $whoCanView->setRequired();
         $whoCanView->addOptions(
@@ -1609,4 +1626,62 @@ class ZLEVENT_CMP_EventUsersList extends BASE_CMP_Users
 
         return $fields;
     }
+}
+
+class ZLEVENT_RequiredLoactionValidator extends OW_Validator
+{
+	/**
+	 * Constructor.
+	 *
+	 * @param array $params
+	 */
+	public function __construct()
+	{
+		$errorMessage = OW::getLanguage()->text('zlevent', 'errors_location');
+
+		if ( empty($errorMessage) )
+		{
+			$errorMessage = 'Required Validator Error!';
+		}
+
+		$this->setErrorMessage($errorMessage);
+	}
+
+	/**
+	 * @see OW_Validator::isValid()
+	 *
+	 * @param mixed $value
+	 */
+	public function isValid( $value )
+	{
+		if ( is_array($value) )
+		{
+			if ( sizeof($value) === 0 )
+			{
+				return false;
+			}
+		}
+		else if ( $value === null || mb_strlen(trim($value)) === 0 )
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 * @see OW_Validator::getJsValidator()
+	 *
+	 * @return string
+	 */
+	public function getJsValidator()
+	{
+		return "{
+        	validate : function( value ){
+                if(  $.isArray(value) ){ if(value.length == 0  ) throw " . json_encode($this->getError()) . "; return;}
+                else if( !value || $.trim(value).length == 0 ){ throw " . json_encode($this->getError()) . "; }
+        },
+        	getErrorMessage : function(){ return " . json_encode($this->getError()) . " }
+        }";
+	}
 }

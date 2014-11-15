@@ -5,11 +5,147 @@
     padding-left: 3px;
 }
 
+                 .ow_searchbar_btn {
+						background-position: right 5px;
+						background-repeat: no-repeat;
+						display: inline-block;
+						height: 24px;
+						vertical-align: middle;
+						width: 24px;
+					}
+        		
+        		  .ow_searchbar_input {
+		        		margin-right: -30px; 
+		        		width:100%;
+        		   }
+
 {/literal}
 {/style}
 
+{script}
+{literal}
+
+$(function() {
+	
+    var map = undefined;
+    var marker = undefined;
+    
+    var mapDiv = $("<div id='locationtag_autocomplite_map' class='ow_location_tag_map_item' style='width:100%; height:300px;'></div>");
+    $(".baidumap_section").append(mapDiv);
+
+    if (!map)
+    {
+        map = new BMap.Map("locationtag_autocomplite_map");
+        var point = new BMap.Point(116.395645,39.929985);
+        map.centerAndZoom(point,16);
+        map.enableScrollWheelZoom();    //启用滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+        map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+        map.addControl(new BMap.OverviewMapControl());              //添加默认缩略地图控件
+        map.addControl(new BMap.OverviewMapControl({isOpen:false, anchor: BMAP_ANCHOR_TOP_RIGHT}));   //右上角，打开
+        map.addControl(new BMap.ScaleControl());                    // 添加默认比例尺控件
+        map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_BOTTOM_LEFT}));                    // 左下
+        map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));                    // 左上
+        
+        marker = new BMap.Marker(point);
+        //marker.enableDragging();    //可拖拽
+	    map.addOverlay(marker);
+	    
+	    map.centerAndZoom(point,16);
+    }
+	
+    $(document).on('click', '.get-address', function() {
+    	var address = $('input[name="location"]').val();
+    	debug(address);
+    	
+    	if(address=='')
+    	{
+    		$('input[name="locationinfo"]').val('');
+    		OW.error('请填写正确的地址信息！');
+    		return;
+    	}
+    	
+        // remove previous marker
+        map.removeOverlay(marker);
+        var geocoder = new BMap.Geocoder();
+        geocoder.getPoint(address, function(point){
+
+	            if (point) {
+	            	
+	            	map.centerAndZoom(point, 16);
+	            	marker = new BMap.Marker(point);
+	            	map.addOverlay(marker);
+			    
+                      geocoder.getLocation(point, function(item){  
+                          var result = {                          
+                                  description: item.address,
+                                  lat: item.point.lat,
+                                  lng: item.point.lng,
+                                  address: item.addressComponents.province + item.addressComponents.city + item.addressComponents.district + item.addressComponents.street + item.addressComponents.streetNumber,
+                                  result: item
+                              };
+                          
+                          var info = result.address + "(" + result.lng+ "," + result.lat + ")"; 
+                         
+                        // not valid address
+                        var invalid_lng = 116.395645;
+                        var invalid_lat = 39.929985;
+                        var delta_lng = Math.abs(item.point.lng-invalid_lng);
+                        var delta_lat = Math.abs(item.point.lat-invalid_lat);
+                      	if( (delta_lng<0.0001) && (delta_lat<0.0001) )
+                        {
+                      	  $('input[name="locationinfo"]').val('');
+                      	  OW.error('请填写正确的地址信息！');
+                        }
+                      	else
+                      	{
+                    	  var locationinfo = item.address + '||' + item.addressComponents.province 
+                    	  		+ '||' + item.addressComponents.city + '||' + item.addressComponents.district 
+                    	  		+ '||' + item.point.lng + '||' + item.point.lat;
+                    	  $('input[name="locationinfo"]').val(locationinfo);
+                          debug(info);
+                      	}
+                  	})  
+			  }
+			  else
+		      {
+		          OW.error('请填写正确的地址信息！');
+				  $('input[name="locationinfo"]').val('');
+		      }
+			}, 
+			$('input[name="searcharea"]').val() //"北京市"
+			)
+    });
+    
+}
+);
+
+function showErrorMessage(messagebox, message)
+{
+	messagebox.text(message);
+	messagebox.show();
+}
+
+function hideErrorMessage(messagebox)
+{
+	messagebox.hide();
+}
+
+function debug(message)
+{
+	var debug = false;
+	if(debug)
+		alert(message);
+}
+
+{/literal}
+{/script}
 
 <div class="ow_superwide ow_automargin">
+
+    <div>
+    	<input type="hidden" name="searcharea" value="{$searcharea}" >
+    </div>
 
     {if empty($err_msg)}
 		{form name='event_add'}
@@ -47,7 +183,17 @@
 		    </tr>
             <tr class="ow_alt2">
 		        <td class="ow_label">{label name='location'}</td>
-		        <td class="ow_value">{input name='location'} <br /> {error name='location'}</td>
+		        <td class="ow_value">
+	                	<div class="ow_searchbar clearfix">
+							<div class="ow_searchbar_input ow_left">
+								{input name='location'}
+							</div>
+							<span class="get-address ow_searchbar_btn ow_ic_lens ow_cursor_pointer ow_left"></span>
+						</div>
+	                	{input name='locationinfo'}<br />
+						{error name='locationinfo'}
+	                	<div class="baidumap_section"></div>
+		        </td>
 		        <td class="ow_desc ow_small">{text key='zlevent+add_form_location_desc'}</td>
 		    </tr>
             <tr class="ow_alt1">

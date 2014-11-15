@@ -33,6 +33,8 @@ final class ZLEVENT_BOL_EventService
      * @var array
      */
     private $configs = array();
+    
+    private $eventLocationDao;
     /**
      * @var ZLEVENT_BOL_EventDao
      */
@@ -72,6 +74,7 @@ final class ZLEVENT_BOL_EventService
      */
     private function __construct()
     {
+    	$this->eventLocationDao = ZLEVENT_BOL_EventLocationDao::getInstance();
         $this->eventDao = ZLEVENT_BOL_EventDao::getInstance();
         $this->eventUserDao = ZLEVENT_BOL_EventUserDao::getInstance();
         $this->eventInviteDao = ZLEVENT_BOL_EventInviteDao::getInstance();
@@ -792,4 +795,56 @@ final class ZLEVENT_BOL_EventService
     {
         return $this->eventDao->findByIdList($idList);
     }
+    
+    // added by hawk
+    // 群乐地址相关操作
+    public function saveLocation($eventid, $location, $formated_address, $province, $city, $district, $longitude, $latitude)
+    {
+    	// 删除已有乐群地址信息
+    	$this->eventLocationDao->deleteByEventId($eventid);
+    	 
+    	// 根据$formated_address获得地址信息，如果不存在，则创建相应地址信息
+    	$formated_address_info = ZLAREAS_BOL_LocationService::getInstance()->findLocationByAddress($formated_address);
+    	if($formated_address_info==null)
+    	{
+    		ZLAREAS_BOL_LocationService::getInstance()->addDetailedLocation($formated_address, $province, $city, $district, $longitude, $latitude, $location);
+    	}
+    	$formated_address_info = ZLAREAS_BOL_LocationService::getInstance()->findLocationByAddress($formated_address);
+    	 
+    	// 建立关联关系
+    	$location = new ZLEVENT_BOL_EventLocation();
+    	$location->eventId = $eventid;
+    	$location->locationId = $formated_address_info->id;
+    	$location->location = $location;
+    	$this->eventLocationDao->save($location);
+    }
+    
+    public function findLocationDetailedInfoByEventId($eventid)
+    {
+    	$locationdetails = array();
+    	 
+    	$eventlocation = $this->eventLocationDao->findByEventId($eventid);
+    	$locationdetails['location'] = $eventlocation->location;
+    	 
+    	$locationid = $eventlocation->locationId;
+    	$location = ZLAREAS_BOL_LocationService::getInstance()->findById($locationid);
+    	 
+    	$locationdetails['formated_address'] = $location->address;
+    	$locationdetails['longitude'] = $location->longitude;
+    	$locationdetails['latitude'] = $location->latitude;
+    	 
+    	$areacode = $location->areacode;
+    	$area = ZLAREAS_BOL_Service::getInstance()->findByAreacode($areacode);
+    	$locationdetails['province'] = $area->province;
+    	$locationdetails['city'] = $area->city;
+    	$locationdetails['area'] = $area->area;
+    	 
+    	$locationdetails['locationinfo'] =  $locationdetails['formated_address'] + '||'
+    			+ $locationdetails['province'] + '||' + $locationdetails['city'] + '||' + $locationdetails['area']
+    			+ '||' + $locationdetails['longitude'] + '||' + $locationdetails['latitude'];
+    	 
+    	return $locationdetails;
+    }
+    
+    
 }

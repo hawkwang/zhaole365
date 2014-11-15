@@ -579,11 +579,11 @@ class ZLGROUPS_BOL_Service
 		$this->groupLocationDao->save($grouplocation);
     }
     
-    // 得到乐群地址
-    public function findLocationByAddress($address)
-    {
-    	return $this->groupLocationDao->findByAddress($address);
-    }
+//     // 得到乐群地址
+//     public function findLocationByAddress($address)
+//     {
+//     	return $this->groupLocationDao->findByAddress($address);
+//     }
     
     public function findLocationDetailedInfoByGroupId($groupid)
     {

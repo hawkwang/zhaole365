@@ -26,7 +26,7 @@ class ZLEVENT_BOL_EventLocationDao extends OW_BaseDao
     }
 
     //获得所有指定活动的地址信息
-    public function findByGroupId( $eventId )
+    public function findByEventId( $eventId )
     {
         $example = new OW_Example();
         $example->andFieldEqual('eventId', $eventId);
