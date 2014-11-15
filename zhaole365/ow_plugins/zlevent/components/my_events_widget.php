@@ -40,7 +40,7 @@ class ZLEVENT_CMP_MyEventsWidget extends BASE_CLASS_Widget
             $menuArray = array(
                 array(
                     'label' => $language->text('zlevent', 'dashboard_widget_menu_part_events_label'),
-                    'id' => 'event_menu_part_id',
+                    'id' => 'event_menu_part_id',		// 可能出错
                     'contId' => 'event_menu_part_cont',
                     'active' => true
                 ),

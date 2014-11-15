@@ -14,8 +14,8 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
 
     public function index()
     {
-        $this->setPageTitle('找乐地盘配置');
-        $this->setPageHeading('找乐地盘配置');
+//         $this->setPageTitle('找乐地盘配置');
+//         $this->setPageHeading('找乐地盘配置');
         
         OW::getDocument()->addStyleSheet(OW::getPluginManager()->getPlugin('zlareas')->getStaticCssUrl() . 'bootstrap.min.css');
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'jquery-1.10.2.js', 'text/javascript', LOCATIONTAG_BOL_LocationService::JQUERY_LOAD_PRIORITY+10);
@@ -24,8 +24,8 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
         OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'baidu_map.js', 'text/javascript', LOCATIONTAG_BOL_LocationService::JQUERY_LOAD_PRIORITY);
         
-//         $this->setPageTitle(OW::getLanguage()->text('zlareas', 'admin_area_title'));
-//         $this->setPageHeading(OW::getLanguage()->text('zlareas', 'admin_area_heading'));
+        $this->setPageTitle(OW::getLanguage()->text('zlareas', 'admin_area_title'));
+        $this->setPageHeading(OW::getLanguage()->text('zlareas', 'admin_area_heading'));
 
         // information about areas
         $areainfos = array();
@@ -48,27 +48,29 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $fieldAreacode = new TextField('areacode');
         $fieldAreacode->setRequired();
-        $fieldAreacode->setInvitation('区域编码');
-//         $fieldAreacode->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_areacode'));
+        //$fieldAreacode->setInvitation('区域编码');
+        $fieldAreacode->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_areacode'));
         $fieldAreacode->setHasInvitation(true);
         $form->addElement($fieldAreacode);
         
         $fieldProvince = new TextField('province');
         $fieldProvince->setRequired();
-        $fieldProvince->setInvitation('省份或直辖市');
-//         $fieldProvince->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_province'));
+        //$fieldProvince->setInvitation('省份或直辖市');
+        $fieldProvince->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_province'));
         $fieldProvince->setHasInvitation(true);
         $form->addElement($fieldProvince);
         
         $fieldCity = new TextField('city');
         $fieldCity->setRequired();
-        $fieldCity->setInvitation('城市');
+        //$fieldCity->setInvitation('城市');
+        $fieldCity->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_city'));
         $fieldCity->setHasInvitation(true);
         $form->addElement($fieldCity);
         
         $fieldArea = new TextField('area');
         $fieldArea->setRequired();
-        $fieldArea->setInvitation('区域');
+        //$fieldArea->setInvitation('区域');
+        $fieldArea->setInvitation(OW::getLanguage()->text('zlareas', 'label_invitation_area'));
         $fieldArea->setHasInvitation(true);
         $form->addElement($fieldArea);
 

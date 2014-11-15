@@ -27,7 +27,7 @@ class ZLEVENT_CMP_UpcomingEventsWidget extends BASE_CLASS_Widget
 
         if ( $eventService->findPublicEventsCount() > $params['events_count'] )
         {
-            $toolbarArray = array(array('href' => OW::getRouter()->urlForRoute('event.view_event_list', array('list' => 'latest')), 'label' => OW::getLanguage()->text('zlevent', 'view_all_label')));
+            $toolbarArray = array(array('href' => OW::getRouter()->urlForRoute('zlevent.view_event_list', array('list' => 'latest')), 'label' => OW::getLanguage()->text('zlevent', 'view_all_label')));
             $this->assign('toolbar', $toolbarArray);
         }
     }

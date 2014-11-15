@@ -6,7 +6,7 @@
  * and open the template in the editor.
  */
 
-class Event_Cron extends OW_Cron
+class ZLEvent_Cron extends OW_Cron
 {
     public function __construct()
     {
@@ -22,14 +22,14 @@ class Event_Cron extends OW_Cron
 
     public function clearInvitations()
     {        
-        $list = EVENT_BOL_EventService::getInstance()->findCronExpiredEvents(0, 1500);
+        $list = ZLEVENT_BOL_EventService::getInstance()->findCronExpiredEvents(0, 1500);
         
         if ( !empty($list) )
         {
-            /* @var $event EVENT_BOL_Event */
+            /* @var $event ZLEVENT_BOL_Event */
             foreach ( $list as $event )
             {
-                EVENT_BOL_EventService::getInstance()->clearEventInvitations($event->id);
+                ZLEVENT_BOL_EventService::getInstance()->clearEventInvitations($event->id);
             }
         }
     }

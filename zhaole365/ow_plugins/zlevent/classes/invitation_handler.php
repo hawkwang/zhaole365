@@ -88,7 +88,7 @@ class ZLEVENT_CLASS_InvitationHandler
 
 
         //$stringAssigns['otherUsers'] = '<a href="javascript://" onclick="OW.showUsers(' . json_encode($users) . ');">' .
-        //OW::getLanguage()->text('event', 'invitation_join_string_other_users', array( 'count' => count($users) )) . '</a>';
+        //OW::getLanguage()->text('zlevent', 'invitation_join_string_other_users', array( 'count' => count($users) )) . '</a>';
 
         // $languageKey = $userCount > 2 ? 'invitation_join_string_many' : 'invitation_join_string_' . $userCount;
         $languageKey = 'invitation_join_string_' . 1;

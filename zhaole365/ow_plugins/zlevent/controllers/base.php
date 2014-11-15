@@ -559,7 +559,7 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
                 var eventFloatBox;
                 $('#inviteLink', $('#" . $cmpId . "')).click(
                     function(){
-                        eventFloatBox = OW.ajaxFloatBox('ZLZLEVENT_CMP_InviteUserListSelect', " . json_encode($params) . ", {width:600, iconClass: 'ow_ic_user', title: " . json_encode(OW::getLanguage()->text('zlevent', 'friends_invite_button_label')) . "});
+                        eventFloatBox = OW.ajaxFloatBox('ZLEVENT_CMP_InviteUserListSelect', " . json_encode($params) . ", {width:600, iconClass: 'ow_ic_user', title: " . json_encode(OW::getLanguage()->text('zlevent', 'friends_invite_button_label')) . "});
                     }
                 );
                 OW.bind('base.avatar_user_list_select',

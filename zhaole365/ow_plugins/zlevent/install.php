@@ -51,6 +51,8 @@ OW::getDbo()->query("
   UNIQUE KEY `eventUser` (`eventId`,`userId`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1");
 
+// added by hawk,
+// 活动地址
 OW::getDbo()->query("
 CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlevent_event_location` (
 		`id` int(11) NOT NULL auto_increment,
@@ -61,6 +63,18 @@ CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlevent_event_location` (
 		UNIQUE KEY `eventId` (`eventId`,`locationId`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;");
 
+// 活动隶属的乐群
+OW::getDbo()->query("
+CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlevent_event_group` (
+		`id` int(11) NOT NULL auto_increment,
+		`eventId` int(11) NOT NULL,
+		`groupId` int(11) NOT NULL,
+		PRIMARY KEY  (`id`),
+		UNIQUE KEY `eventId` (`eventId`,`groupId`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;");
+
+
+// ended by hawk
 
 $authorization = OW::getAuthorization();
 $groupName = 'zlevent';

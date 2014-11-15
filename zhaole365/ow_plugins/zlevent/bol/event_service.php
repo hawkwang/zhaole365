@@ -160,6 +160,9 @@ final class ZLEVENT_BOL_EventService
             $storage->removeFile($this->generateImagePath($eventDto->image, false));
         }
 
+        // TBD - 删除乐群地址
+        
+        
         $this->eventUserDao->deleteByEventId($eventDto->getId());
         $this->eventDao->deleteById($eventDto->getId());
         $this->eventInviteDao->deleteByEventId($eventDto->getId());
@@ -621,8 +624,8 @@ final class ZLEVENT_BOL_EventService
             
             /* if( !empty($isInviteList) )
             {
-                $resultArray[$eventItem->getId()]['toolbar'][] = array('label' => $language->text('event', 'ignore_request'),'href' => 'event.invite_acept');
-                $resultArray[$eventItem->getId()]['toolbar'][] = array('label' => $language->text('event', 'accept_request'),'href' => 'event.invite_decline');
+                $resultArray[$eventItem->getId()]['toolbar'][] = array('label' => $language->text('zlevent', 'ignore_request'),'href' => 'zlevent.invite_acept');
+                $resultArray[$eventItem->getId()]['toolbar'][] = array('label' => $language->text('zlevent', 'accept_request'),'href' => 'zlevent.invite_decline');
             }*/
         }
         //printVar($resultArray);
@@ -776,7 +779,7 @@ final class ZLEVENT_BOL_EventService
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent', (int)$eventId);
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent-invitation', (int)$eventId);
         BOL_InvitationService::getInstance()->deleteInvitationByEntity(ZLEVENT_CLASS_InvitationHandler::INVITATION_JOIN, (int)$eventId);
-        
+
         $this->eventInviteDao->deleteByEventId($eventId);
     }
     

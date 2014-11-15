@@ -74,6 +74,7 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), $params);
     }
 
+    // FIXME－ 没有考虑事件时间的因素
     public function findExpiredEventsForCronJobs( $first, $count )
     {        
         $params = array('first' => (int) $first, 'count' => (int) $count);
@@ -207,7 +208,7 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     public function findUserInvitedEvents( $userId, $first, $count )
     {
         $query = "SELECT `e`.* FROM `" . $this->getTableName() . "` AS `e`
-            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::ZLEVENT_ID . "` )
+            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::EVENT_ID . "` )
             WHERE `ei`.`" . ZLEVENT_BOL_EventInviteDao::USER_ID . "` = :userId AND " . $this->getTimeClause(false, 'e') . "
             GROUP BY `e`.`id` LIMIT :first, :count";
 
@@ -221,7 +222,7 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     public function findUserInvitedEventsCount( $userId )
     {
         $query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
-            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::ZLEVENT_ID . "` )
+            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::EVENT_ID . "` )
             WHERE `ei`.`" . ZLEVENT_BOL_EventInviteDao::USER_ID . "` = :userId AND " . $this->getTimeClause(false, 'e') . " GROUP BY `e`.`id`";
 
         return $this->dbo->queryForColumn($query, array('userId' => (int) $userId, 'startTime' => time(), 'endTime' => time()));
@@ -234,7 +235,7 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     public function findDisplayedUserInvitationCount( $userId )
     {
         $query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
-            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::ZLEVENT_ID . "` )
+            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::EVENT_ID . "` )
             WHERE `ei`.`" . ZLEVENT_BOL_EventInviteDao::USER_ID . "` = :userId AND `ei`.`displayInvitation` = true AND " . $this->getTimeClause(false, 'e') . " GROUP BY `e`.`id`";
 
         return $this->dbo->queryForColumn($query, array('userId' => (int) $userId, 'startTime' => time(), 'endTime' => time()));

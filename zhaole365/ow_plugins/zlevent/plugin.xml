@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <plugin>
-	<name>乐群</name>
+	<name>群乐</name>
 	<key>zlevent</key>
 	<description>维护隶属乐群的活动</description>
     <author>找乐365团队</author>
