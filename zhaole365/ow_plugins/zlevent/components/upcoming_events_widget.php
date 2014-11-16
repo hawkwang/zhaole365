@@ -39,8 +39,8 @@ class ZLEVENT_CMP_UpcomingEventsWidget extends BASE_CLASS_Widget
         $settingList['events_count'] = array(
             'presentation' => self::PRESENTATION_SELECT,
             'label' => OW::getLanguage()->text('zlevent', 'cmp_widget_events_count'),
-            'optionList' => $eventConfigs[EVENT_BOL_EventService::CONF_WIDGET_EVENTS_COUNT_OPTION_LIST],
-            'value' => $eventConfigs[EVENT_BOL_EventService::CONF_WIDGET_EVENTS_COUNT]
+            'optionList' => $eventConfigs[ZLEVENT_BOL_EventService::CONF_WIDGET_EVENTS_COUNT_OPTION_LIST],
+            'value' => $eventConfigs[ZLEVENT_BOL_EventService::CONF_WIDGET_EVENTS_COUNT]
         );
 
         return $settingList;

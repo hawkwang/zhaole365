@@ -819,9 +819,9 @@ class DateField extends FormElement
         {
             $result = '<div class="' . $this->getAttribute('name') . '">
                             ' . UTIL_HtmlTag::generateTag('input', $attributes) . '
+                            <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $yearAttributes, true, $yearOptionsString) . '</div>
                             <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $monthAttributes, true, $mounthOptionsString) . '</div>
                             <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $dayAttributes, true, $dayOptionsString) . '</div>
-                            <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $yearAttributes, true, $yearOptionsString) . '</div>
                         </div>';
         }
 

@@ -17,3 +17,4 @@ $router->addRoute(new OW_Route('zlevent.invite_decline', 'zlevent/:eventId/:list
 $eventHandler = new ZLEVENT_CLASS_EventHandler();
 $eventHandler->genericInit();
 $eventHandler->init();
+

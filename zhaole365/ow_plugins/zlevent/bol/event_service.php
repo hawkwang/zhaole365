@@ -35,6 +35,7 @@ final class ZLEVENT_BOL_EventService
     private $configs = array();
     
     private $eventLocationDao;
+    private $eventGroupDao;
     /**
      * @var ZLEVENT_BOL_EventDao
      */
@@ -75,7 +76,8 @@ final class ZLEVENT_BOL_EventService
     private function __construct()
     {
     	$this->eventLocationDao = ZLEVENT_BOL_EventLocationDao::getInstance();
-        $this->eventDao = ZLEVENT_BOL_EventDao::getInstance();
+    	$this->eventGroupDao = ZLEVENT_BOL_EventGroupDao::getInstance();
+    	$this->eventDao = ZLEVENT_BOL_EventDao::getInstance();
         $this->eventUserDao = ZLEVENT_BOL_EventUserDao::getInstance();
         $this->eventInviteDao = ZLEVENT_BOL_EventInviteDao::getInstance();
 
@@ -163,8 +165,11 @@ final class ZLEVENT_BOL_EventService
             $storage->removeFile($this->generateImagePath($eventDto->image, false));
         }
 
-        // TBD - 删除乐群地址
+        // 删除群乐地址
+        $this->eventLocationDao->deleteByEventId($eventDto->getId());
         
+        // 删除群乐乐群信息
+        $this->eventGroupDao->deleteByEventId($eventDto->getId());
         
         $this->eventUserDao->deleteByEventId($eventDto->getId());
         $this->eventDao->deleteById($eventDto->getId());
@@ -812,11 +817,11 @@ final class ZLEVENT_BOL_EventService
     	$formated_address_info = ZLAREAS_BOL_LocationService::getInstance()->findLocationByAddress($formated_address);
     	 
     	// 建立关联关系
-    	$location = new ZLEVENT_BOL_EventLocation();
-    	$location->eventId = $eventid;
-    	$location->locationId = $formated_address_info->id;
-    	$location->location = $location;
-    	$this->eventLocationDao->save($location);
+    	$eventlocation = new ZLEVENT_BOL_EventLocation();
+    	$eventlocation->eventId = $eventid;
+    	$eventlocation->locationId = $formated_address_info->id;
+    	$eventlocation->location = $location;
+    	$this->eventLocationDao->save($eventlocation);
     }
     
     public function findLocationDetailedInfoByEventId($eventid)
@@ -846,5 +851,23 @@ final class ZLEVENT_BOL_EventService
     	return $locationdetails;
     }
     
+    // 和乐群有关操作
+    public function saveEventGroup($eventId, $groupId)
+    {
+    	$eventGroup = new ZLEVENT_BOL_EventGroup();
+    	$eventGroup->eventId = $eventId;
+    	$eventGroup->groupId = $groupId;
+    	$this->eventGroupDao->save($eventGroup);
+    }
+    
+    public function deleteEventGroupByEventId($eventId)
+    {
+    	$this->eventGroupDao->deleteByEventId($eventId);
+    }
+
+    public function deleteEventGroupByGroupId($groupId)
+    {
+    	$this->eventGroupDao->deleteByGroupId($groupId);
+    }
     
 }

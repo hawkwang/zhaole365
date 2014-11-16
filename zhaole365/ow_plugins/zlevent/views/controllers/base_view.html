@@ -82,6 +82,23 @@ margin-bottom:7px;
     <!-- 显示邀请好友部分 -->
     {if !empty($inviteLink)}<div class="inviteLink ow_std_margin">{decorator name='button' class='ow_ic_add' type='button' langLabel='zlevent+invite_btn_label' id='inviteLink'}</div>{/if}
     
+    <!-- 显示地址部分 -->
+    {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_places' langLabel='zlevent+view_page_address_block_cap_label'}
+	<div class="ow_lp_avatars">
+		<div id="map_canvas"
+			style="width: 100%; height: 200px; background-color: rgb(229, 227, 223); position: relative;">
+			<a id="location_map_anchor" target="_blank"
+				href="http://map.baidu.com/?latlng={$latitude},{$longitude}&title=标题&content={$location}&autoOpen=true">
+				<img id="location_map"
+				src="http://api.map.baidu.com/staticimage?width=200&height=200&center={$longitude},{$latitude}&markers={$longitude},{$latitude}&zoom=17&markerStyles=s,A,0xff0000"
+				style="width: 100%; height:100%;">
+			</a>
+		</div>
+		<div  style="text-align:left; margin-top: 10px;"> {$location} , {$formated_address}
+		</div> 
+	</div>
+    {/block_decorator}
+
     <!-- 显示参加乐友组件部分 -->
     <div class="userList">{$userListCmp}</div>
 </div>

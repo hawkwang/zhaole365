@@ -169,8 +169,21 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
 
                     $this->eventService->saveEvent($event);
                     
-                    // TBD - 保存乐群地址
-                    //
+			        // added by hawk
+			        // 更新乐群地址信息
+			        $location = $data['location'];
+			        $addressinfo = $data['locationinfo'];
+			        $address_details = ZLAREAS_CLASS_Utility::getInstance()->getAddressInfo($addressinfo);
+			        $this->eventService->saveLocation(
+			        		$event->id, 
+			        		$location, 
+			        		$address_details['formated_address'],
+			        		$address_details['province'],
+			        		$address_details['city'],
+			        		$address_details['district'],
+			        		$address_details['longitude'],
+			        		$address_details['latitude']
+			        ); 
                     
                     if ( $imagePosted )
                     {
@@ -299,6 +312,19 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         {
             $form->getElement('end_time')->setValue('all_day');
         }
+        
+        // added by hawk, for location
+        $field = new HiddenField('origin_lng');
+        $form->addElement($field);
+        $field = new HiddenField('origin_lat');
+        $form->addElement($field);
+        
+        $detailedLocationInfo = ZLEVENT_BOL_EventService::getInstance()->findLocationDetailedInfoByEventId($event->id);
+        $form->getElement('origin_lng')->setValue($detailedLocationInfo['longitude']);
+        $form->getElement('origin_lat')->setValue($detailedLocationInfo['latitude']);
+        $form->getElement('location')->setValue($detailedLocationInfo['location']);
+        $form->getElement('locationinfo')->setValue($detailedLocationInfo['locationinfo']);
+        // ended by hawk
 
         $form->getSubmitElement('submit')->setValue(OW::getLanguage()->text('zlevent', 'edit_form_submit_label'));
 
@@ -404,6 +430,22 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
                     $event->setEndTimeDisable( $data['end_time'] == 'all_day' );
 
                     $this->eventService->saveEvent($event);
+                    
+                    // added by hawk, 更新地址信息
+                    $location = $data['location'];
+                    $addressinfo = $data['locationinfo'];
+                    $address_details = ZLAREAS_CLASS_Utility::getInstance()->getAddressInfo($addressinfo);
+                    $this->eventService->saveLocation(
+                    		$event->id,
+                    		$location,
+                    		$address_details['formated_address'],
+                    		$address_details['province'],
+                    		$address_details['city'],
+                    		$address_details['district'],
+                    		$address_details['longitude'],
+                    		$address_details['latitude']
+                    );                    
+                    // ended by hawk
                     
                     $e = new OW_Event(ZLEVENT_BOL_EventService::EVENT_AFTER_EVENT_EDIT, array('eventId' => $event->id));
                     OW::getEventManager()->trigger($e);
@@ -606,6 +648,14 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $cmntParams->setOwnerId($event->getUserId());
         $this->addComponent('comments', new BASE_CMP_Comments($cmntParams));
         $this->addComponent('userListCmp', new ZLEVENT_CMP_EventUsers($event->getId()));
+        
+        // 添加地址部分
+        $detailedLocationInfo = ZLEVENT_BOL_EventService::getInstance()->findLocationDetailedInfoByEventId($event->getId());
+        $this->assign("location", $detailedLocationInfo['location']);
+        $this->assign("formated_address", $detailedLocationInfo['formated_address']);
+        $this->assign("longitude", $detailedLocationInfo['longitude']);
+        $this->assign("latitude", $detailedLocationInfo['latitude']);
+        
 
         // 搜集工具栏项
         $event = new BASE_CLASS_EventCollector(ZLEVENT_BOL_EventService::EVENT_COLLECT_TOOLBAR, array(

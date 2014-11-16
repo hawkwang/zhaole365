@@ -15,3 +15,4 @@ BOL_ComponentAdminService::getInstance()->addWidgetToPosition($placeWidget, BOL_
 require_once dirname(__FILE__) . DS .  'classes' . DS . 'credits.php';
 $credits = new ZLEVENT_CLASS_Credits();
 $credits->triggerCreditActionsAdd();
+

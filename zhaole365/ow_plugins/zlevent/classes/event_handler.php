@@ -613,6 +613,46 @@ class ZLEVENT_CLASS_EventHandler
             $event->setData($data);
         }
     }
+    
+    // 乐群介绍组件（ZLGROUPS_CMP_BriefInfoContent）构造工具栏的 event handler
+    // 更新事件数据以更新toolbar信息（添加了“有乐子？与大家分享吧！”）
+    public function onGroupToolbarCollect( BASE_CLASS_EventCollector $e )
+    {
+    	if ( !OW::getUser()->isAuthenticated() )
+    	{
+    		return;
+    	}
+    
+    	$params = $e->getParams();
+    	$backUri = OW::getRequest()->getRequestUri();
+    	
+    	$url = OW::getRouter()->urlForRoute('zlevent.add');
+    	
+    	if ( !OW::getUser()->isAuthorized('zlevent', 'add_event') )
+    	{
+    		$status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'add_event');
+    	
+    		if ( $status['status'] == BOL_AuthorizationService::STATUS_PROMOTED )
+    		{
+				// TBD
+    		}
+    		else if ( $status['status'] == BOL_AuthorizationService::STATUS_DISABLED )
+    		{
+    			// TBD
+    		}
+    	}
+    	else 
+    	{
+    		$e->add(array(
+    				'label' => OW::getLanguage()->text('zlevent', 'create_group_event'),
+    				'href' => OW::getRequest()->buildUrlQueryString($url, array(
+    						'backUri' => $backUri,
+    						'groupId' => $params['groupId'],
+    						'command' => 'create_event'))
+    		));
+    	}
+    	
+    }    
 
     public function getContentMenu( OW_Event $event )
     {
@@ -651,6 +691,10 @@ class ZLEVENT_CLASS_EventHandler
         OW::getEventManager()->bind(ZLEVENT_BOL_EventService::EVENT_ON_CHANGE_USER_STATUS, array($this, 'onChangeUserStatus'));
 
         OW::getEventManager()->bind('socialsharing.get_entity_info', array($this, 'sosialSharingGetEventInfo'));
+        
+        // 构建乐群事件event handler
+        OW::getEventManager()->bind('zlgroups.on_toolbar_collect', array($this, "onGroupToolbarCollect"));
+        
     }
 
     public function init()
