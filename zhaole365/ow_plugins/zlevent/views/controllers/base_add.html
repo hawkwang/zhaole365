@@ -149,7 +149,13 @@ function debug(message)
 
     {if empty($err_msg)}
 		{form name='event_add'}
+		
 		<table class="ow_table_1 ow_form ow_stdmargin">
+            <tr class="ow_alt1 ow_tr_first">
+		        <td class="ow_label">{label name='group'}</td>
+                <td class="ow_value">{input name='group'}{error name='group'}</td>
+		        <td class="ow_desc ow_small">{text key='zlevent+add_form_group_desc'}</td>
+		    </tr>
             <tr class="ow_alt2 ow_tr_first">
 		        <td class="ow_label">{label name='title'}</td>
                 <td class="ow_value">{input name='title'}{error name='title'}</td>

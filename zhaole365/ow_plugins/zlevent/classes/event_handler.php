@@ -159,7 +159,7 @@ class ZLEVENT_CLASS_EventHandler
 
         if ( $event->getWhoCanView() == ZLEVENT_BOL_EventService::CAN_VIEW_INVITATION_ONLY )
         {
-            $data['params']['visibility'] = 14; // VISIBILITY_FOLLOW + VISIBILITY_AUTHOR + VISIBILITY_FEED
+            $data['params']['visibility'] = NEWSFEED_BOL_Service::VISIBILITY_AUTHOR + NEWSFEED_BOL_Service::VISIBILITY_FOLLOW + NEWSFEED_BOL_Service::VISIBILITY_FEED; //14; 
         }
 
         $event = new OW_Event('feed.action', array(

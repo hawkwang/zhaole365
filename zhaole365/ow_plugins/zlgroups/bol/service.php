@@ -377,6 +377,12 @@ class ZLGROUPS_BOL_Service
     {
         return $group->userId == OW::getUser()->getId() || OW::getUser()->isAuthorized('zlgroups');
     }
+    
+    // 判断用户是否具有创建乐群活动的权限（FIXME）
+    public function isUserCanCreateEvent( ZLGROUPS_BOL_Group $group, OW_User $user )
+    {
+    	return $group->userId == $user->getId() || $user->isAuthorized('zlgroups');
+    }
 
     // 判断当前用户是否具有创建乐群的权利
     public function isCurrentUserCanCreate()
@@ -610,6 +616,15 @@ class ZLGROUPS_BOL_Service
     			+ '||' + $grouplocationdetails['longitude'] + '||' + $grouplocationdetails['latitude'];
     	
     	return $grouplocationdetails;
+    }
+    
+    //
+    public function findAllGroupsByEditAuthorityForCurrentUser()
+    {
+    	// 获得所有我的乐群，这个可能需要改
+    	$groups = $this->findMyGroups(OW::getUser()->getId());
+    	
+    	return $groups;
     }
     
 }

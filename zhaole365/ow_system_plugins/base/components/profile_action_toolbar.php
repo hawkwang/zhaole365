@@ -172,7 +172,7 @@ class BASE_CMP_ProfileActionToolbar extends OW_Component
         
         $moreGroup = array(
             "key" => "base.more",
-            "label" => "More",
+            "label" => OW::getLanguage()->text('base', 'more'),
             "toolbar" => $moreActions
         );
         

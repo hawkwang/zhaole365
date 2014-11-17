@@ -40,6 +40,47 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $this->assign('searcharea', $searcharea);
         
         $form = new ZLEventAddForm('event_add');
+        
+        // added by hawk 添加隶属乐群部分
+        $selectedGroupId = null;
+        // 如果设置了乐群id，则判断当前用户是否是乐群的群主（FIXME － 扩充为有创建乐群活动的人），如果不是则给出提示并返回调用页面
+        if ( isset($_GET['groupId']) )
+        {
+        	$groupId = (int)$_GET['groupId'];
+        	$group = ZLGROUPS_BOL_Service::getInstance()->findGroupById($groupId);
+        	if(ZLGROUPS_BOL_Service::getInstance()->isUserCanCreateEvent($group,OW::getUser())==false)
+        	{
+        		OW::getFeedback()->error($language->text('zlevent', 'need_authority_create_group_event'));
+        		$this->redirect($_GET['backUri']);
+        	}
+        	else 
+        	{
+        		$selectedGroupId = $groupId;
+        	}
+        }
+        
+        // 得到当前用户具有编辑权限的乐群
+        $groupInfos = array();
+        $groups = ZLGROUPS_BOL_Service::getInstance()->findMyGroups(OW::getUser()->getId());
+        //$groups = ZLGROUPS_BOL_Service::getInstance()->findAllGroupsByEditAuthorityForCurrentUser();
+        foreach ( $groups as $group )
+        {
+        	$groupInfos[$group->id]['grouptitle'] = $group->title;
+        }
+        // 更新乐群下拉列表框
+        $group = new Selectbox('group');
+        foreach ( $groupInfos as $id => $value )
+        {
+        	$group->addOption($id, $value['grouptitle']);
+        }
+        $group->setRequired();
+        $group->setHasInvitation(false);
+        $group->setLabel($language->text('zlevent', 'add_form_group_label'));
+        $form->addElement($group);
+        
+        if ($selectedGroupId!=null)
+        	$form->getElement('group')->setValue($selectedGroupId);
+        // 结束
 
         if ( date('n', time()) == 12 && date('j', time()) == 31 )
         {
@@ -184,12 +225,17 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
 			        		$address_details['longitude'],
 			        		$address_details['latitude']
 			        ); 
+			        
+			        // 创建群乐隶属乐群信息
+			        $this->eventService->saveEventGroup($event->id, $data['group']);
+			        // ended by hawk
                     
                     if ( $imagePosted )
                     {
                         $this->eventService->saveEventImage($_FILES['image']['tmp_name'], $event->getImage());
                     }
 
+                    // 将群乐创建者参与状态设为“参与”（yes）
                     $eventUser = new ZLEVENT_BOL_EventUser();
                     $eventUser->setEventId($event->getId());
                     $eventUser->setUserId(OW::getUser()->getId());
@@ -1342,7 +1388,7 @@ class ZLEventAddForm extends Form
         $language = OW::getLanguage();
 
         $currentYear = date('Y', time());
-
+        
         $title = new TextField('title');
         $title->setRequired();
         $title->setLabel($language->text('zlevent', 'add_form_title_label'));
