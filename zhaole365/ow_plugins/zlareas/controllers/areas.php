@@ -33,4 +33,19 @@ class ZLAREAS_CTRL_Areas extends OW_ActionController
     {
         return OW::getLanguage()->text($prefix, $key, $vars);
     }
+    
+	public function api() {
+
+		
+		$apiResponse = array (
+				"type" => 'ok',
+				"data" => 'data' 
+		);
+		
+		header ( 'Content-Type: application/json' );
+		
+		echo json_encode ( $apiResponse );
+		//exit (); // TODO remove exit
+	}
+    
 }
