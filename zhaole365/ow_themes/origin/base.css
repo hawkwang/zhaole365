@@ -386,9 +386,9 @@ ul.ow_regular li {
     padding: 5px;
 }
 .ow_header_pic {
-	height: 209px;
-	background-image: url('images/header.jpg');/** OW_Control type:image, key:headerImage, section:1. General Settings, label: Page header image **/
-	background-repeat: no-repeat;
+/* 	height: 209px;
+	background-image: url('images/header.jpg');
+	background-repeat: no-repeat; */
 }
 /* ---- End of the Header styles ---- */
 /* ---- Console styles ---- */

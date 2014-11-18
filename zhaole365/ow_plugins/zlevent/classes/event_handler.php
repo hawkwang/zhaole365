@@ -9,6 +9,7 @@ class ZLEVENT_CLASS_EventHandler
         
     }
 
+    // 对email-notifications需要收集的信息事件进行响应
     public function onNotifyActions( BASE_CLASS_EventCollector $e )
     {
         $e->add(array(

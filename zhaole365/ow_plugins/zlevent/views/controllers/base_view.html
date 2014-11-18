@@ -74,20 +74,7 @@ margin-bottom:7px;
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_created_label'}</td>
             <td class="ow_value"><a href="{$info.creatorLink}">{$info.creatorName}</a></td>
         </tr>
-        {if $info.groupTitle}
-        <tr>
-            <td class="ow_label" style="width: 25%">即将举办的活动数 </td>
-            <td class="ow_value">{$info.totalupcoming}</td>
-        </tr>
-        <tr>
-            <td class="ow_label" style="width: 25%">举办过的活动数</td>
-            <td class="ow_value">{$info.totalhistorical}</td>
-        </tr>
-        <tr class="ow_tr_last">
-            <td class="ow_label" style="width: 25%">{text key='zlgroups+widget_groups_title'}</td>
-            <td class="ow_value"><a href="{$info.groupLink}">{$info.groupTitle}</a></td>
-        </tr>
-        {/if}
+
     </table>
     {/block_decorator}
     

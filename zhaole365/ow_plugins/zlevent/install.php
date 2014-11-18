@@ -3,6 +3,8 @@
 OW::getDbo()->query("DROP TABLE IF EXISTS `" . OW_DB_PREFIX . "zlevent_invite` ");
 OW::getDbo()->query("DROP TABLE IF EXISTS `" . OW_DB_PREFIX . "zlevent_item` ");
 OW::getDbo()->query("DROP TABLE IF EXISTS `" . OW_DB_PREFIX . "zlevent_user` ");
+OW::getDbo()->query("DROP TABLE IF EXISTS `" . OW_DB_PREFIX . "zlevent_event_location` ");
+OW::getDbo()->query("DROP TABLE IF EXISTS `" . OW_DB_PREFIX . "zlevent_event_group` ");
 
 OW::getDbo()->query("
   CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlevent_invite` (

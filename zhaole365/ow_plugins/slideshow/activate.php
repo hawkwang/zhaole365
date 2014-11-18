@@ -31,6 +31,8 @@
 
 $cmpService = BOL_ComponentAdminService::getInstance();
 $widget = $cmpService->addWidget('SLIDESHOW_CMP_SlideshowWidget', true);
-$cmpService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_INDEX);
+$widgetPlace = $cmpService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_INDEX);
+$cmpService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_TOP);
+
 //$cmpService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_DASHBOARD);
 //$cmpService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_PROFILE);

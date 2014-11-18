@@ -332,7 +332,7 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $form->getElement('location')->setValue($event->getLocation());
         $form->getElement('who_can_view')->setValue($event->getWhoCanView());
         $form->getElement('who_can_invite')->setValue($event->getWhoCanInvite());
-        $form->getElement('who_can_invite')->setValue($event->getWhoCanInvite());
+        //$form->getElement('who_can_invite')->setValue($event->getWhoCanInvite());
 
         $startTimeArray = array('hour' => date('G', $event->getStartTimeStamp()), 'minute' => date('i', $event->getStartTimeStamp()));
         $form->getElement('start_time')->setValue($startTimeArray);
@@ -377,6 +377,39 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $form->getElement('origin_lat')->setValue($detailedLocationInfo['latitude']);
         $form->getElement('location')->setValue($detailedLocationInfo['location']);
         $form->getElement('locationinfo')->setValue($detailedLocationInfo['locationinfo']);
+        
+        // 更新乐群下拉列表框
+        $selectedGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->id);
+        
+        $groupInfos = array();
+        $groups = ZLGROUPS_BOL_Service::getInstance()->findMyGroups(OW::getUser()->getId());
+        //$groups = ZLGROUPS_BOL_Service::getInstance()->findAllGroupsByEditAuthorityForCurrentUser();
+        $group_num = count($groups);
+        if($group_num > 0)
+        foreach ( $groups as $group )
+        {
+        	$groupInfos[$group->id]['grouptitle'] = $group->title;
+        }
+        else
+        {
+        	OW::getFeedback()->error($language->text('zlevent', 'need_group_to_create_event'));
+        	$this->redirect(OW::getRouter()->urlForRoute('zlevent.main_menu_route'));
+        }
+        
+        $group = new Selectbox('group');
+        foreach ( $groupInfos as $id => $value )
+        {
+        	$group->addOption($id, $value['grouptitle']);
+        }
+        $group->setRequired();
+        $group->setHasInvitation(false);
+        $group->setLabel($language->text('zlevent', 'add_form_group_label'));
+        $form->addElement($group);
+        
+        if ($selectedGroup!=null)
+        	$form->getElement('group')->setValue($selectedGroup->id);
+        // 结束
+        
         // ended by hawk
 
         $form->getSubmitElement('submit')->setValue(OW::getLanguage()->text('zlevent', 'edit_form_submit_label'));

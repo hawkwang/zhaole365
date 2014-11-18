@@ -158,7 +158,7 @@ OW::getDbo()->query($sql);
 // Add default section
 $sql = "INSERT INTO `".$dbPref."forum_section` 
     (`name`, `order`, `entity`, `isHidden`)
-    VALUES ('General', 1, NULL, 0);";
+    VALUES ('找乐365', 1, NULL, 0);";
 
 $sectionId = OW::getDbo()->insert($sql);
 
@@ -167,7 +167,7 @@ if ( $sectionId )
     // Default group
     $sql = "INSERT INTO `".$dbPref."forum_group` 
         (`sectionId`, `name`, `description`, `order`, `entityId`)
-        VALUES (".$sectionId.", 'General Chat', 'Just about anything', 1, NULL);";
+        VALUES (".$sectionId.", '找乐', '有关找乐的任何主题呦！', 1, NULL);";
     
     $groupId = OW::getDbo()->insert($sql);    
 }
