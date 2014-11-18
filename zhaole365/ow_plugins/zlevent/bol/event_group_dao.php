@@ -2,7 +2,9 @@
 
 class ZLEVENT_BOL_EventGroupDao extends OW_BaseDao
 {
-
+	const EVENT_ID = 'eventId';
+	const GROUP_ID = 'groupId';
+	
     private static $classInstance;
 
     public static function getInstance()

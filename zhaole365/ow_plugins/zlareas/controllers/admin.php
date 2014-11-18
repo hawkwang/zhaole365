@@ -18,11 +18,11 @@ class ZLAREAS_CTRL_Admin extends ADMIN_CTRL_Abstract
 //         $this->setPageHeading('找乐地盘配置');
         
         OW::getDocument()->addStyleSheet(OW::getPluginManager()->getPlugin('zlareas')->getStaticCssUrl() . 'bootstrap.min.css');
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'jquery-1.10.2.js', 'text/javascript', LOCATIONTAG_BOL_LocationService::JQUERY_LOAD_PRIORITY+10);
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'bootstrap.min.js', 'text/javascript', LOCATIONTAG_BOL_LocationService::JQUERY_LOAD_PRIORITY);
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'jquery-1.10.2.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY+10);
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'bootstrap.min.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY);
         
         OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'baidu_map.js', 'text/javascript', LOCATIONTAG_BOL_LocationService::JQUERY_LOAD_PRIORITY);
+        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'baidu_map.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY);
         
         $this->setPageTitle(OW::getLanguage()->text('zlareas', 'admin_area_title'));
         $this->setPageHeading(OW::getLanguage()->text('zlareas', 'admin_area_heading'));

@@ -844,9 +844,9 @@ final class ZLEVENT_BOL_EventService
     	$locationdetails['city'] = $area->city;
     	$locationdetails['area'] = $area->area;
     	 
-    	$locationdetails['locationinfo'] =  $locationdetails['formated_address'] + '||'
-    			+ $locationdetails['province'] + '||' + $locationdetails['city'] + '||' + $locationdetails['area']
-    			+ '||' + $locationdetails['longitude'] + '||' + $locationdetails['latitude'];
+    	$locationdetails['locationinfo'] =  $locationdetails['formated_address'] . '||'
+    			. $locationdetails['province'] . '||' . $locationdetails['city'] . '||' . $locationdetails['area']
+    			. '||' . $locationdetails['longitude'] . '||' . $locationdetails['latitude'];
     	 
     	return $locationdetails;
     }
@@ -860,6 +860,16 @@ final class ZLEVENT_BOL_EventService
     	$this->eventGroupDao->save($eventGroup);
     }
     
+    public function findGroupByEventId($eventId)
+    {
+    	$eventgroup = $this->eventGroupDao->findByEventId($eventId);
+    	if($eventgroup==null)
+    		return null;
+    	
+    	$group = ZLGROUPS_BOL_Service::getInstance()->findGroupById($eventgroup->groupId);
+    	return $group;
+    }
+    
     public function deleteEventGroupByEventId($eventId)
     {
     	$this->eventGroupDao->deleteByEventId($eventId);
@@ -868,6 +878,11 @@ final class ZLEVENT_BOL_EventService
     public function deleteEventGroupByGroupId($groupId)
     {
     	$this->eventGroupDao->deleteByGroupId($groupId);
+    }
+    
+    public function findPublicEventsCountByGroupId($groupId, $past = false )
+    {
+    	return $this->eventDao->findPublicEventsCountByGroupId($groupId, $past);
     }
     
 }

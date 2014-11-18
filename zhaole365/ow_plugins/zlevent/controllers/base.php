@@ -59,14 +59,21 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         	}
         }
         
-        // 得到当前用户具有编辑权限的乐群
+        // 得到当前用户具有编辑权限的乐群, FIXME
         $groupInfos = array();
         $groups = ZLGROUPS_BOL_Service::getInstance()->findMyGroups(OW::getUser()->getId());
         //$groups = ZLGROUPS_BOL_Service::getInstance()->findAllGroupsByEditAuthorityForCurrentUser();
-        foreach ( $groups as $group )
-        {
-        	$groupInfos[$group->id]['grouptitle'] = $group->title;
-        }
+        $group_num = count($groups);
+        if($group_num > 0)
+	        foreach ( $groups as $group )
+	        {
+	        	$groupInfos[$group->id]['grouptitle'] = $group->title;
+	        }
+	    else 
+	    {
+	    	OW::getFeedback()->error($language->text('zlevent', 'need_group_to_create_event'));
+	    	$this->redirect(OW::getRouter()->urlForRoute('zlevent.main_menu_route'));
+	    }
         // 更新乐群下拉列表框
         $group = new Selectbox('group');
         foreach ( $groupInfos as $id => $value )
@@ -590,7 +597,38 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $this->setPageHeadingIconClass('ow_ic_calendar');
         OW::getDocument()->setDescription(UTIL_String::truncate(strip_tags($event->getDescription()), 200, '...'));
 
+        // 添加bootstrap支持
+//         OW::getDocument()->addStyleSheet(OW::getPluginManager()->getPlugin('zlareas')->getStaticCssUrl() . 'bootstrap.min.css');
+//         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'jquery-1.10.2.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY+10);
+//         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'bootstrap.min.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY);
+        
         // 将活动详细信息作为变量传给视图（view）
+        $belongingGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->getId());
+        $groupTitle = null;
+        $groupLink = null;
+        $groupImage = null;
+        $totalhistorical = null;
+        $totalupcoming = null;
+        $group_founder_image = null;
+        $group_founder_url = null;
+        $group_founder_title = null;
+        
+        if($belongingGroup != null) 
+        {
+        	$groupTitle = $belongingGroup->title;
+        	$groupLink = OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $belongingGroup->getId()));
+        	$groupImage = empty($belongingGroup->imageHash) ? false : ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($belongingGroup, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
+        	$totalhistorical = 'FIXME';
+        	$totalupcoming = ZLEVENT_BOL_EventService::getInstance()->findPublicEventsCountByGroupId($belongingGroup->getId(), false);
+        	$totalhistorical = ZLEVENT_BOL_EventService::getInstance()->findPublicEventsCountByGroupId($belongingGroup->getId(), true);
+        	$idlist = array();
+        	$idlist[] = $belongingGroup->userId;
+        	$data = BOL_AvatarService::getInstance()->getDataForUserAvatars($idlist); // 得到用户详细信息
+        	$group_founder_image = $data[$belongingGroup->userId][ 'src'];
+        	$group_founder_url = $data[$belongingGroup->userId]['url'];
+        	$group_founder_title = $data[$belongingGroup->userId]['title'];
+        }
+        
         $infoArray = array(
             'id' => $event->getId(),
             'image' => ( $event->getImage() ? $this->eventService->generateImageUrl($event->getImage(), false) : null ),
@@ -601,7 +639,15 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
             'desc' => UTIL_HtmlTag::autoLink($event->getDescription()),
             'title' => $event->getTitle(),
             'creatorName' => BOL_UserService::getInstance()->getDisplayName($event->getUserId()),
-            'creatorLink' => BOL_UserService::getInstance()->getUserUrl($event->getUserId())
+            'creatorLink' => BOL_UserService::getInstance()->getUserUrl($event->getUserId()),
+        	'groupTitle' => $groupTitle,
+        	'groupLink' => $groupLink,
+        	'groupImage' => $groupImage,
+        	'totalhistorical' => $totalhistorical,
+        	'totalupcoming' =>  $totalupcoming,
+       		'group_founder_image' =>  $group_founder_image,
+       		'group_founder_url' =>  $group_founder_url,
+       		'group_founder_title' =>  $group_founder_title
         );
         $this->assign('info', $infoArray);
 

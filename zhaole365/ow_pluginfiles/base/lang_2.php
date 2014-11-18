@@ -120,7 +120,7 @@ Example: <b>en-US</b> or <b>en-GB-custom</b>.',
   'admin+invite_members_submit_label' => 'Invite',
   'admin+invite_members_success_message' => 'Invitations successfully sent',
   'admin+invite_members_textarea_invitation_text' => 'Enter list of emails (max 50, one email per line)',
-  'admin+joined' => 'Joined',
+  'admin+joined' => '已加入',
   'admin+join_display_photo_upload' => '上传头像',
   'admin+join_display_photo_upload_desc' => 'Let users upload avatar on registration',
   'admin+join_display_terms_of_use' => 'Enable \'Terms of use\' checkbox',
@@ -331,7 +331,7 @@ To unsubscribe from this mailing list please <a href="{$link}" >click here</a>',
   'admin+permissions_index_save' => 'Save',
   'admin+permissions_index_user_approve' => 'Mandatory user approve',
   'admin+permissions_index_who_can_invite' => '谁可以邀请:',
-  'admin+permissions_index_who_can_join' => 'Who can join:',
+  'admin+permissions_index_who_can_join' => '谁可以加入:',
   'admin+permissions_index_with_password' => 'With password:',
   'admin+permissions_index_yes' => 'Yes',
   'admin+permissions_moderators' => '管理员',
@@ -1314,14 +1314,14 @@ Thank you,
   'base+join_error_username_not_valid' => '请输入合理用户名',
   'base+join_error_username_restricted' => 'Sorry, this username is restricted',
   'base+join_form_title' => 'Register your profile',
-  'base+join_index' => 'Join our community',
+  'base+join_index' => '加入我们的社区',
   'base+join_index_join_button' => '现在加入~~',
   'base+join_not_valid_invite_code' => 'Sorry, site registration is closed',
   'base+join_or' => 'OR',
   'base+join_promo' => '加入我们这个富有激情的社区。找到新朋友,约会,分享照片和视频。
 嗨起来!',
   'base+join_submit_button_continue' => 'Continue',
-  'base+join_submit_button_join' => 'Join',
+  'base+join_submit_button_join' => '加入',
   'base+join_successful_join' => 'Registration successful',
   'base+local_page_content_page-119658' => '服务条款',
   'base+local_page_content_page-225003' => 'sdffsdf',
@@ -1414,20 +1414,20 @@ We reserve the right to make changes to this policy. Any changes to this policy 
   'base+local_page_title_test' => 'Test',
   'base+local_page_title_test2' => 'test2',
   'base+mail_template_admin_invite_user_content_html' => '<p>
-Hi,
+您好,
 </p>
 <p>
-We invite you to join our website - 找乐365.<br />
-Please register <a href="{$url}">here</a>
+我们邀请您加入找乐365 - 找乐365.<br />
+请点击 <a href="{$url}">这里</a>注册
 </p>
-Administration<br />
+系统管理员<br />
 http://class1.local/zhaole365/',
-  'base+mail_template_admin_invite_user_content_text' => 'Hi,
+  'base+mail_template_admin_invite_user_content_text' => '您好,
 
-We invite you to join our website - 找乐365.
-Please join here: {$url}
+我们邀请您加入找乐365 - 找乐365.
+请点击加入: {$url}
 
-Administration
+系统管理员
 http://class1.local/zhaole365/',
   'base+mail_template_admin_invite_user_subject' => 'Invitation to 找乐365',
   'base+maintenance_disable_message' => '根据这个 <a href="{$url}">链接</a> 以取消维护模式',
@@ -2067,7 +2067,7 @@ http://class1.local/zhaole365/',
   'base+usercredits_action_add_comment' => 'Write on comment wall',
   'base+usercredits_action_daily_login' => 'Daily login',
   'base+usercredits_action_search_users' => '搜索用户',
-  'base+usercredits_action_user_join' => 'User join',
+  'base+usercredits_action_user_join' => '乐友加入',
   'base+users' => '社区用户',
   'base+users_browse_page_heading' => '浏览用户',
   'base+users_list_birthdays_meta_description' => '庆祝生日的用户',
@@ -3473,32 +3473,32 @@ http://class1.local/zhaole365/',
 User {$inviter} invites you to check out this site:
 
 {$siteName} {$siteInviteURL}',
-  'contactimporter+mail_google_invite_html' => 'Greetings!
+  'contactimporter+mail_google_invite_html' => '恭喜!
 <br />
 <br />
-{$user} invites you to join <a href="http://class1.local/zhaole365/">找乐365</a>. Check out what it\'s all about: <br/>{$url}
+{$user} 邀请您加入 <a href="http://class1.local/zhaole365/">找乐365</a>. 快来看看吧: <br/>{$url}
 <br /><br />
-Thank you,<br />
+谢谢,<br />
 <a href="http://class1.local/zhaole365/">找乐365</a>',
-  'contactimporter+mail_google_invite_msg_html' => 'Greetings!
+  'contactimporter+mail_google_invite_msg_html' => '恭喜!
 <br />
 <br />
-{$user} invites you to join <a href="http://class1.local/zhaole365/">找乐365</a>. Check out what it\'s all about: <br />{$url}<br />
-Here are a few words for you by {$user}:
+{$user} 邀请您加入 <a href="http://class1.local/zhaole365/">找乐365</a>. 快来看看吧: <br />{$url}<br />
+{$user}给您留了言:
 <br />
 {$message}
 <br />
 <br />
-Thank you,<br />
+谢谢,<br />
 <a href="http://class1.local/zhaole365/">找乐365</a>',
-  'contactimporter+mail_google_invite_msg_txt' => 'Greetings!
+  'contactimporter+mail_google_invite_msg_txt' => '恭喜!
 
-{$user} invites you to join 找乐365. Check out what it\'s all about: 
+{$user} 邀请您加入 找乐365. 快来看看吧: 
 {$url}',
   'contactimporter+mail_google_invite_subject' => '{$user} 邀请您来 找乐365',
-  'contactimporter+mail_google_invite_txt' => 'Greetings!
+  'contactimporter+mail_google_invite_txt' => '恭喜!
 
-{$user} invites you to join 找乐365. Check out what it\'s all about: 
+{$user} 邀请您加入 找乐365. 快来看看吧: 
 {$url}',
   'contactimporter+requires_configuration_message' => '<a href="{$settingsUrl}">Contact Importer</a> 需要配置',
   'contactimporter+save_btn_label' => '保存',
@@ -3743,7 +3743,7 @@ Thank you,<br />
   'zlgroups+errors_image_upload' => 'File upload failed',
   'zlgroups+errors_location' => '请确认地址信息，地图服务暂时无法定位到您提供的这个地址！',
   'zlgroups+error_forum_disconnected' => 'Attention: Forum is required for Groups. Go to <a href="{$url}">plugin list</a> to activate it',
-  'zlgroups+feed_activity_joined' => '{$user} just joined',
+  'zlgroups+feed_activity_joined' => '{$user} 刚加入',
   'zlgroups+feed_activity_users' => '会员总数: <span class="ow_txt_value">{$usersCount}</span>',
   'zlgroups+feed_content_label' => 'Groups',
   'zlgroups+feed_create_string' => '创建新乐群',
@@ -3967,6 +3967,7 @@ Thank you,<br />
   'zlevent+user_status_not_changed_error' => '请更新你的状态',
   'zlevent+user_status_updated' => '你的状态已更新',
   'zlevent+view_all_label' => '浏览全部',
+  'zlevent+view_group_and_creator_cap_label' => '乐群及群主',
   'zlevent+view_page_address_block_cap_label' => '地点',
   'zlevent+view_page_created_label' => '创建人',
   'zlevent+view_page_date_label' => '日期时间',

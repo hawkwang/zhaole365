@@ -263,6 +263,16 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
 
         return "( " . (!empty($alias) ? "`{$alias}`." : "" ) . "`" . self::START_TIME_STAMP . "` > :startTime OR ( " . (!empty($alias) ? "`{$alias}`." : "" ) . "`" . self::END_TIME_STAMP . "` IS NOT NULL AND " . (!empty($alias) ? "`{$alias}`." : "" ) . "`" . self::END_TIME_STAMP . "` > :endTime ) )";
     }
+    
+    // 乐群相关
+    public function findPublicEventsCountByGroupId( $groupId, $past = false )
+    {
+    		$query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId AND " . $this->getTimeClause($past, 'e') . " AND `e`.`" .self::WHO_CAN_VIEW . "` = :wcv";
+    
+    	return $this->dbo->queryForColumn($query, array( 'groupId' => $groupId , 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
+    }
 
     
 }

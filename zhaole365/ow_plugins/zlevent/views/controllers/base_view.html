@@ -47,15 +47,15 @@ margin-bottom:7px;
                  {decorator name='button_list_item' type='submit' langLabel='zlevent+attend_maybe_btn_label' id='event_attend_maybe_btn'}
                  {decorator name='button_list_item' type='submit' langLabel='zlevent+attend_no_btn_label' id='event_attend_no_btn'}
              {/form}
-    </div>
-</div>
+	    </div>
+	</div>
 {/if}
 
 <!-- 显示左面部分 -->
-<div class="ow_left ow_supernarrow">
+<div class="ow_right ow_supernarrow">
     <!-- 显示细节部分 -->
     {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_info' langLabel='zlevent+view_page_details_block_cap_label'}
-    <table class="ow_table_3">
+    <table class="ow_table_3" style="margin-bottom: 10px;">
         <tr class="ow_tr_first">
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_date_label'}</td>
             <td class="ow_value">{$info.date}</td>
@@ -70,10 +70,24 @@ margin-bottom:7px;
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_location_label'}</td>
             <td class="ow_value"><div style="width:90px;">{$info.location}</div></td>
         </tr>
-        <tr class="ow_tr_last">
+        <tr {if !$info.groupTitle} class="ow_tr_last" {/if}>
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_created_label'}</td>
-            <td class="ow_value"><a href="{$info.creatorLink}">{$info.creatorName}</td>
+            <td class="ow_value"><a href="{$info.creatorLink}">{$info.creatorName}</a></td>
         </tr>
+        {if $info.groupTitle}
+        <tr>
+            <td class="ow_label" style="width: 25%">即将举办的活动数 </td>
+            <td class="ow_value">{$info.totalupcoming}</td>
+        </tr>
+        <tr>
+            <td class="ow_label" style="width: 25%">举办过的活动数</td>
+            <td class="ow_value">{$info.totalhistorical}</td>
+        </tr>
+        <tr class="ow_tr_last">
+            <td class="ow_label" style="width: 25%">{text key='zlgroups+widget_groups_title'}</td>
+            <td class="ow_value"><a href="{$info.groupLink}">{$info.groupTitle}</a></td>
+        </tr>
+        {/if}
     </table>
     {/block_decorator}
     
@@ -99,18 +113,53 @@ margin-bottom:7px;
 	</div>
     {/block_decorator}
 
-    <!-- 显示参加乐友组件部分 -->
-    <div class="userList">{$userListCmp}</div>
+    <!-- 显示隶属乐群部分 -->
+    {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_groups' langLabel='zlevent+view_group_and_creator_cap_label'}
+	<div class="ow_ipc ow_smallmargin clearfix">
+		<div>
+		{if !empty($info.groupImage)}<a href="{$info.groupLink}"><img src="{$info.groupImage}" alt="{$info.groupTitle}" style="width:100%;" /></a>{/if}
+		</div>
+		<div class="ow_value" style="margin: 0px auto 10px; text-align: center;"><a href="{$info.groupLink}">{$info.groupTitle}</a></div>
+	</div>
+	<hr style="margin-left: 0px; margin-right: 0px;">
+	<div>
+	    <table class="ow_table_3" style="margin-bottom: 10px;">
+	        <tr class="ow_tr_first ow_tr_last">
+	            <td class="ow_label" style="width: 25%">{text key='zlgroups+creator'}</td>
+	            <td class="ow_value">
+	            	<div style="margin:0 auto; text-align:center;"><a href="{$info.group_founder_url}"><img src="{$info.group_founder_image}" alt="{$info.group_founder_title}" style="" /></a></div>
+					<div class="ow_value" style="margin:0 auto; text-align:center;"><a href="{$info.group_founder_url}">{$info.group_founder_title}</a></div>
+	            </td>
+	        </tr>
+	    </table>
+    </div>
+    <hr style="margin-left: 0px; margin-right: 0px;">
+	<div>
+		<div style="margin-bottom: 5px;">
+			<span style="border: 1px solid #d5d5d5; border-radius: 5px; font-weight: 700; height: 8px; margin-right: 3px; padding: 2px 7px; width: 12px;">{$info.totalupcoming}</span>
+			即将举办的活动
+		</div>
+		<div style="margin-bottom: 5px;">
+			<span style="border: 1px solid #d5d5d5; border-radius: 5px; font-weight: 700; height: 8px; margin-right: 3px; padding: 2px 7px; width: 12px;">{$info.totalhistorical}</span>
+			举办过的活动
+		</div>
+
+    </div>
+    {/block_decorator}
+    
 </div>
 
 <!-- 显示右面部分 -->
-<div class="ow_right ow_superwide">
+<div class="ow_left ow_superwide">
 
     {block_decorator name='box' type='empty' iconClass='ow_ic_picture' langLabel='zlevent+view_page_image_block_cap_label' addClass="ow_std_margin clearfix"}
     {if !empty($info.image)}<img src="{$info.image}" alt="" style="float: right;margin: 5px;" />{/if}{$info.desc}
     {/block_decorator}
 
     {add_content key='socialsharing.get_sharing_buttons' title=$info.title description=$info.desc image=$info.image entityType='zlevent' entityId=$info.id}
+
+    <!-- 显示参加乐友组件部分 -->
+    <div class="userList">{$userListCmp}</div>
 
     {add_content key='zlevents.view.content.between_description_and_wall' eventId=$info.id}
     {$comments}

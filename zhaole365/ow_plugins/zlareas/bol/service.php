@@ -2,6 +2,8 @@
 
 class ZLAREAS_BOL_Service
 {
+	const JQUERY_LOAD_PRIORITY = 100000002;
+	
     /**
      * Singleton instance.
      *
