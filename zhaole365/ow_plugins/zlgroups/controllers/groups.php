@@ -236,7 +236,7 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         OW::getDocument()->setDescription($language->text('zlgroups', 'create_page_description'));
         
         OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
-
+        
         // FIXME
         $searcharea = '北京市';
         $this->assign('searcharea', $searcharea);

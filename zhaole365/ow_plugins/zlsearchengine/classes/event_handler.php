@@ -92,11 +92,11 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     {
     	// 乐群相关
     	// 创建
-        OW::getEventManager()->bind(ZLGROUPS_BOL_Service::EVENT_CREATE, array($this, 'onCreateZLGroup'));
+        OW::getEventManager()->bind('zlgroups_group_create_complete', array($this, 'onCreateZLGroup'));
         // 更新
-        OW::getEventManager()->bind(ZLGROUPS_BOL_Service::EVENT_EDIT, array($this, 'onUpdateZLGroup'));
+        OW::getEventManager()->bind('zlgroups_group_edit_complete', array($this, 'onUpdateZLGroup'));
         // 删除
-        OW::getEventManager()->bind(ZLGROUPS_BOL_Service::EVENT_DELETE_COMPLETE, array($this, 'onDeleteZLGroup'));
+        OW::getEventManager()->bind('zlgroups_group_delete_complete', array($this, 'onDeleteZLGroup'));
         
         // 群乐相关
         // 创建

@@ -3974,6 +3974,7 @@ User {$inviter} invites you to check out this site:
   'zlgroups+widget_leave_button' => '退出',
   'zlgroups+widget_leave_button_title' => '退出乐群',
   'zlgroups+widget_location_label' => '地址',
+  'zlgroups+widget_tags_label' => '标签',
   'zlgroups+widget_users_settings_count' => '统计',
   'zlgroups+widget_users_title' => '用户',
   'zlgroups+widget_users_view_all' => '浏览全部',
