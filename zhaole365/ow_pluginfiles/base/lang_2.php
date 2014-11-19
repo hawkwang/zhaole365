@@ -4085,7 +4085,7 @@ User {$inviter} invites you to check out this site:
   'zlevent+past_events_page_desc' => '找乐365 成员的私有乐子列表.',
   'zlevent+past_events_page_heading' => '历史乐子',
   'zlevent+past_events_page_title' => '历史乐子 - 找乐365',
-  'zlevent+privacy_action_view_attend_events' => '浏览自己乐子',
+  'zlevent+privacy_action_view_attend_events' => '浏览自己群乐',
   'zlevent+private_event_text' => '抱歉！这是个私有乐子。',
   'zlevent+private_page_heading' => '私有乐子',
   'zlevent+private_page_title' => '私有乐子',

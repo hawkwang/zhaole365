@@ -21,6 +21,7 @@ final class ZLEVENT_BOL_EventService
 
     const EVENT_AFTER_EVENT_EDIT = 'zlevent_after_event_edit';
     const EVENT_ON_DELETE_EVENT = 'zlevent_on_delete_event';
+    const EVENT_AFTER_DELETE_EVENT = 'zlevent_after_delete_event';
     const EVENT_ON_CREATE_EVENT = 'zlevent_on_create_event';
     const EVENT_ON_CHANGE_USER_STATUS = 'zlevent_on_change_user_status';
     const EVENT_AFTER_CREATE_EVENT = 'zlevent_after_create_event';
@@ -204,6 +205,10 @@ final class ZLEVENT_BOL_EventService
         $this->eventInviteDao->deleteByEventId($eventDto->getId());
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent', $eventId);
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('zlevent-invitation', $eventId);
+        
+        $e = new OW_Event(self::EVENT_AFTER_DELETE_EVENT, array('eventId' => (int) $eventId));
+        OW::getEventManager()->trigger($e);
+        
     }
 
     /**

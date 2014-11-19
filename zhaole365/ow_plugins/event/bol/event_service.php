@@ -57,6 +57,7 @@ final class EVENT_BOL_EventService
 
     const EVENT_AFTER_EVENT_EDIT = 'event_after_event_edit';
     const EVENT_ON_DELETE_EVENT = 'event_on_delete_event';
+    const EVENT_AFTER_DELETE_EVENT = 'event_after_delete_event';
     const EVENT_ON_CREATE_EVENT = 'event_on_create_event';
     const EVENT_ON_CHANGE_USER_STATUS = 'event_on_change_user_status';
     const EVENT_AFTER_CREATE_EVENT = 'event_after_create_event';
@@ -201,6 +202,10 @@ final class EVENT_BOL_EventService
         $this->eventInviteDao->deleteByEventId($eventDto->getId());
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('event', $eventId);
         BOL_InvitationService::getInstance()->deleteInvitationByEntity('event-invitation', $eventId);
+        
+        $e = new OW_Event(self::EVENT_AFTER_DELETE_EVENT, array('eventId' => (int) $eventId));
+        OW::getEventManager()->trigger($e);
+        
     }
 
     /**

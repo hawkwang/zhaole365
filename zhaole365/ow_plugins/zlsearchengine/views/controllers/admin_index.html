@@ -1,0 +1,84 @@
+
+
+<!-- Nav tabs -->
+<ul class="nav nav-tabs" role="tablist">
+  <li role="presentation" ><a href="#area" role="tab" data-toggle="tab">找乐地盘</a></li>
+  <li role="presentation" class="active"><a href="#location" role="tab" data-toggle="tab">乐子集居地</a></li>
+</ul>
+<div class="tab-content">
+  <div role="tabpanel" class="tab-pane fade " id="area" style="padding-top: 15px;">
+
+	
+	{form name='add_area'}
+	<div style="width: 400px; margin:0 auto"><table class="ow_table_1 ow_form ow_automargin">
+	    <tr class="ow_alt1 ow_tr_first ow_tr_last">
+			<td class="ow_value">{input name='areacode'}</td>
+			<td class="ow_value">{input name='province'}</td>
+			<td class="ow_value">{input name='city'}</td>
+			<td class="ow_value">{input name='area'}</td>
+		</tr>
+	</table>
+	    <div class="clearfix ow_submit ow_stdmargin">
+	    	<div class="ow_right">
+	        {submit name='add' class='ow_button ow_ic_save'}
+		</div></div>
+	</div>	
+	
+	{/form} 
+	<table class="ow_table_1 ow_automargin" style="width: 400px;">
+	    {foreach from=$areas item=area name=area}
+	    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.area.last}ow_tr_last{/if} {if $smarty.foreach.area.first}ow_tr_first{/if}">
+	        <td width="1"><a href="{$deleteUrls[$area.id]}" onclick="return confirm('{text key="base+are_you_sure"}');" style="width:16px; height:16px; display:block; margin:0 auto;background-repeat:no-repeat;background-position: 50% 50%;" class="ow_ic_delete"></a></td>
+	        <td>{$area.areacode}</td>
+	        <td>{$area.province}</td>
+	        <td>{$area.city}</td>
+	        <td>{$area.area}</td>
+	    </tr>
+	    {/foreach}
+	</table>
+  </div>
+  
+  <div role="tabpanel" class="tab-pane fade in active" id="location" style="padding-top: 15px;">
+
+	
+	{form name='add_location'}
+	<div style="width: 400px; margin:0 auto">
+				{input name='from'}
+				{input name='l_description'}
+				{input name='l_address'}
+				{input name='l_province'}
+				{input name='l_city'}
+				{input name='l_district'}
+				{input name='l_longitude'}
+				{input name='l_latitude'}
+				{input name='l_origin_address'}
+				<button type="button" class="btn btn-primary get-address">获取详细地址</button>
+		<label id="location_tag_error" style="color:red;display:none;">地图服务提供商无法识别您提交的地址，请再次输入详细地址！</label>
+		<div class="newsfeed_update_status_info">
+			<!-- <div id='locationtag_autocomplite_map' class='ow_location_tag_map_item' style='width:400px; height:300px;'></div> -->
+		</div>
+	    <div class="clearfix ow_submit ow_stdmargin">
+	    	<div class="ow_right">
+	        {submit name='add_location' class='ow_button ow_ic_save'}
+		</div></div>
+	</div>	
+	
+	{/form} 
+	
+	 <table class="ow_table_1 ow_automargin" style="width: 400px;">
+	    {foreach from=$locations item=location name=location}
+	    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.location.last}ow_tr_last{/if} {if $smarty.foreach.area.first}ow_tr_first{/if}">
+	        <td width="1"><a href="{$deleteLocationUrls[$location.id]}" onclick="return confirm('{text key="base+are_you_sure"}');" style="width:16px; height:16px; display:block; margin:0 auto;background-repeat:no-repeat;background-position: 50% 50%;" class="ow_ic_delete"></a></td>
+	        <td>{$location.id}</td>
+	        <td>{$location.address}</td>
+	        <td>{$location.areacode}</td>
+	        <td>{$location.longitude}</td>
+	        <td>{$location.latitude}</td>
+	        <td>{$location.description}</td>
+	    </tr>
+	    {/foreach}
+	</table>
+		
+  </div>
+</div>
+

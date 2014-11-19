@@ -140,7 +140,7 @@ margin-bottom:7px;
 <div class="ow_left ow_superwide">
 
     {block_decorator name='box' type='empty' iconClass='ow_ic_picture' langLabel='zlevent+view_page_image_block_cap_label' addClass="ow_std_margin clearfix"}
-    {if !empty($info.image)}<img src="{$info.image}" alt="" style="float: right;margin: 5px;" />{/if}{$info.desc}
+    {if !empty($info.image)}<img src="{$info.image}" alt="" style="float: left; margin: 5px;" />{/if}{$info.desc}
     {/block_decorator}
 
     {add_content key='socialsharing.get_sharing_buttons' title=$info.title description=$info.desc image=$info.image entityType='zlevent' entityId=$info.id}
