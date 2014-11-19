@@ -653,7 +653,16 @@ class ZLEVENT_CLASS_EventHandler
     		));
     	}
     	
-    }    
+    }   
+
+    // 删除乐群前要首先清除隶属群乐
+    public function onBeforeGroupDelete( OW_Event $event )
+    {
+    	$params = $event->getParams();
+    	$groupId = $params['groupId'];
+    	
+    	ZLEVENT_BOL_EventService::getInstance()->deleteEventsByGroupId($groupId);
+    }
 
     public function getContentMenu( OW_Event $event )
     {
@@ -695,6 +704,9 @@ class ZLEVENT_CLASS_EventHandler
         
         // 构建乐群事件event handler
         OW::getEventManager()->bind('zlgroups.on_toolbar_collect', array($this, "onGroupToolbarCollect"));
+        // 响应删除乐群的事件
+        OW::getEventManager()->bind('zlgroups_on_group_delete', array($this, "onBeforeGroupDelete"));
+        
         
     }
 

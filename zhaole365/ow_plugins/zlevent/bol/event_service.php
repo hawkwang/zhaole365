@@ -140,6 +140,34 @@ final class ZLEVENT_BOL_EventService
         unlink($tmpImgPath);
         unlink($tmpIconPath);
     }
+    
+    public function saveEventImageFromUrl( $imageUrlPath, $imageId )
+    {
+    	$storage = OW::getStorage();
+    
+    	if ( $storage->fileExists($this->generateImagePath($imageId)) )
+    	{
+    		$storage->removeFile($this->generateImagePath($imageId));
+    		$storage->removeFile($this->generateImagePath($imageId, false));
+    	}
+    
+    	$pluginfilesDir = Ow::getPluginManager()->getPlugin('zlevent')->getPluginFilesDir();
+    
+    	$tmpImgPath = $pluginfilesDir . 'img_' .uniqid() . '.jpg';
+    	$tmpIconPath = $pluginfilesDir . 'icon_' . uniqid() . '.jpg';
+    
+    	$image = new UTIL_Image($imageUrlPath);
+    	$image->resizeImage(400, null)->saveImage($tmpImgPath)
+    	->resizeImage(100, 100, true)->saveImage($tmpIconPath);
+    
+    	//unlink($imagePath);
+    
+    	$storage->copyFile($tmpIconPath, $this->generateImagePath($imageId));
+    	$storage->copyFile($tmpImgPath,$this->generateImagePath($imageId, false));
+    
+    	unlink($tmpImgPath);
+    	unlink($tmpIconPath);
+    }
 
     /**
      * Deletes event.
@@ -878,6 +906,17 @@ final class ZLEVENT_BOL_EventService
     public function deleteEventGroupByGroupId($groupId)
     {
     	$this->eventGroupDao->deleteByGroupId($groupId);
+    }
+    
+    // 删除所有隶属该乐群的群乐纪录
+    public function deleteEventsByGroupId($groupId)
+    {
+    	// get eventid list
+    	$eventGroupList = $this->eventGroupDao->findByGroupId($groupId);
+    	
+    	// delete each event
+    	foreach ( $eventGroupList as $eventGroup)
+			$this->deleteEvent($eventGroup->eventId);
     }
     
     public function findPublicEventsCountByGroupId($groupId, $past = false )

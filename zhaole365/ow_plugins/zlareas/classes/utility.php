@@ -37,6 +37,19 @@ class ZLAREAS_CLASS_Utility
     	return $details;
     }
     
+    public function getAnotherAddressInfo($formated_address, $province, $city, $district, $longitude, $latitude)
+    {
+    	$details = array();
+    	$details["formated_address"] = $formated_address;
+    	$details["province"] = $province;
+    	$details["city"] = $city;
+    	$details["district"] = $district;
+    	$details["longitude"] = $longitude;
+    	$details["latitude"] = $latitude;
+    
+    	return $details;
+    }
+    
     // 判断$alladdressdescription中是否含有$description
     public function containOriginAddress($alladdressdescription, $description)
     {
