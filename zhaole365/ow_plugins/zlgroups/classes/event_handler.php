@@ -94,6 +94,9 @@ class ZLGROUPS_CLASS_EventHandler
         
         // 删除该乐群相关评论
         BOL_CommentService::getInstance()->deleteEntityComments(ZLGROUPS_BOL_Service::ENTITY_TYPE_WAL, $groupId);
+        
+        // 删除该乐群相关标签
+        // TBD
 
         // 删除该乐群相关flag，TBU－不清除咋用的
         BOL_FlagService::getInstance()->deleteByTypeAndEntityId(ZLGROUPS_BOL_Service::ENTITY_TYPE_GROUP, $groupId);

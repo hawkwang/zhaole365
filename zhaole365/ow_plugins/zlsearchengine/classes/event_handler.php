@@ -100,11 +100,11 @@ class ZLSEARCHENGINE_CLASS_EventHandler
         
         // 群乐相关
         // 创建
-        OW::getEventManager()->bind(ZLEVENT_BOL_EventService::EVENT_AFTER_CREATE_EVENT, array($this, 'onCreateZLEvent'));
+        OW::getEventManager()->bind('zlevent_after_create_event', array($this, 'onCreateZLEvent'));
         // 更新
-        OW::getEventManager()->bind(ZLEVENT_BOL_EventService::EVENT_AFTER_EVENT_EDIT, array($this, 'onUpdateZLEvent'));
+        OW::getEventManager()->bind('zlevent_after_event_edit', array($this, 'onUpdateZLEvent'));
         // 删除
-        OW::getEventManager()->bind(ZLEVENT_BOL_EventService::EVENT_AFTER_DELETE_EVENT, array($this, 'onDeleteZLEvent'));
+        OW::getEventManager()->bind('zlevent_after_delete_event', array($this, 'onDeleteZLEvent'));
                 
         // 众乐相关
         // 创建

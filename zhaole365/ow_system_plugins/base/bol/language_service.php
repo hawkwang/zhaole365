@@ -448,7 +448,6 @@ class BOL_LanguageService
 
     public function importPrefix( $xml, $refreshCache=false )
     {
-
         if ( false === ( $prefixesXml = $xml->xpath("/prefix") ) )
         {
             return false;
@@ -482,19 +481,19 @@ class BOL_LanguageService
         }
 
         $keysXml = $prefixesXml[0]->xpath('child::key');
-
         foreach ( $keysXml as $keyXml )
         {
-
             if ( null === ($key = $service->findKey((string) $prefixesXml[0]->attributes()->name, (string) $keyXml->attributes()->name)) )
             {
                 $key = new BOL_LanguageKey();
                 $key->setKey((string) $keyXml->attributes()->name)->
                     setPrefixId($prefix->getId());
                 $service->saveKey($key);
+        		OW::getFeedback()->info($key);
             }
 
-            if ( null === ( $value = $service->findValue($language->getId(), $key->getId()) ) )
+            $value = $service->findValue($language->getId(), $key->getId());
+            if ( null === ( $value ) )
             {
                 $value = new BOL_LanguageValue();
                 $value->setLanguageId($language->getId())->
@@ -503,12 +502,20 @@ class BOL_LanguageService
 
                 $service->saveValue($value, false);
             }
+            else 
+            {
+            	$value->setLanguageId($language->getId())->setKeyId($key->getId())->setValue((string) $keyXml->value);
+            	
+            	$service->saveValue($value, true);
+            }
+            
             if ( $refreshCache )
             {
+            	OW::getFeedback()->info($refreshCache);
                 $this->generateCache($language->getId());
             }
-            }
         }
+    }
         
     /**
      * @param integer $id

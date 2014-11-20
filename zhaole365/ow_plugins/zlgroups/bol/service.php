@@ -48,6 +48,7 @@ class ZLGROUPS_BOL_Service
 
     //定义
     const ENTITY_TYPE_WAL = 'zlgroups_wal';
+    const ENTITY_TYPE_TAG = 'zlgroups_tag';
     const ENTITY_TYPE_GROUP = 'zlgroups';
     const FEED_ENTITY_TYPE = 'zlgroup';
 
@@ -376,6 +377,11 @@ class ZLGROUPS_BOL_Service
     public function isCurrentUserCanEdit( ZLGROUPS_BOL_Group $group )
     {
         return $group->userId == OW::getUser()->getId() || OW::getUser()->isAuthorized('zlgroups');
+    }
+    
+    public function isUserCanEdit( $userId, ZLGROUPS_BOL_Group $group )
+    {
+    	return $group->userId == $userId || OW::getUser()->isAuthorized('zlgroups');
     }
     
     // 判断用户是否具有创建乐群活动的权限（FIXME）

@@ -129,7 +129,6 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
 
                     $prefix = $_POST['set']['lang']["lang_{$tag}"][0];
                     $xml = simplexml_load_file($service->getImportDirPath() . "{$prefix}.xml");
-
                     $service->importPrefix($xml, $true);
 
                     break;

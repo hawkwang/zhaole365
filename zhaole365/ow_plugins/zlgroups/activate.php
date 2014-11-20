@@ -1,5 +1,6 @@
 <?php
 
+
 //将乐群添加到首菜单中
 $navigation = OW::getNavigation();
 $navigation->addMenuItem(

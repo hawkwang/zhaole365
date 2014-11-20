@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+	<name>找乐标签</name>
+	<key>zltags</key>
+	<description>"找乐标签"为各种对象提供标签功能</description>
+    <author>找乐365团队</author>
+    <authorEmail>zhaole365@yahoo.com</authorEmail>
+	<authorUrl>http://www.zhaole365.com</authorUrl>
+	<developerKey>723eba8b203379988e1b0d8058e608d7</developerKey>
+    <build>1</build>
+    <copyright>(C) 2014 找乐365. All rights reserved.</copyright>
+	<license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

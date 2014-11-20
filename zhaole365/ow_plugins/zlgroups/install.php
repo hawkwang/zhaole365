@@ -118,6 +118,7 @@ $groupName = 'zlgroups';
 $authorization->addGroup($groupName);
 
 $authorization->addAction($groupName, 'add_comment');
+$authorization->addAction($groupName, 'add_tag');
 $authorization->addAction($groupName, 'create');
 $authorization->addAction($groupName, 'view', true);
 
