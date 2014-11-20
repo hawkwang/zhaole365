@@ -54,7 +54,8 @@ class ZLTAGS_CMP_Tags extends OW_Component
 				        $("#myTags").tagit({
 				        	singleField : true,' . $section .
         		'afterTagAdded: function(event, ui) {
-	        		addTag({$pluginKey}, {$entityType}, {$entityId}, ui.tagLabel);
+        			if($("#isInitializing").val()=="false")
+	        			addTag({$pluginKey}, {$entityType}, {$entityId}, ui.tagLabel);
         		},
         		afterTagRemoved: function(event, ui) {
 	        		deleteTag({$pluginKey}, {$entityType}, {$entityId}, ui.tagLabel);
@@ -140,7 +141,26 @@ class ZLTAGS_CMP_Tags extends OW_Component
         				'deleteTagUrl' => $deleteTagUrl
         		)
         );        
-        
+
+        // 初始化tags
+        $entityTags = ZLTAGS_BOL_TagService::getInstance()->findFullTagList($entityType, $entityId);
+        foreach ($entityTags as $entityTag)
+        {
+        	$tag = ZLTAGS_BOL_TagService::getInstance()->findTagById($entityTag->tagId);
+        	$tagLabel = $tag->getTag();
+        	$js->addScript(
+        	'$(document).ready(function() {
+        			$("#isInitializing").val("true");
+        			$("#myTags").tagit("createTag", {$tagLabel});
+           			$("#isInitializing").val("false");
+        			
+        	});',
+        			array(
+        					'tagLabel' => $tagLabel
+        			)
+        	);
+        	 
+        }
         
         OW::getDocument()->addOnloadScript($js);
         

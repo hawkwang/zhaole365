@@ -46,12 +46,14 @@ class ZLTAGS_BOL_EntityTagDao extends OW_BaseDao
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array('entityType' => $entityType, 'entityId' => $entityId, 'first' => $first, 'count' => $count));
     }
 
-    public function findFullCommentList( $entityType, $entityId )
+    public function findFullTagList( $entityType, $entityId )
     {
         $query = "SELECT `et`.* FROM `" . $this->getTableName() . "` AS `et`
 			LEFT JOIN `" . ZLTAGS_BOL_TagEntityDao::getInstance()->getTableName() . "` AS `te` ON ( `et`.`" . self::TAG_ENTITY_ID . "` = `te`.`id` )
 			WHERE `te`.`" . ZLTAGS_BOL_TagEntityDao::ENTITY_TYPE . "` = :entityType AND `te`.`" . ZLTAGS_BOL_TagEntityDao::ENTITY_ID . "` = :entityId
  			ORDER BY `" . self::CREATE_STAMP . "`";
+        
+        OW::getFeedback()->info($query);
 
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array('entityType' => $entityType, 'entityId' => $entityId));
     }
