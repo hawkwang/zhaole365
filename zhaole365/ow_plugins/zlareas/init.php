@@ -8,8 +8,8 @@ OW::getRouter()->addRoute(new OW_Route('zlareas.admin', 'admin/plugins/areas', '
 OW::getRouter()->addRoute(new OW_Route('zlareas.index', 'areas', 'ZLAREAS_CTRL_Areas', 'index'));
 
 //测试解决首页问题 FIXME
-OW::getRouter()->addRoute(new OW_Route('zlareas.index.default', '/', 'ZLAREAS_CTRL_Areas', 'index'));
-
+//OW::getRouter()->addRoute(new OW_Route('zlareas.index.default', '/', 'ZLAREAS_CTRL_Areas', 'index'));
+//OW::getRouter()->removeRoute('zlareas.index.default');
 //init event handler
 // $eventHandler = ZLAREAS_CLASS_EventHandler::getInstance();
 // $eventHandler->genericInit();

@@ -616,7 +616,8 @@ class ZLGROUPS_BOL_Service
     	$grouplocationdetails['province'] = $area->province;
     	$grouplocationdetails['city'] = $area->city;
     	$grouplocationdetails['area'] = $area->area;
-    	
+    	$grouplocationdetails['areacode'] = $areacode;
+    	 
     	$grouplocationdetails['locationinfo'] =  $grouplocationdetails['formated_address'] . '||'
     			. $grouplocationdetails['province'] . '||' . $grouplocationdetails['city'] . '||' . $grouplocationdetails['area'] 
     			. '||' . $grouplocationdetails['longitude'] . '||' . $grouplocationdetails['latitude'];

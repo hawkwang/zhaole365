@@ -434,4 +434,16 @@ class ZLTAGS_BOL_TagService
     	return $this->entityTagDao->findEntityTagByTagEntityIdAndTagId($tagEntityId, $tagId);
     }
     
+    public function findAllTags($entityType, $entityId)
+    {
+    	$entityTags = $this->findFullTagList($entityType, $entityId );
+    	$tags = array();
+    	foreach($entityTags as $entityTag)
+    	{
+    		$tag = $this->tagDao->findById($entityTag->tagId);
+    		$tags[] = $tag->tag;
+    	}	
+    	return $tags;
+    }
+    
 }

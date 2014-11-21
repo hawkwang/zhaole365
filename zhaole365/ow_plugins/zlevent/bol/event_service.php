@@ -878,6 +878,7 @@ final class ZLEVENT_BOL_EventService
     	$locationdetails['province'] = $area->province;
     	$locationdetails['city'] = $area->city;
     	$locationdetails['area'] = $area->area;
+    	$locationdetails['areacode'] = $areacode;
     	 
     	$locationdetails['locationinfo'] =  $locationdetails['formated_address'] . '||'
     			. $locationdetails['province'] . '||' . $locationdetails['city'] . '||' . $locationdetails['area']

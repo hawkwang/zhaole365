@@ -13,11 +13,9 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     public function onCreateZLGroup( OW_Event $e )
     {
     	$params = $e->getParams();
-    	$groupId = (int) $params['groupId'];
+    	$entityId = (int) $params['groupId'];
     	
-
-    	
-    	OW::getFeedback()->info('add group index -' . $groupId . " to " . $this->searchengine_service->getServiceUrl());
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->addToGroupIndex($entityId);
     }
     
     public function onUpdateZLGroup( OW_Event $e )
@@ -25,7 +23,7 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	$params = $e->getParams();
     	$groupId = (int) $params['groupId'];
     	 
-    	OW::getFeedback()->info('update group index -' . $groupId . " to " . $this->searchengine_service->getServiceUrl());
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->addToGroupIndex($groupId);
     }
     
     public function onDeleteZLGroup( OW_Event $e )
@@ -33,7 +31,7 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	$params = $e->getParams();
     	$groupId = (int) $params['groupId'];
     	 
-    	OW::getFeedback()->info('delete group index -' . $groupId . " to " . $this->searchengine_service->getServiceUrl());
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->deleteGroupIndex($groupId);
     }
     
     public function onCreateZLEvent( OW_Event $e )
@@ -41,7 +39,7 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	$params = $e->getParams();
     	$eventId = (int) $params['eventId'];
     	
-    	OW::getFeedback()->info('add group event -' . $eventId . " to " . $this->searchengine_service->getServiceUrl());
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->addToEventIndex($eventId);
     }
 
     public function onUpdateZLEvent( OW_Event $e )
@@ -49,7 +47,7 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	$params = $e->getParams();
     	$eventId = (int) $params['eventId'];
     
-    	OW::getFeedback()->info('update group event -' . $eventId . " to " . $this->searchengine_service->getServiceUrl());
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->addToEventIndex($eventId);
     }
     
     public function onDeleteZLEvent( OW_Event $e )
@@ -57,8 +55,7 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	$params = $e->getParams();
     	$eventId = (int) $params['eventId'];
     	
-    	OW::getFeedback()->info('delete group event -' . $eventId . " to " . $this->searchengine_service->getServiceUrl());
-    	 
+    	ZLSEARCHENGINE_BOL_Service::getInstance()->deleteEventIndex($eventId);
     }
     
     public function onCreateEvent( OW_Event $e )
@@ -88,6 +85,46 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     	 
     }
     
+    public function onCreateTag( OW_Event $e )
+    {
+    	$params = $e->getParams();
+    	$entityType = (int) $params['entityType'];
+    	$entityId = (int) $params['entityId'];
+    	switch ( $entityType )
+    	{
+    		case 'zlgroups':
+    			ZLSEARCHENGINE_BOL_Service::getInstance()->addToGroupIndex($entityId);
+    			break;
+    			
+    		case 'zlevent':
+    			ZLSEARCHENGINE_BOL_Service::getInstance()->addToEventIndex($entityId);
+    			break;
+    			
+    		default:
+    			break;
+    	}
+    }
+    
+    public function onDeleteTag( OW_Event $e )
+    {
+    	$params = $e->getParams();
+    	$entityType = (int) $params['entityType'];
+    	$entityId = (int) $params['entityId'];
+    	switch ( $entityType )
+    	{
+    		case 'zlgroups':
+    			ZLSEARCHENGINE_BOL_Service::getInstance()->deleteGroupIndex($entityId);
+    			break;
+    			 
+    		case 'zlevent':
+    			ZLSEARCHENGINE_BOL_Service::getInstance()->deleteEventIndex($entityId);
+    			break;
+    			 
+    		default:
+    			break;
+    	}
+    }
+    
     public function init()
     {
     	// 乐群相关
@@ -108,12 +145,15 @@ class ZLSEARCHENGINE_CLASS_EventHandler
                 
         // 众乐相关
         // 创建
-        OW::getEventManager()->bind(EVENT_BOL_EventService::EVENT_AFTER_CREATE_EVENT, array($this, 'onCreateEvent'));
+        OW::getEventManager()->bind('event_after_create_event', array($this, 'onCreateEvent'));
         // 更新
-        OW::getEventManager()->bind(EVENT_BOL_EventService::EVENT_AFTER_EVENT_EDIT, array($this, 'onUpdateEvent'));
+        OW::getEventManager()->bind('event_after_event_edit', array($this, 'onUpdateEvent'));
         // 删除
-        OW::getEventManager()->bind(EVENT_BOL_EventService::EVENT_AFTER_DELETE_EVENT, array($this, 'onDeleteEvent'));
-                
+        OW::getEventManager()->bind('event_after_delete_event', array($this, 'onDeleteEvent'));
+
+        // 标签相关
+        OW::getEventManager()->bind('zltags_after_add_tag', array($this, 'onCreateTag'));
+        OW::getEventManager()->bind('zltags_after_delete_tag', array($this, 'onDeleteTag'));
         
         // 乐友相关
         // 创建

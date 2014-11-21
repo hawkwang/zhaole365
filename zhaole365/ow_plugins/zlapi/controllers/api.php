@@ -23,11 +23,13 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 		else 
 		{
 			// source - groupId
-			$source = 2;
+			$source = 3;
 			// title
 			$title = "梦工厂《驯龙高手》超视景LIVE秀+互动体验园";
 			// description
 			$description = "梦工厂《驯龙高手》超视景LIVE秀+互动体验园 2014.06.26 19:30 国家体育场鸟巢热身场";
+			// category
+			$category = "亲子";
 			// address
 			$address = "国家体育场鸟巢热身场";
 			// address_description
@@ -89,7 +91,7 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 			
 			ZLEVENT_BOL_EventService::getInstance()->saveEvent($event);
 			
-			// prepare loaction
+			// 创建关联地址
 			$location = $address;
 			$address_details = ZLAREAS_CLASS_Utility::getInstance()->getAnotherAddressInfo($address_description, $province, $city, $area, $longitude, $latitude);
 			ZLEVENT_BOL_EventService::getInstance()->saveLocation(
@@ -106,7 +108,7 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 			// 创建群乐隶属乐群信息
 			ZLEVENT_BOL_EventService::getInstance()->saveEventGroup($event->id, $source);
 			
-			// prepare image
+			// 创建关联LOGO图片
 			if ($imagePosted)
 				ZLEVENT_BOL_EventService::getInstance()->saveEventImageFromUrl($imageurl, $event->getImage());
 			
@@ -117,13 +119,26 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 			$eventUser->setTimeStamp(time());
 			$eventUser->setStatus(ZLEVENT_BOL_EventService::USER_STATUS_YES);
 			ZLEVENT_BOL_EventService::getInstance()->saveEventUser($eventUser);
+			
+			// 发送自动生成标签的请求
+			$serviceEvent = new OW_Event('zltagautogenerator_create_tags', array('title' => $title, 'description' => $description));
+			OW::getEventManager()->trigger($serviceEvent);
+			$data = $serviceEvent->getData();
+			$tags = array();
+			$tags[] = $category;
+			if(isset($data['tags']))
+				$tags = array_merge($tags, $data['tags']);
+			// create tag for event
+			foreach($tags as $tag_label)
+				ZLTAGS_BOL_TagService::getInstance()->addTag('zlevent_tag', $event->getId(), 'zlevent', $event->getUserId(), $tag_label);
+			
+			// fire event
+			$serviceEvent = new OW_Event('zlevent_after_create_event', array('eventId' => $event->id, 'eventDto' => $event));
+			OW::getEventManager()->trigger($serviceEvent);
 				
-			//
+			// 
 			$result = 'yes';
 		}
-		
-		
-		
 		
 		$apiResponse = array (
 				"result" => $result,  // 'yes' or 'no'
