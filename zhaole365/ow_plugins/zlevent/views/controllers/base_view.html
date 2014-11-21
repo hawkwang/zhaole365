@@ -51,7 +51,7 @@ margin-bottom:7px;
 	</div>
 {/if}
 
-<!-- 显示左面部分 -->
+<!-- 显示右面部分 -->
 <div class="ow_right ow_supernarrow">
     <!-- 显示细节部分 -->
     {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_info' langLabel='zlevent+view_page_details_block_cap_label'}
@@ -82,6 +82,11 @@ margin-bottom:7px;
 
     <!-- 显示邀请好友部分 -->
     {if !empty($inviteLink)}<div class="inviteLink ow_std_margin">{decorator name='button' class='ow_ic_add' type='button' langLabel='zlevent+invite_btn_label' id='inviteLink'}</div>{/if}
+    
+    <!-- 显示标签部分 -->
+    {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_tag' langLabel='zlevent+view_event_tags_block_cap_label'}
+    	{$tags}
+    {/block_decorator}
     
     <!-- 显示地址部分 -->
     {block_decorator name='box' addClass='ow_std_margin' iconClass='ow_ic_places' langLabel='zlevent+view_page_address_block_cap_label'}
@@ -136,7 +141,7 @@ margin-bottom:7px;
     
 </div>
 
-<!-- 显示右面部分 -->
+<!-- 显示左面部分 -->
 <div class="ow_left ow_superwide">
 
     {block_decorator name='box' type='empty' iconClass='ow_ic_picture' langLabel='zlevent+view_page_image_block_cap_label' addClass="ow_std_margin clearfix"}

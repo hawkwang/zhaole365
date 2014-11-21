@@ -774,6 +774,15 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $this->addComponent('comments', new BASE_CMP_Comments($cmntParams));
         $this->addComponent('userListCmp', new ZLEVENT_CMP_EventUsers($event->getId()));
         
+        // 添加标签部分
+        
+        $tagParams = new ZLTAGS_CLASS_Params('zlevent', ZLEVENT_BOL_EventService::ENTITY_TYPE_TAG);
+        $tagParams->setEntityId($event->getId());
+        $isOwner = ( (OW::getUser()->getId())== $event->userId);
+        $tagParams->setAddTag(true);
+        
+         $this->addComponent('tags', new ZLTAGS_CMP_Tags($tagParams));        
+        
         // 添加地址部分
         $detailedLocationInfo = ZLEVENT_BOL_EventService::getInstance()->findLocationDetailedInfoByEventId($event->getId());
         $this->assign("location", $detailedLocationInfo['location']);

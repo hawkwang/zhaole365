@@ -82,6 +82,7 @@ $authorization = OW::getAuthorization();
 $groupName = 'zlevent';
 $authorization->addGroup($groupName);
 $authorization->addAction($groupName, 'add_event');
+$authorization->addAction($groupName, 'add_tag');
 $authorization->addAction($groupName, 'view_event', true);
 $authorization->addAction($groupName, 'add_comment');
 

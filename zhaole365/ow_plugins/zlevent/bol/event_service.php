@@ -29,6 +29,8 @@ final class ZLEVENT_BOL_EventService
     const EVENT_BEFORE_EVENT_CREATE = 'zlevents.before_event_create';
     const EVENT_BEFORE_EVENT_EDIT = 'zlevents.before_event_edit';
     const EVENT_COLLECT_TOOLBAR = 'zlevents.collect_toolbar';
+    
+    const ENTITY_TYPE_TAG = 'zlevent_tag';
 
     /**
      * @var array

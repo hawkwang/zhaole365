@@ -53,8 +53,6 @@ class ZLTAGS_BOL_EntityTagDao extends OW_BaseDao
 			WHERE `te`.`" . ZLTAGS_BOL_TagEntityDao::ENTITY_TYPE . "` = :entityType AND `te`.`" . ZLTAGS_BOL_TagEntityDao::ENTITY_ID . "` = :entityId
  			ORDER BY `" . self::CREATE_STAMP . "`";
         
-        OW::getFeedback()->info($query);
-
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array('entityType' => $entityType, 'entityId' => $entityId));
     }
 

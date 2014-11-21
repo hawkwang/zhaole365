@@ -80,6 +80,14 @@ class ZLGROUPS_CLASS_EventHandler
         {
             OW::getStorage()->removeFile($fileName);
         }
+        
+        // 给zltags插件发送事件，请求删除该乐群相关标签
+        //ZLTAGS_BOL_TagService::getInstance()->deleteEntityTags(ZLGROUPS_BOL_Service::ENTITY_TYPE_TAG, $groupId);
+        OW::getEventManager()->trigger(new OW_Event('zltags.delete_item', array(
+        'entityType' => ZLGROUPS_BOL_Service::ENTITY_TYPE_TAG,
+        'entityId' => $groupId
+        )));
+        
     }
     
     // 乐群删除后事件处理
@@ -95,9 +103,6 @@ class ZLGROUPS_CLASS_EventHandler
         // 删除该乐群相关评论
         BOL_CommentService::getInstance()->deleteEntityComments(ZLGROUPS_BOL_Service::ENTITY_TYPE_WAL, $groupId);
         
-        // 删除该乐群相关标签
-        // TBD
-
         // 删除该乐群相关flag，TBU－不清除咋用的
         BOL_FlagService::getInstance()->deleteByTypeAndEntityId(ZLGROUPS_BOL_Service::ENTITY_TYPE_GROUP, $groupId);
 

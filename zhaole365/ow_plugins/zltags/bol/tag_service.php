@@ -7,6 +7,12 @@ class ZLTAGS_BOL_TagService
     const CONFIG_ALLOWED_ATTRS = 'allowed_attrs';
     const CONFIG_MB_TAGS_ON_PAGE = 'mb_tags_on_page';
     const CONFIG_MB_TAGS_COUNT_TO_LOAD = 'mb_tags_count_to_load';
+    
+    // 事件
+    // zltags_before_add_tag
+    // zltags_after_add_tag
+    // zltags_before_delete_tag
+    // zltags_after_delete_tag
 
     private $tagDao;
     private $entityTagDao;

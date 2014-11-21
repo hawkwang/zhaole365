@@ -66,6 +66,8 @@ final class EVENT_BOL_EventService
     const EVENT_BEFORE_EVENT_EDIT = 'events.before_event_edit';
     const EVENT_COLLECT_TOOLBAR = 'events.collect_toolbar';
 
+    const ENTITY_TYPE_TAG = 'event_tag';
+    
     /**
      * @var array
      */

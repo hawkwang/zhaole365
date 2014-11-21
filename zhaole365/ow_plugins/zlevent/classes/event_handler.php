@@ -519,6 +519,12 @@ class ZLEVENT_CLASS_EventHandler
 
         $event = new OW_Event('feed.delete_item', array('entityType' => 'zlevent', 'entityId' => $eventId));
         OW::getEventManager()->trigger($event);
+        
+        // 给zltags插件发送事件，请求删除该群乐相关标签
+        OW::getEventManager()->trigger(new OW_Event('zltags.delete_item', array(
+	        'entityType' => ZLEVENT_BOL_EventService::ENTITY_TYPE_TAG,
+	        'entityId' => $eventId
+        )));
     }
 
     public function onEditEvent( OW_Event $event )

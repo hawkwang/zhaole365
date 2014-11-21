@@ -74,7 +74,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         $entityTag = $this->tagService->addTag($params->getEntityType(), $params->getEntityId(), $params->getPluginKey(), OW::getUser()->getId(), $tagLabel);
 
         // trigger event tag add
-        $event = new OW_Event('zltags_add_tag', array(
+        $event = new OW_Event('zltags_after_add_tag', array(
             'entityType' => $params->getEntityType(),
             'entityId' => $params->getEntityId(),
             'userId' => OW::getUser()->getId(),
@@ -89,7 +89,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
 
         exit(json_encode(array(
             'messageType' => 'ok',
-            'message' => 'ok'
+            'message' => '已成功添加标签－' . $tagLabel
 //         	'entityType' => $params->getEntityType(),
 //             'entityId' => $params->getEntityId(),
 //             'onloadScript' => OW::getDocument()->getOnloadScript()
@@ -106,30 +106,40 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         $entityTag = $tagArray['entityTag'];
         $tagEntity = $tagArray['tagEntity'];
         
+        $tag = $this->tagService->findTagById($entityTag->getTagId());
+        $tagLabel = $tag->getTag();
         $userId = $entityTag->getUserId();
+        $entityType = $tagEntity->getEntityType();
+        $entityId = $tagEntity->getEntityId();
+        
+        $event = new OW_Event('zltags_before_delete_tag', array(
+        		'entityType' => $entityType,
+        		'entityId' => $entityId,
+        		'userId' => $userId,
+        		'tagLabel' => $tagLabel
+        ));
+        OW::getEventManager()->trigger($event);
         
         $this->tagService->deleteEntityTag($entityTag->getId());
         $tagCount = $this->tagService->findTagCount($tagEntity->getEntityType(), $tagEntity->getEntityId());
 
+        // 如果没有entityTag项，则删除tagEntity项
         if ( $tagCount === 0 )
         {
             $this->tagService->deleteTagEntity($tagEntity->getId());
         }
 
-        // get the tag text
-        $tag = $this->tagService->findTagById($entityTag->getTagId());
-        
-        
-        $event = new OW_Event('zltags_delete_tag', array(
-            'entityType' => $tagEntity->getEntityType(),
-            'entityId' => $tagEntity->getEntityId(),
+        $event = new OW_Event('zltags_after_delete_tag', array(
+            'entityType' => $entityType,
+            'entityId' => $entityId,
             'userId' => $userId,
-            'tagLabel' => $tag->getTag()
+            'tagLabel' => $tagLabel
         ));
-
         OW::getEventManager()->trigger($event);
 
         exit(json_encode(array(
+        	'messageType' => 'ok',
+        	'message' => '已成功删除标签－' . $tagLabel,
             'entityType' => $params->getEntityType(),
             'entityId' => $params->getEntityId(),
             'onloadScript' => OW::getDocument()->getOnloadScript()
@@ -150,7 +160,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         	// 如果tagLabel没有合理的提供
         	if(!isset($_POST['tagLabel']) || strlen($_POST['tagLabel']) < 1)
         	{
-	            echo json_encode(array('error' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
+	            echo json_encode(array('messageType' => 'error','message' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
 	            exit();
         	}
 //         }
@@ -161,7 +171,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         $tagEntity = $this->tagService->findTagEntity($params->getEntityType(), $params->getEntityId());
         if ( $tagEntity === null )
         {
-        	echo json_encode(array('error' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
+        	echo json_encode(array('messageType' => 'error','message' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
         	exit();
         }  
         $tagEntityId =  $tagEntity->getId();  
@@ -170,7 +180,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         
         if ( $entityTag === null )
         {
-            echo json_encode(array('error' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
+            echo json_encode(array('messageType' => 'error','message' => OW::getLanguage()->text('zltags', 'tag_ajax_error')));
             exit();
         }
 
@@ -180,7 +190,7 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
 
         if ( !$isModerator && !$isOwnerAuthorized && !$tagOwner )
         {
-            echo json_encode(array('error' => OW::getLanguage()->text('zltags', 'auth_ajax_error')));
+            echo json_encode(array('messageType' => 'error','message' => OW::getLanguage()->text('zltags', 'auth_ajax_error')));
             exit();
         }
 

@@ -29,7 +29,7 @@ class ZLTAGS_CMP_Tags extends OW_Component
         
         $this->isAuthorized = OW::getUser()->isAuthorized($pluginKey, 'add_tag') && $params->getAddTag();
         
-        OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zltags')->getStaticJsUrl() . 'jquery-1.11.1.min.js');
+        //OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zltags')->getStaticJsUrl() . 'jquery-1.11.1.min.js');
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zltags')->getStaticJsUrl() . 'jquery-ui.min.js');
         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zltags')->getStaticJsUrl() . 'tag-it.js');
         
@@ -95,8 +95,7 @@ class ZLTAGS_CMP_Tags extends OW_Component
 		                    }
 		                    else
 		                    {
-		                        //OW.info(data.message);
-        		                OW.info("标签已成功添加");
+		                        OW.info(data.message);
 		                    }
 		                },
         		        error : function( XMLHttpRequest, textStatus, errorThrown ){
@@ -127,8 +126,7 @@ class ZLTAGS_CMP_Tags extends OW_Component
 		                    }
 		                    else
 		                    {
-		                        //OW.info(data.message);
-        		                OW.info("标签已删除");
+		                        OW.info(data.message);
 		                    }
 		                },
         		        error : function( XMLHttpRequest, textStatus, errorThrown ){
