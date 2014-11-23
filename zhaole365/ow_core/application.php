@@ -236,7 +236,7 @@ class OW_Application
         //$viewRenderer->assignVar('bottomPoweredByLink', '<a href="http://www.oxwall.org/" target="_blank" title="Powered by Oxwall Community Software"><img src="' . $currentThemeImagesDir . 'powered-by-oxwall.png" alt="Oxwall Community Software" /></a>');
         $viewRenderer->assignVar('bottomPoweredByLink', '');
         $viewRenderer->assignVar('adminDashboardIframeUrl', "http://static.oxwall.org/spotlight/?platform=oxwall&platform-version=" . OW::getConfig()->getValue('base', 'soft_version') . "&platform-build=" . OW::getConfig()->getValue('base', 'soft_build'));
-
+        
         if ( function_exists('ow_service_actions') )
         {
             call_user_func('ow_service_actions');
