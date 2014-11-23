@@ -88,15 +88,15 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     public function onCreateTag( OW_Event $e )
     {
     	$params = $e->getParams();
-    	$entityType = (int) $params['entityType'];
+    	$entityType = $params['entityType'];
     	$entityId = (int) $params['entityId'];
     	switch ( $entityType )
     	{
-    		case 'zlgroups':
+    		case 'zlgroups_tag':
     			ZLSEARCHENGINE_BOL_Service::getInstance()->addToGroupIndex($entityId);
     			break;
     			
-    		case 'zlevent':
+    		case 'zlevent_tag':
     			ZLSEARCHENGINE_BOL_Service::getInstance()->addToEventIndex($entityId);
     			break;
     			
@@ -108,15 +108,15 @@ class ZLSEARCHENGINE_CLASS_EventHandler
     public function onDeleteTag( OW_Event $e )
     {
     	$params = $e->getParams();
-    	$entityType = (int) $params['entityType'];
+    	$entityType = $params['entityType'];
     	$entityId = (int) $params['entityId'];
     	switch ( $entityType )
     	{
-    		case 'zlgroups':
+    		case 'zlgroups_tag':
     			ZLSEARCHENGINE_BOL_Service::getInstance()->deleteGroupIndex($entityId);
     			break;
     			 
-    		case 'zlevent':
+    		case 'zlevent_tag':
     			ZLSEARCHENGINE_BOL_Service::getInstance()->deleteEventIndex($entityId);
     			break;
     			 

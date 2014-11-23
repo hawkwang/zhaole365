@@ -6217,3 +6217,37 @@ body .ow_table_2 tr.ow_tr_titles th:last-child, body .ow_table_1 tr.ow_tr_titles
 	cursor: pointer;
 }
 /* END */
+
+.zl-nav:before, .zl-nav:after, .zl-navbar:before, .zl-navbar:after {
+	content: " ";
+    display: table;
+}
+
+*:before, *:after {
+    box-sizing: border-box;
+}
+
+.zl-nav:after, .zl-navbar:after, .zl-navbar-header:after, .zl-navbar-collapse:after {
+    clear: both;
+}
+
+.zl-navbar-nav {
+    float: left;
+    margin: 0;
+}
+
+.zl-navbar-nav > li {
+    float: left;
+}
+.zl-nav > li {
+    display: block;
+    position: relative;
+}
+
+.zl-nav > li > a {
+	padding-left: 5px; 
+	padding-right: 5px; 
+	font-size: 20px; 
+	color: blue;
+}
+

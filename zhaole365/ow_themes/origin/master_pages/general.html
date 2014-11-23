@@ -1,8 +1,36 @@
 <div class="ow_page_wrap">
 	<div class="ow_page_padding">
-		<div class="ow_site_panel">
+		<div class="ow_site_panel" style="border-bottom-width: 1px; border-bottom-color: rgb(187,187,187);">
+			<div class="ow_logo_wrap" style="position:absolute;width:100%; text-align:center;">
+						<a href="{$siteUrl}"><img src="{$themeImagesUrl}/logo.png" style="margin-top: -12px;"></a>
+			</div>
+			
 			{component class='BASE_CMP_Console'}
-			<div class="ow_logo_wrap"><a href="{$siteUrl}">{$siteName}</a></div>
+
+			<div class="ow_logo_wrap" style="position:relative;">
+				<div style="">
+					<div style="float:left;">
+						<ul class="zl-nav zl-navbar-nav">
+							<li><a 
+								href="/index/?action=group"> <span id="find_group" title="乐群" 
+									 data-toggle="tooltip">寻</span>
+							</a></li>
+							<li><a 
+								href="/index/?action=publicevent"> <span id="find_lele" title="乐子"
+									data-placement="top" data-toggle="tooltip">找</span>
+							</a></li>
+							<li><a style="padding-left: 5px; padding-right: 5px; font-size: 20px;"
+								href="/zhaole365/zlgroups/create"> <span id="create_group" title="乐群"
+									data-placement="right" data-toggle="tooltip">创</span>
+							</a></li>
+							<li><a style="padding-left: 5px; padding-right: 5px; font-size: 20px;"
+								href="/zhaole365/zlevent/add"> <span id="create_lele" title="乐子"
+									>造</span>
+							</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
 		</div>
 		<div class="ow_header">
 		{*print_var var=$imageControlValues*}
@@ -11,7 +39,7 @@
 			{else}
 				<div class="ow_header_pic"></div>
 			{/if}
-			<div class="ow_menu_wrap">{$main_menu}</div>
+			<div class="ow_menu_wrap" style="display:none;">{$main_menu}</div>
 		</div>
 		<div class="ow_page_container">
 			<div class="ow_canvas">

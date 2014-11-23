@@ -17,6 +17,11 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
     // 添加新活动
     public function add()
     {
+    	if ( !OW::getUser()->isAuthenticated() )
+    	{
+    		throw new AuthenticateException();
+    	}
+    	
         $language = OW::getLanguage();
         $this->setPageTitle($language->text('zlevent', 'add_page_title'));
         $this->setPageHeading($language->text('zlevent', 'add_page_heading'));
@@ -27,7 +32,7 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, 'zlevent', 'main_menu_item');
 
         // check permissions for this page
-        if ( !OW::getUser()->isAuthenticated() || !OW::getUser()->isAuthorized('zlevent', 'add_event') )
+        if ( !OW::getUser()->isAuthorized('zlevent', 'add_event') )
         {
             $status = BOL_AuthorizationService::getInstance()->getActionStatus('zlevent', 'add_event');
             throw new AuthorizationException($status['msg']);

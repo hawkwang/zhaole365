@@ -84,9 +84,9 @@ class ZLTAGS_CTRL_Tags extends OW_ActionController
         ));
 
         OW::getEventManager()->trigger($event);
-
+        
         BOL_AuthorizationService::getInstance()->trackAction($params->getPluginKey(), 'add_tag');
-
+        
         exit(json_encode(array(
             'messageType' => 'ok',
             'message' => '已成功添加标签－' . $tagLabel
