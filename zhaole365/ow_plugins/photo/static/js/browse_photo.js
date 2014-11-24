@@ -182,7 +182,8 @@
                 _methods.asyncLoadPhoto(_vars.data.photoList[i].url);
             }
             
-            _methods.buildPhotoItem(data.photoList.shift());
+            //_methods.buildPhotoItem(data.photoList.shift());
+            _methods.buildPhotoItem(_vars.data.photoList.shift());
         },
         buildPhotoItem: function( photo )
         {
