@@ -667,9 +667,11 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         	$group_founder_title = $data[$belongingGroup->userId]['title'];
         }
         
+        $imageurl = ( $event->getImage() ? $this->eventService->generateImageUrl($event->getImage(), false) : null );
+        
         $infoArray = array(
             'id' => $event->getId(),
-            'image' => ( $event->getImage() ? $this->eventService->generateImageUrl($event->getImage(), false) : null ),
+            'image' => $imageurl,
             'date' => UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(), $event->getStartTimeDisable()),
             'endDate' => $event->getEndTimeStamp() === null || !$event->getEndDateFlag() ? null : UTIL_DateTime::formatSimpleDate($event->getEndTimeDisable() ? strtotime("-1 day", $event->getEndTimeStamp()) : $event->getEndTimeStamp(),$event->getEndTimeDisable()),
             'location' => $event->getLocation(),

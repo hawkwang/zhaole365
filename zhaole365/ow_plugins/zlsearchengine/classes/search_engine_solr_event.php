@@ -49,12 +49,12 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrEvent extends ZLSEARCHENGINE_CLASS_Se
             $url .= "category:" . $category;
         }
         // 限定type, private event or public event
-        if ((isset($options['type']) == true) &&
-                 (strlen($options['type']) > 0)) {
-            $type = $options['type'];
-            $url .= "&fq=";
-            $url .= "type:" . $type;
-        }
+//         if ((isset($options['type']) == true) &&
+//                  (strlen($options['type']) > 0)) {
+//             $type = $options['type'];
+//             $url .= "&fq=";
+//             $url .= "type:" . $type;
+//         }
         // 限定时间范围
         $url .= "&fq=";
         $uplimit = "";
@@ -144,10 +144,8 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrEvent extends ZLSEARCHENGINE_CLASS_Se
         
         // Executes the URL and saves the content (json) in the variable.
         try {
-            $this->logger->info('begin file_get_contents ...');
             //$content = file_get_contents($url);
             $content = $this->CallAPI($url);
-            $this->logger->info('end file_get_contents ...');
             // for debugging
             // echo $content;
             
@@ -220,26 +218,26 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrEvent extends ZLSEARCHENGINE_CLASS_Se
 // 			'sort' => $parameters['sort']
 // 	);
 
-// 	public function SearchMe($options)
-// 	{
-// 		// initialize the options
-// 		$defaults = array (
-// 				'sort' => 0, // 0-时间优先，if false则距离优先
-// 				'rows' => 10
-// 		);	
+	public function SearchMe($options)
+	{
+		// initialize the options
+		$defaults = array (
+				'sort' => 0, // 0-时间优先，if false则距离优先
+				'rows' => 10
+		);	
 		
-// 		foreach ( $defaults as $k => $v ) {
-// 			$options [$k] = array_key_exists ( $k, $options ) ? $options [$k] : $v;
-// 		}
+		foreach ( $defaults as $k => $v ) {
+			$options [$k] = array_key_exists ( $k, $options ) ? $options [$k] : $v;
+		}
 		
 
-// 		$result = $this->query($options);
+		$result = $this->query($options);
 		
-// 		$rows = count($result['ids']);
-// 		$events = null;
+		$rows = count($result['ids']);
+		$events = null;
 		
-// 		if( $rows!=0 )
-// 		{
+		if( $rows!=0 )
+		{
 // 			$opts = array (
 // 					'event_id' => $result['ids']
 // 			);
@@ -247,19 +245,22 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrEvent extends ZLSEARCHENGINE_CLASS_Se
 // 			$events = WX_DatabaseObject_Event::get__events ( $opts );
 			
 // 			$rows = count($events);
-// 		}
+
+			$event_ids = $result['ids'];
+			$events = ZLEVENT_BOL_EventService::getInstance()->findByIdList($event_ids);
+		}
 		
-// 		$hasmore = $result['hasmore'];
+		$hasmore = $result['hasmore'];
 		
-// 		$finalresult = array(
-// 				'queryurlstatement'=>$result['queryurlstatement'],
-// 				'events' => $events,
-// 				'numFound' => $result['numFound'],
-// 				'rows' => $rows,
-// 				'hasmore' => $hasmore
-// 		);
+		$finalresult = array(
+				'queryurlstatement'=>$result['queryurlstatement'],
+				'events' => $events,
+				'numFound' => $result['numFound'],
+				'rows' => $rows,
+				'hasmore' => $hasmore
+		);
 		
-// 		return $finalresult;
+		return $finalresult;
 		
-// 	}
+	}
 }

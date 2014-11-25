@@ -38,11 +38,11 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrGroup extends ZLSEARCHENGINE_CLASS_Se
 			$url .= "category:" . $category;
 		}
 		// 限定type, 公开还是私有
-		if (strlen ( $options ['type'] ) > 0) {
-			$type = $options['type'];
-			$url .= "&fq=";
-			$url .= "type:" . $type;
-		}
+// 		if (strlen ( $options ['type'] ) > 0) {
+// 			$type = $options['type'];
+// 			$url .= "&fq=";
+// 			$url .= "type:" . $type;
+// 		}
 		// 限定时间范围
 		$url .= "&fq=";
 		$downlimit = "";
@@ -147,58 +147,53 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrGroup extends ZLSEARCHENGINE_CLASS_Se
 		return $search_result;
 	}
 	
-// 	public function SearchMe($options)
-// 	{
-// 	    $this->logger->info('preparing group searching and search ...');
+	public function SearchMe($options)
+	{
 	    
-// 		// initialize the options
-// 		$defaults = array (
-// 				'sort' => 0, // 0-时间优先，if false则距离优先
-// 				'rows' => 10
-// 		);
+		// initialize the options
+		$defaults = array (
+				'sort' => 0, // 0-时间优先，if false则距离优先
+				'rows' => 10
+		);
 	
-// 		foreach ( $defaults as $k => $v ) {
-// 			$options [$k] = array_key_exists ( $k, $options ) ? $options [$k] : $v;
-// 		}
+		foreach ( $defaults as $k => $v ) {
+			$options [$k] = array_key_exists ( $k, $options ) ? $options [$k] : $v;
+		}
 	
 	
-// 		$result = $this->query($options);
+		$result = $this->query($options);
 		
-//         $this->logger->info('finish group searching ...');
 	
-// 		$rows = count($result['ids']);
-// 		$groups = null;
+		$rows = count($result['ids']);
+		$groups = null;
 	
-// 		if( $rows!=0 )
-// 		{
+		if( $rows!=0 )
+		{
 // 			$opts = array (
 // 					'group_id' => $result['ids']
 // 			);
 				
-// 			// for debugging
-// 			//print_r($opts);
+			$group_ids = $result['ids'];
+			$groups = ZLGROUPS_BOL_Service::getInstance()->findByIdList($group_ids);
 				
-// 			$groups = WX_DatabaseObject_Group::get__groups ( $opts );
-				
-// 			$rows = count($groups);
-// 		}
+			$rows = count($groups);
+		}
 	
-// 		$hasmore = $result['hasmore'];
+		$hasmore = $result['hasmore'];
 	
-// 		$finalresult = array(
-// 				'queryurlstatement'=>$result['queryurlstatement'],
-// 				'items' => $groups,
-// 				'numFound' => $result['numFound'],
-// 				'rows' => $rows,
-// 				'hasmore' => $hasmore
-// 		);
-		
-// 	    $this->logger->info('returning basic searching result ...');
+		$finalresult = array(
+				'queryurlstatement'=>$result['queryurlstatement'],
+				'items' => $groups,
+				'numFound' => $result['numFound'],
+				'rows' => $rows,
+				'hasmore' => $hasmore
+		);
 		
 		
-// 		return $finalresult;
+		
+		return $finalresult;
 	
-// 	}
+	}
 	
 	
 

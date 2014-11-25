@@ -932,4 +932,9 @@ final class ZLEVENT_BOL_EventService
     	return $this->eventDao->findPublicEventsCountByGroupId($groupId, $past);
     }
     
+    public function findLatestEventByGroupId( $groupId, $past = false )
+    {
+    	return $this->eventDao->findLatestEventByGroupId($groupId, $past);
+    }
+    
 }

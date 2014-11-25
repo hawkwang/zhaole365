@@ -173,6 +173,11 @@ class ZLGROUPS_BOL_Service
         return $this->groupDao->findById((int) $groupId);
     }
 
+    public function findByIdList( $idList )
+    {
+    	return $this->groupDao->findByIdList($idList);
+    }
+    
     // 根据指定类型获得乐群列表
     public function findGroupList( $listType, $first=null, $count=null )
     {

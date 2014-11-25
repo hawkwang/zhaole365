@@ -59,6 +59,69 @@ class ZLAREAS_CLASS_Utility
     	else
     		return false;
     }
+    
+    // fixme, should move to zlbase.utility class
+    public function get_happen_time_string($timestamp, $format = 'Y.m.d H:i') {
+    	$datetime = new DateTime ();
+    	$datetime->setTimestamp ( $timestamp );
+    	$strDateTime = $datetime->format ( $format );
+    	return $strDateTime;
+    }
+    
+    public function getTimeInfo($timestamp)
+    {
+    	$weekday = date('N', $timestamp);
+    	switch ($weekday) {
+    		case 1:
+    			$weekday = "周一";
+    			break;
+    		case 2:
+    			$weekday = "周二";
+    			break;
+    		case 3:
+    			$weekday = "周三";
+    			break;
+    		case 4:
+    			$weekday = "周四";
+    			break;
+    		case 5:
+    			$weekday = "周五";
+    			break;
+    		case 6:
+    			$weekday = "周六";
+    			break;
+    		case 7:
+    			$weekday = "周日";
+    			break;
+    	}
+    	
+    	$timestring = $this->get_happen_time_string($timestamp);
+    	$time_details = explode(' ', $timestring);
+    	
+    	$date = $time_details[0];
+    	$time = $time_details[1];
+    	
+    	return array(
+    			'date' => $date,
+    			'time' => $time,
+    			'weekday' => $weekday
+    	);
+    	 
+    }
 
+    function url_exists($url) {
+    	try{
+    		$size = getimagesize($url);
+    		$value = $size[0]*$size[1];
+    		if($value > 0)
+    			return true;
+    	}
+    	catch(Exception $ex)
+    	{
+    		return false;
+    	}
+    	
+    	return false;
+    }
 
 }

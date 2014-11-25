@@ -265,6 +265,8 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     }
     
     // 乐群相关
+    
+    // 得到隶属乐群的公众可见群乐对象列表
     public function findPublicEventsCountByGroupId( $groupId, $past = false )
     {
     		$query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
@@ -273,6 +275,58 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     
     	return $this->dbo->queryForColumn($query, array( 'groupId' => $groupId , 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
     }
+    
+    public function findPublicEventsByGroupId( $groupId, $past = false )
+    {
+    	$sortstyle = "ASC";
+    	if($past)
+    		$sortstyle = "DESC";
+    	
+    	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId AND " . $this->getTimeClause($past, 'e') . " 
+            AND `e`.`" .self::WHO_CAN_VIEW . "` = :wcv order by " . self::START_TIME_STAMP  . " " . $sortstyle;
+    
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
+    }
 
+    
+    // 得到隶属乐群的所有群乐对象列表
+    public function findAllEventsCountByGroupId( $groupId, $past = false )
+    {
+    	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId AND " . $this->getTimeClause($past, 'e') ;
+    
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'startTime' => time(), 'endTime' => time()));
+    }
+    
+    public function findAllEventsByGroupId( $groupId, $past = false )
+    {
+    	$sortstyle = "ASC";
+    	if($past)
+    		$sortstyle = "DESC";
+    	
+    	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId 
+            AND " . $this->getTimeClause($past, 'e') . " order by " . self::START_TIME_STAMP  . " " . $sortstyle;
+    
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'startTime' => time(), 'endTime' => time()));
+    }
+    
+    public function findLatestEventByGroupId( $groupId, $past = false )
+    {
+    	$sortstyle = "ASC";
+    	if($past)
+    		$sortstyle = "DESC";
+    	 
+    	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId
+            AND " . $this->getTimeClause($past, 'e') . " order by " . self::START_TIME_STAMP  . " " . $sortstyle;
+    
+    	return $this->dbo->queryForObject($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'startTime' => time(), 'endTime' => time()));
+    }
     
 }

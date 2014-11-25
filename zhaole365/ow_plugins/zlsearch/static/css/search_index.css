@@ -1,5 +1,68 @@
-@CHARSET "GB18030";
+@CHARSET "UTF-8";
 
+.dropdown:hover .dropdown-menu {
+    display: block;
+ }
+ 
+/* 为div产生阴影效果 */
+.shadow_bottom {
+	-webkit-box-shadow: 0 8px 6px -6px black;
+	-moz-box-shadow: 0 8px 6px -6px black;
+	box-shadow: 0 8px 6px -6px black;
+}
+
+.shadow_bottom_little {
+	-webkit-box-shadow: 0 4px 3px -3px black;
+	-moz-box-shadow: 0 4px 3px -3px black;
+	box-shadow: 0 4px 3px -3px black;
+}
+
+.shadow_bottom_tiny {
+	-webkit-box-shadow: 0 1px 1px -1px black;
+	-moz-box-shadow: 0 1px 1px -1px black;
+	box-shadow: 0 1px 1px -1px black;
+}
+
+.shadow {
+	-moz-box-shadow: 3px 3px 5px 6px #ccc;
+	-webkit-box-shadow: 3px 3px 5px 6px #ccc;
+	box-shadow: 3px 3px 5px 6px #ccc;
+}
+
+.ajax-spinner
+{
+	display: none;  
+	position: fixed; 
+	top: 50%; 
+	left: 50%; 
+	z-index: 2000;
+}
+
+.muted {
+    color: #888888;
+}
+
+.group-info {
+    border-bottom: 1px solid rgba(0, 0, 0, 0);
+    font-size: 12px;
+    height: auto;
+    padding: 0 12px;
+    position: relative;
+}
+
+a.unlink:link, a.unlink:visited {
+    color: #555555;
+}
+
+.count {
+    color: #333333;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 15.4px;
+}
+
+ 
+/* 
 .find-navbar-wrap {
 	position: absolute;
 	width: 100%;
@@ -741,7 +804,7 @@ ul.simple-view-date-display>li:last-child {
 	{
 	color: #555;
 	background: #f4f4f4
-}
+} */
 
 
 

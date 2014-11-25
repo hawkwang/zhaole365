@@ -95,6 +95,7 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 			$message = "not post";
 		}
 		
+		
 		$apiResponse = array (
             	'messageType' => $messageType,
             	'message' => $errorMessage
@@ -157,8 +158,15 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 			// deal with imageurl
 			$imagePosted = false;
 			if(isset($imageurl) && strlen($imageurl))
-				$imagePosted = true;
-				
+			{
+				if (filter_var($imageurl, FILTER_VALIDATE_URL) === FALSE) {
+					$imagePosted = false;
+				}
+				else
+				{
+					$imagePosted = ZLAREAS_CLASS_Utility::getInstance()->url_exists($imageurl);
+				}
+			}	
 			if($imagePosted)
 				$event->setImage(uniqid());
 				
@@ -183,7 +191,16 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 				
 			// 创建关联LOGO图片
 			if ($imagePosted)
-				ZLEVENT_BOL_EventService::getInstance()->saveEventImageFromUrl($imageurl, $event->getImage());
+			{
+				try
+				{
+					ZLEVENT_BOL_EventService::getInstance()->saveEventImageFromUrl($imageurl, $event->getImage());
+				}
+				catch (Exception $imageEx)
+				{
+					
+				}
+			}
 				
 			// 将群乐创建者参与状态设为“参与”（yes）
 			$eventUser = new ZLEVENT_BOL_EventUser();

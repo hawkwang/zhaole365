@@ -178,7 +178,7 @@ html body div .ow_page h1 {
 	background-position: left center; 
 }
 .ow_bg_color{
-	background-color: #fff;
+	background-color: /*transparent;*/  #fff; 
 }
 .ow_page_wrap { 
 	position: relative;
@@ -209,10 +209,13 @@ body > .ow_page_wrap {
     padding: 28px 16px 16px;
     min-height: 400px;
 	color: #333;/** OW_Control type:color, section:2. Colors, key:textColor, label: - Text **/
-	border-left: 1px solid #cdcdcd;
+/* 	border-left: 1px solid #cdcdcd;
 	border-right: 1px solid #cdcdcd;
 	border-bottom: 1px solid #cdcdcd;
-    border-bottom-left-radius: 6px;
+ */	border-left: 0px solid #cdcdcd;
+	border-right: 0px solid #cdcdcd;
+	border-bottom: 0px solid #cdcdcd;
+	border-bottom-left-radius: 6px;
     border-bottom-right-radius: 6px;
     -moz-border-bottom-left-radius: 6px;
     -moz-border-bottom-right-radius: 6px;
