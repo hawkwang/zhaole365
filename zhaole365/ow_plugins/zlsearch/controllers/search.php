@@ -22,6 +22,7 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
         $document->addScript($plugin->getStaticJsUrl() . 'bootstrap.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'masonry.pkgd.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'imagesloaded.pkgd.min.js');
+        //$document->addScript($plugin->getStaticJsUrl() . 'jquery.relocator.1.0.0.js');
         $document->addScript($plugin->getStaticJsUrl() . 'search_index.js');
         
         $this->assign('staticurl', $plugin->getStaticUrl());
@@ -76,7 +77,7 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     				case 'group':
     					echo $this->build_groupinfo_content($parameters);
     					break;
-    				case 'privateevent':
+    				case 'event':
     					echo $this->build_eventinfo_content($parameters);
     					break;
     			} 
@@ -261,6 +262,7 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
 					   'mcount' => $mcount,
 					   'logo' => $url,
 					   'title' => $event->title,
+					   'description' => $event->description,
 					   'time' => $event_dateinfo['weekday'] . '/' .$event_dateinfo['date'] . '/' . $event_dateinfo['time'],
 					   'location' => $event_location,
 					   'latitude' => $event_lat,

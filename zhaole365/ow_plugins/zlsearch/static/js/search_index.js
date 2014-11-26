@@ -19,14 +19,15 @@ $( function() {
 
 $(document).ready(function() {
 	
+	
 	$("#zl_ow_site_panel").after($("#findNavBar"));
 	//$("#findNavBar").hide();
 	$("#content").hide();
 
     $(".ow_header").hide();
     $(".ow_page_container").hide();
-
-	//init();
+	
+    //init();
 	
 	// 显示缺省内容
 	showDefaultContent();
@@ -144,6 +145,14 @@ $(document).ready(function() {
 	
 });
 
+$(document).on('mouseenter','.thumb', function (event) {
+	$( this ).find('.imagecaption').slideDown();
+});
+
+$(document).on('mouseleave','.thumb', function (event) {
+	$( this ).find('.imagecaption').slideUp();
+});
+
 function init()
 {
     //获取要定位元素距离浏览器顶部的距离
@@ -174,8 +183,8 @@ function showDefaultContent()
 	switch (action) {
 		case 'noaction':
 			break;
-		case 'privateevent':
-			set_type('privateevent');
+		case 'event':
+			set_type('event');
 			break;
 		case 'group':
 			set_type('group');
@@ -206,7 +215,7 @@ function ajaxGetContent()
     	json_obj = JSON.parse(data);
     	
     	switch (lele_type) {
-		case 'privateevent':
+		case 'event':
 			displayPrivateEvent(json_obj);
 			break;
 		case 'group':
@@ -383,7 +392,8 @@ function generateGroupsHtmlSnippet(groups)
 		html += '<div class="item col-lg-3 col-md-4 col-sm-6 col-xs-12">';
 		html += '<section class="panel shadow_bottom" style="border-left-width: 0px; border-right-width: 0px; border-top-width: 0px;">';
 		html += '<div class="thumb">';
-		html += '<a href="' + group.url + '" target="_blank">';
+		html += '<a class="thumblink" href="' + group.url + '" target="_blank">';
+		html += '<div class="imagecaption ellipsize"> <h3>'+ group.title +'</h3> <p>' + group.description + '</p> </div>';
 		html += '<img class="img-responsive" width="300" height="500" style="display: block; clear: both; margin: auto; width: 100%; border-top-left-radius: 4px; border-top-right-radius: 4px;" src="' + group.logo + '" />';
 		html += '</a>';
 		html += '</div>';
@@ -495,6 +505,7 @@ function generateEventsHtmlSnippet(events)
 		//html += '<span class="entry-thumbnail-category"> <a title="查看所有' + event.category + '">'+ event.category + '</a></span>';
 		html += '<div class="thumb">';
 		html += '<a href="' + event.url + '" target="_blank">';
+		html += '<div class="imagecaption ellipsize"> <h3>'+ event.title +'</h3> <p>' + event.description + '</p> </div>';
 		html += '<img class="img-responsive" width="300" height="500" style="display: block; clear: both; margin: auto; width: 100%; border-top-left-radius: 4px; border-top-right-radius: 4px;" src="' + event.logo + '" />';
 		html += '</a>';
 		html += '</div>';

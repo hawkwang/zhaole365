@@ -111,13 +111,15 @@ class ZLGROUPS_CLASS_ConsoleBridge
         $groupId = (int) $params['entityId'];
         $itemKey = $params['key'];
 
+        $language = OW::getLanguage();
+        
         $data['toolbar'] = array(
             array(
-                'label' => 'accept',
+                'label' => $language->text('zlgroups', 'accept_request'),
                 'id'=> 'toolbar_accept_' . $itemKey
             ),
             array(
-                'label' => 'ignore',
+                'label' => $language->text('zlgroups', 'ignore_request'),
                 'id'=> 'toolbar_ignore_' . $itemKey
             )
         );
