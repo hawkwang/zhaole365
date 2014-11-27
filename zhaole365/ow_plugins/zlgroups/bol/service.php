@@ -639,4 +639,16 @@ class ZLGROUPS_BOL_Service
     	return $groups;
     }
     
+    public function getGroupImageWithDefaultUrl($group)
+    {
+    	$url = empty($group->imageHash) ? false : $this->getGroupImageUrl($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
+    
+    	if (!isset($url) ||  empty($url)) {
+    		// 设置缺省图片
+    		$url = OW::getPluginManager()->getPlugin('zlgroups')->getStaticUrl() . 'images/group-default.jpg';
+    	}
+    
+    	return $url;
+    }
+    
 }

@@ -68,6 +68,16 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     			// 8. radius
     			// 9. timerange, indicate the time range [0,timerange]
     		
+    			$cacheMgr = OW::getCacheManager();
+    			$key = md5($json);
+    			$result = $cacheMgr->load($key);
+    			if($result!=null)
+    			{
+    				echo $result;
+    				exit();
+    			}
+
+    			 
     			// get all these parameters
     			// parse json string to array
     			$parameters = json_decode($json, true);
@@ -75,12 +85,15 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     		
     			switch ($parameters['type']) {
     				case 'group':
-    					echo $this->build_groupinfo_content($parameters);
+    					$result = $this->build_groupinfo_content($parameters);
     					break;
     				case 'event':
-    					echo $this->build_eventinfo_content($parameters);
+    					$result =  $this->build_eventinfo_content($parameters);
     					break;
     			} 
+    			
+    			$cacheMgr->save($result, $key);
+    			echo $result;
     		}
     		
     		exit();
@@ -130,7 +143,8 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     	 
     	if ($rows > 0) {
     		foreach ($groups as $group) {
-    			$url = empty($group->imageHash) ? false : ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
+    			//$url = empty($group->imageHash) ? false : ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
+    			$url = ZLGROUPS_BOL_Service::getInstance()->getGroupImageWithDefaultUrl($group);
     			$latest_event = ZLEVENT_BOL_EventService::getInstance()->findLatestEventByGroupId($group->getId());
     			$latest_event_time = '待定';
     			$latest_event_url = '';
@@ -142,10 +156,10 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     				$latest_event_url = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $latest_event->getId()));
     			}
     		  
-    			if (!isset($url) ||  empty($url)) {
-    				// 设置缺省图片
-    				$url = OW::getPluginManager()->getPlugin('zlsearch')->getStaticUrl() . 'img/group-default.jpg';
-    			}
+//     			if (!isset($url) ||  empty($url)) {
+//     				// 设置缺省图片
+//     				$url = OW::getPluginManager()->getPlugin('zlsearch')->getStaticUrl() . 'img/group-default.jpg';
+//     			}
     			
     			if (isset($url) && ! empty($url)) {
 //     				$category = $group->get_category();
@@ -211,7 +225,7 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
 	
 	
 		$result = $searchengine->SearchMe($options);
-	
+		
 		$events = $result['events'];
 		$numFound = $result['numFound'];
 		$rows = $result['rows'];
@@ -225,7 +239,8 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
 			foreach ( $events as $event )
 			{
 // 				$url = ( $event->getImage() ? ZLEVENT_BOL_EventService::getInstance()->generateImageUrl($event->getImage(), false) : null );
-				$url = $this->getEventImageUrl($event);
+// 				$url = $this->getEventImageUrl($event);
+				$url = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
 	
 				if (isset($url)&&!empty($url))
 				{
@@ -280,7 +295,7 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
 			// 			$html .= 'get_search_form()';
 			// 			$html .= '</article>';
     	}
-    	
+    	 
     	$json_result = array(
     			'queryurlstatement' => $result['queryurlstatement'],
     			'items' => $eventinfos,
@@ -294,30 +309,19 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     	
     }
     
-    private function getEventImageUrl($event)
-    {
-    	$url = ( $event->getImage() ? ZLEVENT_BOL_EventService::getInstance()->generateImageUrl($event->getImage(), false) : null );
+//     private function getEventImageUrl($event)
+//     {
+//     	$url = ( $event->getImage() ? ZLEVENT_BOL_EventService::getInstance()->generateImageUrl($event->getImage(), false) : null );
     	
-    	if (!isset($url)||empty($url))
-    	{
-    		$belongingGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->getId());
-    		$url = $this->getGroupImageUrl($belongingGroup);
-    	}
+//     	if (!isset($url)||empty($url))
+//     	{
+//     		$belongingGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->getId());
+//     		$url = ZLGROUPS_BOL_Service::getInstance()->getGroupImageWithDefaultUrl($belongingGroup);
+//     	}
     	
-    	return $url;
-    }
+//     	return $url;
+//     }
     
-    private function getGroupImageUrl($group)
-    {
-    	$url = empty($group->imageHash) ? false : ZLGROUPS_BOL_Service::getInstance()->getGroupImageUrl($group, ZLGROUPS_BOL_Service::IMAGE_SIZE_BIG);
-    	 
-    	if (!isset($url) ||  empty($url)) {
-    		// 设置缺省图片
-    		$url = OW::getPluginManager()->getPlugin('zlsearch')->getStaticUrl() . 'img/group-default.jpg';
-    	}
-    	 
-    	return $url;
-    }
     
     
 }

@@ -276,7 +276,7 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     	return $this->dbo->queryForColumn($query, array( 'groupId' => $groupId , 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
     }
     
-    public function findPublicEventsByGroupId( $groupId, $past = false )
+    public function findPublicEventsByGroupId( $groupId, $first, $count, $past = false )
     {
     	$sortstyle = "ASC";
     	if($past)
@@ -285,9 +285,9 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
             INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
             WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId AND " . $this->getTimeClause($past, 'e') . " 
-            AND `e`.`" .self::WHO_CAN_VIEW . "` = :wcv order by " . self::START_TIME_STAMP  . " " . $sortstyle;
+            AND `e`.`" .self::WHO_CAN_VIEW . "` = :wcv order by " . self::START_TIME_STAMP  . " " . $sortstyle . " LIMIT :first, :count";
     
-    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'first' => (int) $first, 'count' => (int) $count, 'wcv' => self::VALUE_WHO_CAN_VIEW_ANYBODY, 'startTime' => time(), 'endTime' => time()));
     }
 
     

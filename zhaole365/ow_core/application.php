@@ -147,7 +147,6 @@ class OW_Application
         }
 
         $beckend = OW::getEventManager()->call('base.cache_backend_init');
-
         if ( $beckend !== null )
         {
             OW::getCacheManager()->setCacheBackend($beckend);

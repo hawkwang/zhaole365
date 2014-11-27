@@ -927,6 +927,11 @@ final class ZLEVENT_BOL_EventService
 			$this->deleteEvent($eventGroup->eventId);
     }
     
+    public function findPublicEventsByGroupId($groupId, $first, $count, $past = false )
+    {
+    	return $this->eventDao->findPublicEventsByGroupId($groupId, $first, $count, $past);
+    }
+    
     public function findPublicEventsCountByGroupId($groupId, $past = false )
     {
     	return $this->eventDao->findPublicEventsCountByGroupId($groupId, $past);
@@ -935,6 +940,19 @@ final class ZLEVENT_BOL_EventService
     public function findLatestEventByGroupId( $groupId, $past = false )
     {
     	return $this->eventDao->findLatestEventByGroupId($groupId, $past);
+    }
+    
+    public function getEventImageWithDefaultUrl($event)
+    {
+    	$url = ( $event->getImage() ? ZLEVENT_BOL_EventService::getInstance()->generateImageUrl($event->getImage(), false) : null );
+    	 
+    	if (!isset($url)||empty($url))
+    	{
+    		$belongingGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->getId());
+    		$url = ZLGROUPS_BOL_Service::getInstance()->getGroupImageWithDefaultUrl($belongingGroup);
+    	}
+    	 
+    	return $url;
     }
     
 }

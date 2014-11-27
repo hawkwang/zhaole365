@@ -12,6 +12,12 @@ $widget = BOL_ComponentAdminService::getInstance()->addWidget('ZLEVENT_CMP_Profi
 $placeWidget = BOL_ComponentAdminService::getInstance()->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_PROFILE);
 BOL_ComponentAdminService::getInstance()->addWidgetToPosition($placeWidget, BOL_ComponentAdminService::SECTION_LEFT);
 
+//将乐群活动widget放置在了群页面左面部分
+$widget = BOL_ComponentAdminService::getInstance()->addWidget('ZLEVENT_CMP_GroupEventsWidget', false);
+$placeWidget = BOL_ComponentAdminService::getInstance()->addWidgetToPlace($widget, 'zlgroup');
+BOL_ComponentAdminService::getInstance()->addWidgetToPosition($placeWidget, BOL_ComponentAdminService::SECTION_RIGHT);
+
+
 require_once dirname(__FILE__) . DS .  'classes' . DS . 'credits.php';
 $credits = new ZLEVENT_CLASS_Credits();
 $credits->triggerCreditActionsAdd();
