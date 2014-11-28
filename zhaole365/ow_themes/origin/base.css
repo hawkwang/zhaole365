@@ -1822,15 +1822,15 @@ body textarea.ow_newsfeed_status_input.invitation {
 .ow_ipc_picture{
     float: left;
     margin-right: -50px;
-    width: 50px;
+    width: 90px;
 	/*padding: 4px 5px 6px;*/
 }
 .ow_ipc_picture .ow_avatar {
 	background: url(images/avatar_bg.png) no-repeat;
 }
 .ow_ipc_picture img {
-	width: 40px;
-	height: 40px;
+	width: 80px;
+	height: 80px;
 }
 .ow_ipc_picture img:first-child {
 	margin-top: 7px;
@@ -1841,7 +1841,7 @@ body textarea.ow_newsfeed_status_input.invitation {
 	margin-left: 0px;	
 }
 .ow_ipc_info{
-    margin-left: 57px;
+    margin-left: 97px;
     padding: 0px 0px 10px 0px;
 	border-bottom: 1px solid #ededed;   
 }
@@ -1849,9 +1849,10 @@ body textarea.ow_newsfeed_status_input.invitation {
 .ow_ipc_header{
     padding: 0px 0px 0px;
     margin: 0px 0px 0px;
+	margin-bottom: 5px;
 }
 .ow_ipc_header a {
-	font-size: 12px;
+	font-size: 15px;
 	font-weight: bold;
 }
 .ow_ipc.ow_smallmargin {

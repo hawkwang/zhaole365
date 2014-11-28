@@ -329,4 +329,48 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     	return $this->dbo->queryForObject($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'startTime' => time(), 'endTime' => time()));
     }
     
+    public function findUserGroupEventsWithStatus( $groupId, $userId, $userStatus, $first, $count )
+    {
+    	$query = "SELECT `e`.* FROM `" . $this->getTableName() . "` AS `e`
+            inner JOIN `" . ZLEVENT_BOL_EventUserDao::getInstance()->getTableName() . "` AS `eu` ON (`e`.`id` = `eu`.`eventId`) 
+            inner JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON (`e`.`id` = `eg`.`eventId`) 
+            WHERE `eu`.`userId` = :userId AND `eu`.`" . ZLEVENT_BOL_EventUserDao::STATUS . "` = :status AND " . $this->getTimeClause(false, 'e') . "
+            and `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId ORDER BY `" . self::START_TIME_STAMP . "` LIMIT :first, :count";
+    	
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array('groupId' => $groupId , 'userId' => $userId, 'status' => $userStatus, 'first' => $first, 'count' => $count, 'startTime' => time(), 'endTime' => time()));
+    }
+    
+    public function findUserGroupEventsCountWithStatus( $groupId , $userId, $status )
+    {
+    	$query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
+            inner JOIN `" . ZLEVENT_BOL_EventUserDao::getInstance()->getTableName() . "` AS `eu` ON (`e`.`id` = `eu`.`eventId`) 
+            inner JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON (`e`.`id` = `eg`.`eventId`) 
+            WHERE `eu`.`userId` = :userId AND `eu`.`" . ZLEVENT_BOL_EventUserDao::STATUS . "` = :status AND " . $this->getTimeClause(false, 'e') . "
+            and `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId;";
+    
+    	return (int) $this->dbo->queryForColumn($query, array('groupId' => $groupId , 'userId' => $userId, 'status' => $status, 'startTime' => time(), 'endTime' => time()));
+    }
+    
+    public function findUserInvitedGroupEvents( $groupId, $userId, $first, $count )
+    {
+    	$query = "SELECT `e`.* FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::EVENT_ID . "` ) 
+            inner JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON (`e`.`id` = `eg`.`eventId`) 
+            WHERE `ei`.`" . ZLEVENT_BOL_EventInviteDao::USER_ID . "` = :userId AND " . $this->getTimeClause(false, 'e') . "
+            and `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId GROUP BY `e`.`id` LIMIT :first, :count";
+    
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array('groupId' => $groupId , 'userId' => (int) $userId, 'first' => (int) $first, 'count' => (int) $count, 'startTime' => time(), 'endTime' => time()));
+    }
+    
+    public function findUserInvitedGroupEventsCount( $groupId, $userId )
+    {
+    	$query = "SELECT COUNT(*) AS `count` FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventInviteDao::getInstance()->getTableName() . "` AS `ei` ON ( `e`.`id` = `ei`.`" . ZLEVENT_BOL_EventInviteDao::EVENT_ID . "` )
+            inner JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON (`e`.`id` = `eg`.`eventId`) 
+            WHERE `ei`.`" . ZLEVENT_BOL_EventInviteDao::USER_ID . "` = :userId AND " . $this->getTimeClause(false, 'e') . " 
+            and `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId GROUP BY `e`.`id`";
+    
+    	return $this->dbo->queryForColumn($query, array('groupId' => $groupId , 'userId' => (int) $userId, 'startTime' => time(), 'endTime' => time()));
+    }
+    
 }

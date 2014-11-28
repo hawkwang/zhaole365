@@ -1,125 +1,118 @@
-{style}
-{literal}
 
-.zl_content_menu {
-    font-family: "UbuntuBold","Trebuchet MS","Helvetica CY",sans-serif;
-    font-size: 0;
-    font-weight: normal;
-    text-transform: uppercase;
-}
-
-.zl_content_menu li {
-    border-left: 1px solid #e8e8e8;
-    float: left;
-    padding-left: 5px;
-}
-.zl_content_menu li:first-child {
-    //border-color: transparent;
-}
-.zl_content_menu li a {
-    color: #626060;
-    display: block;
-    font-size: 13px;
-    padding: 3px 3px 4px 0;
-}
-.zl_content_menu span {
-    background-image: url("images/ic_file.png");
-    background-position: 5px 9px;
-    background-repeat: no-repeat;
-    display: block;
-    padding: 8px 8px 10px 28px;
-}
-.zl_content_menu li.active {
-    background: url("images/content_menu_bg_left.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0);
-}
-.zl_content_menu li.active, .zl_content_menu li.active + li {
-    border-color: transparent;
-}
-.zl_content_menu li.active a {
-    background: url("images/content_menu_bg.png") no-repeat scroll right 0 rgba(0, 0, 0, 0);
-    color: #9f9f9f;
-    text-decoration: none;
-}
-.zl_content_menu li a:hover {
-    color: #9f9f9f;
-    text-decoration: none;
-}
-
-
-{/literal}
-{/style}
-
-{script}
-{literal}
-
-$(function() {
-	$( "#tabs" ).tabs();
-});
-
-{/literal}
-{/script}
-
-<!-- <ul class="nav nav-tabs" role="tablist">
-  <li role="presentation" ><a href="#latest" role="tab" data-toggle="tab"><span id="upcoming_total" class="badge pull-right">6</span>找乐地盘</a></li>
-  <li role="presentation" class="active"><a href="#history" role="tab" data-toggle="tab"><span id="upcoming_total" class="badge pull-right">6</span>乐子集居地</a></li>
-</ul>
-<div class="tab-content">
-  <div role="tabpanel" class="tab-pane fade " id="latest" style="padding: 15px;">
-  good
-  </div>
-  <div role="tabpanel" class="tab-pane fade in active" id="history" style="padding: 15px;">
-  bad
-  </div>
-</div> -->
-
+<input id="groupId" type="hidden" value="{$groupId}">
 <div id="tabs" style="background-color: white; border-width: 0px;">
 	<ul style="background-color: transparent; border-right-color: transparent; border-left-color: transparent; border-top-color: transparent;" class='zl_content_menu'>
-		<li><a href="#latest" style="padding: 0px 10px;"><span class="ow_ic_calendar">即将发生</span></a></li>
-		<li><a href="#history" style="padding: 0px 10px;"><span class="ow_ic_reply">历史乐子</span></a></li>
+		<li>
+			<a href="#latest" style="padding: 0px 10px;">
+				<span class="ow_ic_calendar">即将发生</span>
+			</a>
+		</li>
+		<li>
+			<a href="#history" style="padding: 0px 10px;">
+				<span class="ow_ic_reply">历史乐子</span>
+			</a>
+		</li>
 		{if $isAuthenticated}
 		<li><a href="#my" style="padding: 0px 10px;"><span class="ow_ic_friends">我的乐子</span></a></li>
 		<li><a href="#invite" style="padding: 0px 10px;"><span class="ow_ic_bookmark">乐子邀请</span></a></li>
 		{/if}
 	</ul>
 	<div id="latest" style="background-color: white;">
-      {if !empty($no_latestevents) }
-        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
-      {else}
-          {foreach from=$latestEvents key='key' item='event'}
-                {decorator name='ipc' addClass='ow_smallmargin' data=$event infoString="<a href=\"`$event.eventUrl`\">`$event.title`</a>"}
-          {/foreach}
-          <br />
-      {/if}
-<!-- 		<div class="ow_ipc ow_smallmargin clearfix">
-			<div class="ow_ipc_picture">
-				<img alt="百老汇经典音乐剧《森林诱惑》"
-					src="http://class1.local/zhaole365/ow_userfiles/plugins/zlevent/zlevent_icon_5471281dbcf4c.jpg">
+		<input class="baseurl" type="hidden" value="{$baseurl_latestEvents}">
+		<input class="total" type="hidden" value="{$total_latestEvents}">
+		<input class="offset" type="hidden" value="{$offset_latestEvents}">
+		<input class="limit" type="hidden" value="{$limit_latestEvents}">
+		<div id="latest_content">
+	      {if !empty($no_latestEvents) }
+	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
+	      {else}
+	          {foreach from=$latestEvents key='key' item='event'}
+	                {decorator name='ipc' addClass='ow_smallmargin' data=$event infoString="<a href=\"`$event.eventUrl`\">`$event.title`</a>"}
+	          {/foreach}
+	      {/if}
+      	</div>
+	          <br />
+			<div class="ajax-spinner" style="display:none;">
+				<img id="img-spinner" src="{$staticurl}img/ajax_loader_trans.gif" alt="Loading" />
+			</div>	
+			{if ($hasmore_latestEvents) }	      	
+			<div class="ow_center ow_std_margin" id='zl_more_latestEvents'>
+	    		{decorator name='button' class='ow_ic_down_arrow' type='button' langLabel='zlevent+more' }
 			</div>
-			<div class="ow_ipc_info">
-				<div class="ow_ipc_header">
-					<a href="http://class1.local/zhaole365/zlevent/11">百老汇经典音乐剧《森林诱惑》</a>
-				</div>
-				<div class="ow_ipc_content">百老汇经典音乐剧《森林诱惑》 2014.12.06 14:00 解放军歌剧院 144.00 224.00
-					304.00 384.00 464.00 544.00 704.00 1024.00</div>
-				<div class="clearfix">
-					<div class="ow_ipc_toolbar ow_remark">
-						<span class="ow_nowrap ow_icon_control ow_ic_user"> <a
-							href="http://class1.local/zhaole365/user/hawkwang"> 找乐助手 </a>
-						</span> <span class="ow_nowrap ow_ipc_date"> 十二月 6, 14:00 </span>
-					</div>
-				</div>
-			</div>
-		</div> -->
+			 {/if}
 	</div>
 	<div id="history" style="background-color: white;">
-		history
+		<input class="baseurl" type="hidden" value="{$baseurl_historyEvents}">
+		<input class="total" type="hidden" value="{$total_historyEvents}">
+		<input class="offset" type="hidden" value="{$offset_historyEvents}">
+		<input class="limit" type="hidden" value="{$limit_historyEvents}">
+		<div id="history_content">
+	      {if !empty($no_historyEvents) }
+	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
+	      {else}
+	          {foreach from=$historyEvents key='key' item='event'}
+	                {decorator name='ipc' addClass='ow_smallmargin' data=$event infoString="<a href=\"`$event.eventUrl`\">`$event.title`</a>"}
+	          {/foreach}
+	      {/if}
+      	</div>
+	          <br />
+			<div class="ajax-spinner" style="display:none;">
+				<img id="img-spinner" src="{$staticurl}img/ajax_loader_trans.gif" alt="Loading" />
+			</div>	
+			{if ($hasmore_historyEvents) }	      	
+			<div class="ow_center ow_std_margin" id='zl_more_historyEvents'>
+	    		{decorator name='button' class='ow_ic_down_arrow' type='button' langLabel='zlevent+more' }
+			</div>
+			 {/if}
 	</div>
 	{if $isAuthenticated}
 	<div id="my" style="background-color: white;">
-		my
+		<input class="baseurl" type="hidden" value="{$baseurl_myEvents}">
+		<input class="total" type="hidden" value="{$total_myEvents}">
+		<input class="offset" type="hidden" value="{$offset_myEvents}">
+		<input class="limit" type="hidden" value="{$limit_myEvents}">
+		<div id="my_content">
+	      {if !$total_myEvents }
+	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
+	      {else}
+	          {foreach from=$myEvents key='key' item='event'}
+	                {decorator name='ipc' addClass='ow_smallmargin' data=$event infoString="<a href=\"`$event.eventUrl`\">`$event.title`</a>"}
+	          {/foreach}
+	      {/if}
+      	</div>
+	          <br />
+			<div class="ajax-spinner" style="display:none;">
+				<img id="img-spinner" src="{$staticurl}img/ajax_loader_trans.gif" alt="Loading" />
+			</div>	
+			{if ($hasmore_myEvents) }	      	
+			<div class="ow_center ow_std_margin" id='zl_more_myEvents'>
+	    		{decorator name='button' class='ow_ic_down_arrow' type='button' langLabel='zlevent+more' }
+			</div>
+			 {/if}	
 	</div>
 	<div id="invite" style="background-color: white;">
-		invite
+		<input class="baseurl" type="hidden" value="{$baseurl_inviteEvents}">
+		<input class="total" type="hidden" value="{$total_inviteEvents}">
+		<input class="offset" type="hidden" value="{$offset_inviteEvents}">
+		<input class="limit" type="hidden" value="{$limit_inviteEvents}">
+		<div id="invite_content">
+	      {if !$total_inviteEvents }
+	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
+	      {else}
+	          {foreach from=$inviteEvents key='key' item='event'}
+	                {decorator name='ipc' addClass='ow_smallmargin' data=$event infoString="<a href=\"`$event.eventUrl`\">`$event.title`</a>"}
+	          {/foreach}
+	      {/if}
+      	</div>
+	          <br />
+			<div class="ajax-spinner" style="display:none;">
+				<img id="img-spinner" src="{$staticurl}img/ajax_loader_trans.gif" alt="Loading" />
+			</div>	
+			{if ($hasmore_inviteEvents) }	      	
+			<div class="ow_center ow_std_margin" id='zl_more_inviteEvents'>
+	    		{decorator name='button' class='ow_ic_down_arrow' type='button' langLabel='zlevent+more' }
+			</div>
+			 {/if}		
 	</div>
 	{/if}
 </div>

@@ -955,4 +955,33 @@ final class ZLEVENT_BOL_EventService
     	return $url;
     }
     
+    // 用户参加的群乐
+    public function findUserParticipatedGroupEvents( $groupId, $userId, $offset, $limit )
+    {
+    	return $this->eventDao->findUserGroupEventsWithStatus($groupId, $userId, self::USER_STATUS_YES, $offset, $limit);
+    }
+    
+    /**
+     * Returns user participated events count.
+     *
+     * @param integer $userId
+     * @return integer
+     */
+    public function findUserParticipatedGroupEventsCount( $groupId, $userId )
+    {
+    	return $this->eventDao->findUserGroupEventsCountWithStatus($groupId, $userId, self::USER_STATUS_YES);
+    }    
+    
+    // 得到指定用户被邀请的乐群活动
+    public function findUserInvitedGroupEvents( $groupId, $userId, $offset, $limit )
+    {
+    	return $this->eventDao->findUserInvitedGroupEvents($groupId, $userId, $offset, $limit);
+    }
+    
+    // 得到指定用户被邀请的乐群活动数
+    public function findUserInvitedGroupEventsCount($groupId, $userId )
+    {
+    	return $this->eventDao->findUserInvitedGroupEventsCount($groupId, $userId);
+    }
+    
 }

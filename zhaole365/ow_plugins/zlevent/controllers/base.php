@@ -13,6 +13,277 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         $this->eventService = ZLEVENT_BOL_EventService::getInstance();
     }
 
+    public function ajaxLatestResponder()
+    {
+    	if ( OW::getRequest()->isAjax() )
+    	{
+    		if (isset($_REQUEST['parameters'])) {
+    
+    			$json = $_REQUEST['parameters'];
+    
+    			// get all these parameters
+    			// parse json string to array
+    			$parameters = json_decode($json, true);
+    			$groupId = (int)$parameters['groupId'];
+    			$offset = (int)$parameters['offset'];
+    			$limit = (int)$parameters['limit'];
+    			$total = (int)$parameters['total'];
+    
+    			// get events based on parameters
+    			$events = ZLEVENT_BOL_EventService::getInstance()->findPublicEventsByGroupId($groupId, $offset, $limit);
+    			$eventinfos=array();
+    			$userService = BOL_UserService::getInstance();
+    			foreach ($events as $event)
+    			{
+    				$eventinfo = array();
+    				$eventinfo['title'] = $event->title;
+    				$eventinfo['description'] = $event->description;
+    				$eventinfo['url'] = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->id));
+    				$eventinfo['logo'] = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+    				$eventinfo['starttime'] = UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(),$event->getStartTimeDisable());
+    				$user = $userService->findUserById($event->getUserId());
+    				$eventinfo['username'] = $userService->getDisplayName($event->getUserId());
+    				$eventinfo['userurl'] = $userService->getUserUrlForUsername($user->getUsername());
+    				
+    				$eventinfos[] = $eventinfo;
+    			}
+    
+    			$count = 0;
+    			if ($events)
+    				$count = count($events);
+    
+    			$hasmore = true;
+    			if($offset + $count >= $total)
+    				$hasmore = false;
+    
+    			$json_result = array(
+    					'events' => $eventinfos,
+    					'hasmore' => $hasmore
+    			);
+    
+    			echo json_encode($json_result);
+    				
+    		}
+    
+    		exit();
+    	}
+    	else
+    	{
+    		throw new Redirect404Exception();
+    	}
+    
+    	if ( !OW_DEBUG_MODE )
+    	{
+    		ob_end_clean();
+    	}
+    
+    	exit();
+    }
+    
+    public function ajaxHistoryResponder()
+    {
+    	if ( OW::getRequest()->isAjax() )
+    	{
+    		if (isset($_REQUEST['parameters'])) {
+    
+    			$json = $_REQUEST['parameters'];
+    
+    			// get all these parameters
+    			// parse json string to array
+    			$parameters = json_decode($json, true);
+    			$groupId = (int)$parameters['groupId'];
+    			$offset = (int)$parameters['offset'];
+    			$limit = (int)$parameters['limit'];
+    			$total = (int)$parameters['total'];
+    
+    			// get events based on parameters
+    			$events = ZLEVENT_BOL_EventService::getInstance()->findPublicEventsByGroupId($groupId, $offset, $limit, true);
+    			$eventinfos=array();
+    			$userService = BOL_UserService::getInstance();
+    			foreach ($events as $event)
+    			{
+    				$eventinfo = array();
+    				$eventinfo['title'] = $event->title;
+    				$eventinfo['description'] = $event->description;
+    				$eventinfo['url'] = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->id));
+    				$eventinfo['logo'] = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+    				$eventinfo['starttime'] = UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(),$event->getStartTimeDisable());
+    				$user = $userService->findUserById($event->getUserId());
+    				$eventinfo['username'] = $userService->getDisplayName($event->getUserId());
+    				$eventinfo['userurl'] = $userService->getUserUrlForUsername($user->getUsername());
+    
+    				$eventinfos[] = $eventinfo;
+    			}
+    
+    			$count = 0;
+    			if ($events)
+    				$count = count($events);
+    
+    			$hasmore = true;
+    			if($offset + $count >= $total)
+    				$hasmore = false;
+    
+    			$json_result = array(
+    					'events' => $eventinfos,
+    					'hasmore' => $hasmore
+    			);
+    
+    			echo json_encode($json_result);
+    
+    		}
+    
+    		exit();
+    	}
+    	else
+    	{
+    		throw new Redirect404Exception();
+    	}
+    
+    	if ( !OW_DEBUG_MODE )
+    	{
+    		ob_end_clean();
+    	}
+    
+    	exit();
+    }
+    
+    // my
+    public function ajaxMyResponder()
+    {
+    	if ( OW::getRequest()->isAjax() )
+    	{
+    		if (isset($_REQUEST['parameters'])) {
+    
+    			$json = $_REQUEST['parameters'];
+    
+    			// get all these parameters
+    			// parse json string to array
+    			$parameters = json_decode($json, true);
+    			$groupId = (int)$parameters['groupId'];
+    			$offset = (int)$parameters['offset'];
+    			$limit = (int)$parameters['limit'];
+    			$total = (int)$parameters['total'];
+    			$userId = OW::getUser()->getId();
+    
+    			// get events based on parameters
+    			$events = ZLEVENT_BOL_EventService::getInstance()->findUserParticipatedGroupEvents($groupId, $userId, $offset, $limit);
+    			$eventinfos=array();
+    			$userService = BOL_UserService::getInstance();
+    			foreach ($events as $event)
+    			{
+    				$eventinfo = array();
+    				$eventinfo['title'] = $event->title;
+    				$eventinfo['description'] = $event->description;
+    				$eventinfo['url'] = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->id));
+    				$eventinfo['logo'] = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+    				$eventinfo['starttime'] = UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(),$event->getStartTimeDisable());
+    				$user = $userService->findUserById($event->getUserId());
+    				$eventinfo['username'] = $userService->getDisplayName($event->getUserId());
+    				$eventinfo['userurl'] = $userService->getUserUrlForUsername($user->getUsername());
+    
+    				$eventinfos[] = $eventinfo;
+    			}
+    
+    			$count = 0;
+    			if ($events)
+    				$count = count($events);
+    
+    			$hasmore = true;
+    			if($offset + $count >= $total)
+    				$hasmore = false;
+    
+    			$json_result = array(
+    					'events' => $eventinfos,
+    					'hasmore' => $hasmore
+    			);
+    
+    			echo json_encode($json_result);
+    
+    		}
+    
+    		exit();
+    	}
+    	else
+    	{
+    		throw new Redirect404Exception();
+    	}
+    
+    	if ( !OW_DEBUG_MODE )
+    	{
+    		ob_end_clean();
+    	}
+    
+    	exit();
+    }    
+    
+    // invited
+    public function ajaxInviteResponder()
+    {
+    	if ( OW::getRequest()->isAjax() )
+    	{
+    		if (isset($_REQUEST['parameters'])) {
+    
+    			$json = $_REQUEST['parameters'];
+    
+    			// get all these parameters
+    			// parse json string to array
+    			$parameters = json_decode($json, true);
+    			$groupId = (int)$parameters['groupId'];
+    			$offset = (int)$parameters['offset'];
+    			$limit = (int)$parameters['limit'];
+    			$total = (int)$parameters['total'];
+    
+    			// get events based on parameters
+    			$userId = OW::getUser()->getId();
+    			$events = ZLEVENT_BOL_EventService::getInstance()->findUserInvitedGroupEvents($groupId, $userId, $offset, $limit);
+    			$eventinfos=array();
+    			$userService = BOL_UserService::getInstance();
+    			foreach ($events as $event)
+    			{
+    				$eventinfo = array();
+    				$eventinfo['title'] = $event->title;
+    				$eventinfo['description'] = $event->description;
+    				$eventinfo['url'] = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $event->id));
+    				$eventinfo['logo'] = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+    				$eventinfo['starttime'] = UTIL_DateTime::formatSimpleDate($event->getStartTimeStamp(),$event->getStartTimeDisable());
+    				$user = $userService->findUserById($event->getUserId());
+    				$eventinfo['username'] = $userService->getDisplayName($event->getUserId());
+    				$eventinfo['userurl'] = $userService->getUserUrlForUsername($user->getUsername());
+    
+    				$eventinfos[] = $eventinfo;
+    			}
+    
+    			$count = 0;
+    			if ($events)
+    				$count = count($events);
+    
+    			$hasmore = true;
+    			if($offset + $count >= $total)
+    				$hasmore = false;
+    
+    			$json_result = array(
+    					'events' => $eventinfos,
+    					'hasmore' => $hasmore
+    			);
+    
+    			echo json_encode($json_result);
+    
+    		}
+    
+    		exit();
+    	}
+    	else
+    	{
+    		throw new Redirect404Exception();
+    	}
+    
+    	if ( !OW_DEBUG_MODE )
+    	{
+    		ob_end_clean();
+    	}
+    
+    	exit();
+    }    
 
     // 添加新活动
     public function add()
@@ -1875,4 +2146,6 @@ class ZLEVENT_RequiredLoactionValidator extends OW_Validator
         	getErrorMessage : function(){ return " . json_encode($this->getError()) . " }
         }";
 	}
+	
+
 }
