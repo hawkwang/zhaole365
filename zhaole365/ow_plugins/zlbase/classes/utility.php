@@ -1,6 +1,6 @@
 <?php
 
-class ZLAREAS_CLASS_Utility
+class ZLBASE_CLASS_Utility
 {
 
     private static $classInstance;

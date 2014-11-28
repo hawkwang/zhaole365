@@ -1,6 +1,6 @@
 <?php
 
-class ZLAREAS_CLASS_Logger
+class ZLBASE_CLASS_Logger
 {
 
 	private $log_file, $fp;

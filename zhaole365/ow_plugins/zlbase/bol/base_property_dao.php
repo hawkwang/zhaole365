@@ -35,19 +35,28 @@ class ZLBASE_BOL_BasePropertyDao extends OW_BaseDao
         return OW_DB_PREFIX . 'zlbase_base_property';
     }
     
-    public function getValueByKey( $entityType, $entityId, $key )
+    public function findProperty($entityType, $entityId, $key)
     {
     	if ( empty($key) )
     	{
     		return null;
     	}
-    
+    	
     	$example = new OW_Example();
     	$example->andFieldEqual(self::ENTITYTYPE, $entityType);
     	$example->andFieldEqual(self::ENTITYID, $entityId);
     	$example->andFieldEqual(self::KEY, $key);
-    	
+    	 
     	$property = $this->findObjectByExample($example);
+    	 
+    	return $property;
+    	
+    }
+    
+    public function getValue( $entityType, $entityId, $key )
+    {
+    	$property = $this->findProperty( $entityType, $entityId, $key );
+    	
     	if($property!=null)
     		return $property->value;
     	

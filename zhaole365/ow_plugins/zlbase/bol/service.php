@@ -1,21 +1,11 @@
 <?php
 
-class ZLAREAS_BOL_Service
+class ZLBASE_BOL_Service
 {
 	const JQUERY_LOAD_PRIORITY = 100000002;
 	
-    /**
-     * Singleton instance.
-     *
-     * @var ZLAREAS_BOL_Service
-     */
     private static $classInstance;
 
-    /**
-     * Returns an instance of class (singleton pattern implementation).
-     *
-     * @return ZLAREAS_BOL_Service
-     */
     public static function getInstance()
     {
         if ( self::$classInstance === null )
@@ -31,44 +21,19 @@ class ZLAREAS_BOL_Service
 
     }
 
-    public function addArea( $areacode, $province, $city, $area )
+    public function saveProperty( $entityType, $entityId, $key, $value )
     {
-        $areainfo = new ZLAREAS_BOL_Area();
-        $areainfo->areacode = $areacode;
-        $areainfo->province = $province;
-        $areainfo->city = $city;
-        $areainfo->area = $area;
-        ZLAREAS_BOL_AreaDao::getInstance()->save($areainfo);
+        $property = new ZLBASE_BOL_BaseProperty();
+        $property->entityType = $entityType;
+        $property->entityId = $entityId;
+        $property->key = $key;
+        $property->value = $value;
+        ZLBASE_BOL_BasePropertyDao::getInstance()->save($property);
     }
 
-    public function deleteArea( $id )
+    public function findProperty($entityType, $entityId, $key)
     {
-        $id = (int) $id;
-        if ( $id > 0 )
-        {
-            ZLAREAS_BOL_AreaDao::getInstance()->deleteById($id);
-        }
-    }
-    
-    public function getAreaByDetailedinfo($province,$city, $district)
-    {
-    	return ZLAREAS_BOL_AreaDao::getInstance()->getAreaByDetailedinfo($province,$city, $district);
-    }
-
-
-    public function getAreaList()
-    {
-        return ZLAREAS_BOL_AreaDao::getInstance()->findAll();
-    }
-    
-    public function findAreaById( $id )
-    {
-    	return ZLAREAS_BOL_AreaDao::getInstance()->findAreaById($id);
-    }
-    
-    public function findByAreacode( $areacode )
-    {
-    	return ZLAREAS_BOL_AreaDao::getInstance()->findByAreacode($areacode);
+    	return ZLBASE_BOL_BasePropertyDao::getInstance()->findProperty($entityType, $entityId, $key);
     }
 
 }
