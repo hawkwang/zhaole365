@@ -1,0 +1,19 @@
+{style}
+{literal}
+table.ow_table_1 td.ow_label
+{
+    width: 35%;
+}
+{/literal}
+{/style}
+
+<table class="ow_table_1 ow_automargin" style="width: 400px;">
+    {foreach from=$areas item=area name=area}
+    <tr class="{cycle values='ow_alt1,ow_alt2'} {if $smarty.foreach.area.last}ow_tr_last{/if} {if $smarty.foreach.area.first}ow_tr_first{/if}">
+        <td>{$area.areacode}</td>
+        <td>{$area.province}</td>
+        <td>{$area.city}</td>
+        <td>{$area.area}</td>
+    </tr>
+    {/foreach}
+</table>

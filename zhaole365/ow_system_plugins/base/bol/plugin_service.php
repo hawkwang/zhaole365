@@ -372,7 +372,7 @@ class BOL_PluginService
         }
 
         $requestUrl = OW::getRequest()->buildUrlQueryString(self::UPDATE_SERVER . 'get-item-info', $data);
-
+        ZLAREAS_CLASS_Logger::getInstance()->log($requestUrl);
         return (array) json_decode((file_get_contents($requestUrl)));
     }
 
