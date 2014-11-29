@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>Profile Snippets</name>
+    <key>snippets</key>
+    <description>Adds widget that contains snippets of user content: photos, video, groups, etc...</description>
+    <author>Sergey Kambalin</author>
+    <authorEmail>greyexpert@gmail.com</authorEmail>
+    <developerKey>4de7d12343ccb157ece55b3ec3feadf5</developerKey>
+    <build>1</build>
+    <copyright>(C) Sergey Kambalin</copyright>
+    <license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</plugin>

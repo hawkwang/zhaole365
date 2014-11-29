@@ -1,0 +1,9 @@
+<div class="s-snippet ow_border ow_bg_color clearfix s-snippet-{$displayType}">
+    <a href="{$url}" class="s-snippet-overlay">
+        <div class="s-snippet-label">{$label}</div>        
+    </a>
+    
+    {foreach from=$images item="image" name="images"}
+        <div style="background-image: url({$image})" class="s-snippet-image ow_border s-snippet-image-{$smarty.foreach.images.iteration}"></div>
+    {/foreach}
+</div>

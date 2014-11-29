@@ -1,0 +1,29 @@
+<div class="s-snippets-settings-wrap" id="{$uniqId}">
+    
+    <div class="s-ss-section s-ss-hidden" >
+        <div class="s-ss-title ow_remark">
+            {text key="snippets+hidden_section_label"}
+        </div>
+        <div class="s-ss-section-content clearfix ow_border {if empty($snippets.hidden)}s-ss-section-empty{/if}" data-section="hidden">
+            {foreach from=$snippets.hidden item="snippet"}
+                <div class="s-ss-snippet" data-name="{$snippet.name}">{$snippet.html}</div>
+            {/foreach}
+            <div class="s-ss-section-empty-msg ow_remark">{text key="snippets+empty_hidden_section"}</div>
+        </div>
+    </div>
+    
+    <div class="s-ss-section s-ss-active">
+        <div class="s-ss-title ow_remark">
+            {text key="snippets+active_section_label"}
+        </div>
+        <div class="s-ss-section-content clearfix ow_border {if empty($snippets.active)}s-ss-section-empty{/if}" data-section="active">
+            {foreach from=$snippets.active item="snippet"}
+                <div class="s-ss-snippet" data-name="{$snippet.name}">{$snippet.html}</div>
+            {/foreach}
+            <div class="s-ss-section-empty-msg ow_remark">{text key="snippets+empty_active_section"}</div>
+        </div>
+    </div>
+    
+    <input type="hidden" name="{$name}" data-outlet="field" />
+</div>
+

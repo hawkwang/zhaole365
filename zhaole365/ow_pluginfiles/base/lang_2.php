@@ -17,7 +17,7 @@ $language[2] = array (
   'admin+are_you_sure' => 'Are you sure?',
   'admin+auth_group_label' => '管理',
   'admin+available_languages' => '可用语言包',
-  'admin+avatar_label' => 'Label on avatar',
+  'admin+avatar_label' => '头像图片上的标注',
   'admin+avatar_label_color' => 'Label color',
   'admin+back_to_roles' => 'Back to user roles',
   'admin+back_to_site_label' => 'Back to site',
@@ -58,12 +58,12 @@ Example: <b>en-US</b> or <b>en-GB-custom</b>.',
   'admin+currency' => 'Currency',
   'admin+custom_keys' => 'Custom keys',
   'admin+def' => 'default',
-  'admin+default_avatar_deleted' => 'Default avatar deleted',
+  'admin+default_avatar_deleted' => '缺省头像图片已删除',
   'admin+default_role' => '缺省角色',
   'admin+delete' => 'Delete',
   'admin+delete_btn_label' => 'Delete',
   'admin+delete_content_warning' => '警告',
-  'admin+display_avatar_label' => 'Display role label on avatar',
+  'admin+display_avatar_label' => '在头像图片上显示角色',
   'admin+edit_langs_cap_label' => '编辑语言包',
   'admin+edit_language' => '编辑语言包',
   'admin+email_already_verify' => 'Email already verified',
@@ -78,7 +78,7 @@ Example: <b>en-US</b> or <b>en-GB-custom</b>.',
   'admin+export_lang_header' => 'Export languages',
   'admin+export_lang_note' => 'You can export/backup any languages for any plugins you have installed on your site.',
   'admin+export_lang_note2' => 'Select items you would like  to export from all languages and plugins',
-  'admin+feed_content_avatar_change' => 'User avatar change',
+  'admin+feed_content_avatar_change' => '用户头像更新',
   'admin+feed_content_edit' => '用户资料编辑',
   'admin+feed_content_registration' => 'New user registration',
   'admin+feed_content_user_comment' => 'Profile wall comments',
@@ -106,7 +106,7 @@ Example: <b>en-US</b> or <b>en-GB-custom</b>.',
   'admin+input_settings_attch_max_upload_size_label' => '最大上传文件尺寸',
   'admin+input_settings_comments_rich_media_disable_desc' => 'Check if you don\'t want to allow people to add rich media (like photo and video) in comments throughout the site.',
   'admin+input_settings_comments_rich_media_disable_label' => 'Disable rich media',
-  'admin+input_settings_max_upload_size_label' => 'Maximum upload file size',
+  'admin+input_settings_max_upload_size_label' => '最大上传文件大小',
   'admin+input_settings_resource_list_desc' => 'List domains from which you allow to embed videos or put iframes. These should be sites that provide embed code for videos or valid content which you entrust. One domain per line.',
   'admin+input_settings_resource_list_label' => 'Allowed resources list',
   'admin+input_settings_user_custom_html_disable_desc' => 'Check if you don\'t want to allow users write HTML code in posts (like blogs and forums). Recommended for security reasons.',
@@ -122,7 +122,7 @@ Example: <b>en-US</b> or <b>en-GB-custom</b>.',
   'admin+invite_members_textarea_invitation_text' => 'Enter list of emails (max 50, one email per line)',
   'admin+joined' => '已加入',
   'admin+join_display_photo_upload' => '上传头像',
-  'admin+join_display_photo_upload_desc' => 'Let users upload avatar on registration',
+  'admin+join_display_photo_upload_desc' => '允许用户在注册时上传个人头像',
   'admin+join_display_terms_of_use' => 'Enable \'Terms of use\' checkbox',
   'admin+join_display_terms_of_use_desc' => 'Require users to agree to terms of use on registration',
   'admin+join_page' => 'Registration',
@@ -629,7 +629,7 @@ Remember: Users with this account:
   'admin+translation' => '翻译: {$label} ({$tag})',
   'admin+updated_msg' => '更新成功',
   'admin+user' => 'User',
-  'admin+user_avatar_settings' => 'Avatar Settings',
+  'admin+user_avatar_settings' => '头像设置',
   'admin+user_delete_msg' => '{$count} user(s) deleted',
   'admin+user_display_settings' => '显示设置',
   'admin+user_feedback_email_unverified' => 'Selected user(s) emails are marked unverified',
@@ -645,15 +645,15 @@ Remember: Users with this account:
   'admin+user_role_permissions_cap_label' => 'User role permissions',
   'admin+user_search_result' => 'User search result for: "<b>{$for}</b>"',
   'admin+user_settings_avatar_image' => '默认头像',
-  'admin+user_settings_avatar_image_desc' => 'Change to override theme default avatar image',
-  'admin+user_settings_avatar_size' => 'Avatar size',
+  'admin+user_settings_avatar_image_desc' => '更新并覆盖主题的缺省头像图片',
+  'admin+user_settings_avatar_size' => '头像尺寸',
   'admin+user_settings_avatar_size_desc' => 'Shown in all listings. You will also need to change your theme CSS.',
-  'admin+user_settings_avatar_size_error' => 'The max reasonable avatar size is {$max}px',
-  'admin+user_settings_avatar_size_label' => 'Avatar image<br /> crop size',
-  'admin+user_settings_big_avatar_size' => 'Big avatar size',
+  'admin+user_settings_avatar_size_error' => '最大头像图片尺寸为 {$max}px',
+  'admin+user_settings_avatar_size_label' => '头像图片<br /> 裁剪尺寸',
+  'admin+user_settings_big_avatar_size' => '较大头像尺寸',
   'admin+user_settings_big_avatar_size_desc' => 'Shown on profile page',
-  'admin+user_settings_big_avatar_size_error' => 'The max reasonable big avatar size is {$max}px',
-  'admin+user_settings_big_avatar_size_label' => 'Big avatar image<br /> crop size',
+  'admin+user_settings_big_avatar_size_error' => '最大头像图片尺寸为 {$max}px',
+  'admin+user_settings_big_avatar_size_label' => '大尺寸头像图片<br /> 裁剪尺寸',
   'admin+user_settings_confirm_email' => 'Confirm email',
   'admin+user_settings_confirm_email_desc' => 'When turned on users will have to verify email addresses before accessing the site.',
   'admin+user_settings_display_name' => 'Show profile name as:',
@@ -775,22 +775,22 @@ Remember: Users with this account:
   'base+auth_success_message' => '身份认证成功，请稍等…',
   'base+auth_view_profile' => 'View profiles',
   'base+avatar_activity_string' => '<a href="{$userUrl}">{$user}</a> 修改了头像。',
-  'base+avatar_apply_crop' => 'Apply crop',
-  'base+avatar_avatar_is' => '头像是一个缩小尺寸的形象照片，展示在你的资料页里。',
-  'base+avatar_back_profile_edit' => '返回个人资料页',
-  'base+avatar_btn_upload' => 'Upload',
+  'base+avatar_apply_crop' => '确定',
+  'base+avatar_avatar_is' => '头像是一个缩小尺寸的形象照片，展示在你的个人主页里。',
+  'base+avatar_back_profile_edit' => '返回个人主页',
+  'base+avatar_btn_upload' => '上传',
   'base+avatar_change' => '更改头像',
   'base+avatar_change_avatar' => '更改头像',
   'base+avatar_console_edit_profile' => 'Edit my profile',
-  'base+avatar_crop' => 'Crop Avatar',
-  'base+avatar_crop_instructions' => 'Choose an area of your avatar for cropping with the help of mouse cursor. The cropping result will be displayed on the right. Once you are satisfied with the result click the "Apply crop" button.',
-  'base+avatar_current' => 'Your Avatar',
+  'base+avatar_crop' => '裁剪头像',
+  'base+avatar_crop_instructions' => '选择一个区域以裁剪个人头像。点击“确定”完成裁剪.',
+  'base+avatar_current' => '个人头像',
   'base+avatar_feed_string' => '修改了头像',
-  'base+avatar_new' => 'Upload new avatar',
-  'base+avatar_picture' => 'Your avatar picture',
+  'base+avatar_new' => '上传新头像',
+  'base+avatar_picture' => '个人头像图片',
   'base+avatar_preview' => 'Preview',
   'base+avatar_select_image' => '请选择图片文件',
-  'base+avatar_upload_types' => 'Available formats for Avatar uploading are <span class="ow_txt_value">JPG</span>/<span class="ow_txt_value">GIF</span>/<span class="ow_txt_value">PNG</span>',
+  'base+avatar_upload_types' => '允许上传个人头像图片的格式为 <span class="ow_txt_value">JPG</span>/<span class="ow_txt_value">GIF</span>/<span class="ow_txt_value">PNG</span>',
   'base+avatar_user_list_select_button_label' => '提交',
   'base+avatar_user_list_select_count_label' => '#count# 个用户被选中',
   'base+avatar_user_select_empty_list_message' => 'You should select user(s) to continue',
@@ -884,7 +884,7 @@ Remember: Users with this account:
   'base+console_item_label_dashboard' => '个人中心',
   'base+console_item_label_mailbox' => 'Mailbox',
   'base+console_item_label_preferences' => 'Preferences',
-  'base+console_item_label_profile' => '个人信息',
+  'base+console_item_label_profile' => '个人主页',
   'base+console_item_label_sign_out' => '退出',
   'base+console_item_sign_up_label' => '注册',
   'base+contex_action_comment_delete_label' => '删除评论',
@@ -1322,7 +1322,102 @@ Thank you,
   'base+join_submit_button_continue' => 'Continue',
   'base+join_submit_button_join' => '加入',
   'base+join_successful_join' => 'Registration successful',
-  'base+local_page_content_page-119658' => '服务条款',
+  'base+local_page_content_page-119658' => '<div class="panel-body" style="padding-left: 20px; padding-right: 20px;">
+            			
+                           <p>本《用户协议》是您(下称"用户")与北京微晓科技有限公司(下称“微晓”)之间在使用微晓出品的各类产品（如找乐365）之前，注册用户(又名“帐号”，下统称“帐号”)和使用产品时签署的协议。</p>
+                        
+                        　　<p>一、重要须知---在签署本协议之前，微晓正式提醒用户：</p>
+                        
+                        　　<p>1.1 您应认真阅读(未成年人应当在监护人陪同下阅读)、充分理解本《用户协议》中各条款，特别是免除或者限制微晓责任的免责条款，用户的权利限制条款，约定争议解决方式、司法管辖、法律适用的条款。</p>
+                        
+                        　　<p>1.2 除非您接受本协议，否则用户无权也无必要继续接受微晓的服务，可以退出本次注册。用户点击接受并继续使用微晓的服务，视为用户已完全的接受本协议。</p>
+                        
+                        　　<p>1.3 本协议在您开始使用微晓的服务，并注册成为微晓产品的用户时即产生法律效力，请您慎重考虑是否接受本协议，如不接受本协议的任一条款，请自动退出并不再接受微晓的任何服务。</p>
+                        
+                        　　<p>1.4 在您签署本协议之后，此文本可能因国家政策、产品以及履行本协议的环境发生变化而进行修改，我们会将修改后的协议发布在本网站上，若您对修改后的协议有异议的，请立即停止登录、使用微晓产品及服务，若您登录或继续使用微晓产品，视为认可修改后的协议。</p>
+                        
+                        　　<p>二、关于“帐号”</p>
+                        
+                        　　<p>2.1 微晓在旗下业务平台（包括但不限于找乐365……等）提供用户注册通道，用户在认可并接受本协议之后，有权选择未被其他用户使用过的字母符号组合作为用户的帐号，并自行设置符合安全要求的密码。用户设置的帐号、密码是用户用以登录微晓产品，接受微晓服务的凭证。</p>
+                        
+                        　　<p>2.2 用户在注册了微晓帐号并不意味获得全部微晓产品的授权，仅仅是取得了接受微晓服务的身份，用户在登录相关网页、加载应用、下载安装软件时需要另行签署单个产品的授权协议。</p>
+                        
+                        　　<p>2.3 微晓账户仅限于在微晓网站上注册用户本人使用，禁止赠与、借用、租用、转让或售卖。如果微晓发现或者有理由怀疑使用者并非帐号初始注册人，则有权在未经通知的情况下，暂停或终止向用户提供服务，并有权注销该帐号，而无需向该帐号使用人承担法律责任，由此带来的包括并不限于用户通讯中断、用户资料和信息等清空等损失由用户自行承担。</p>
+                        
+                        　　<p>2.4 用户有责任维护个人帐号、密码的安全性与保密性，用户就其帐号及密码项下之一切活动负全部责任，包括用户数据的修改，发表的言论以及其他所有的损失。用户应重视微晓帐号密码保护。用户如发现他人未经许可使用其帐号或发生其他任何安全漏洞问题时立即通知微晓。如果用户在使用微晓服务时违反上述规则而产生任何损失或损害，微晓不承担任何责任。</p>
+                        
+                        　　<p>2.5 用户帐号在丢失或遗忘密码后，可遵照微晓的申诉途径及时申诉请求找回帐号。用户应提供能增加帐号安全性的个人密码保护资料。用户可以凭初始注册资料及个人密码保护资料填写申诉单向微晓申请找回帐号，微晓的密码找回机制仅负责识别申诉单上所填资料与系统记录资料的正确性，而无法识别申诉人是否系真正帐号有权使用人。对用户因被他人冒名申诉而致的任何损失，微晓不承担任何责任，用户知晓帐号及密码保管责任在于用户，微晓并无义务保证帐号丢失或遗忘密码后用户一定能通过申诉找回帐号。</p>
+                        
+                        　　<p>2.6 用户应保证注册微晓帐号时填写的身份信息的真实性，任何由于非法、不真实、不准确的用户信息所产生的责任由用户承担。用户应不断根据实际情况更新注册资料，符合及时、详尽、真实、准确的要求。所有原始键入的资料将引用用户的帐号注册资料。如果因用户的注册信息不真实而引起的问题，以及对问题发生所带来的后果，微晓不负任何责任。如果用户提供的信息不准确、不真实、不合法或者微晓有理由怀疑为错误、不实或不完整的资料或在个人资料中发布广告、不严肃内容及无关信息，微晓有权暂停或终止向用户提供服务，注销该帐号，并拒绝用户现在和未来使用微晓服务之全部或任何部分。因此产生的一切损失由用户自行承担。</p>
+                        
+                        　　<p>2.7 除自行注册微晓帐号外，用户也可选择使用已有的新浪微博、腾讯微博、QQ空间、人人网、开心网的帐号登录和使用微晓的产品。用户可通过微晓产品的帐号管理后台授权并登录微晓的产品。</p>
+                        
+                        　　<p>三、用户在使用微晓时，应当遵守《中华人民共和国宪法》、《中华人民共和国刑法》、《中华人民共和国民法通则》、《中华人民共和国合同法》、《中华人民共和国著作权法》、《中华人民共和国电信条例》、《互联网信息服务管理办法》、《互联网电子公告服务管理规定》、《计算机信息网络国际互联网安全保护管理办法》等相关规定。用户不得利用微晓服务产品从事违反法律法规、政策以及侵犯他人合法权益的行为，包括但不限于下列行为：</p>
+                        
+                        　　<p>3.1 利用微晓服务产品发表、传送、传播、储存反对宪法所确定的基本原则的、危害国家安全、国家统一、社会稳定的、煽动民族仇恨、民族歧视、破坏民族团结的内容，或侮辱诽谤、色情、暴力、引起他人不安及任何违反国家法律法规政策的内容或者设置含有上述内容的网名、角色名。</p>
+                        
+                        　　<p>3.2 利用微晓服务发表、传送、传播、储存侵害他人知识产权、商业机密、肖像权、隐私权等合法权利或其他道德上令人反感的内容。</p>
+                        
+                        　　<p>3.3 进行任何危害计算机网络安全的行为，包括但不限于：使用未经许可的数据或进入未经许可的服务器/帐户;未经允许进入公众计算机网络或者他人计算机系统并删除、修改、增加存储信息;未经许可，企图探查、扫描、测试本“软件”系统或网络的弱点或其它实施破坏网络安全的行为;企图干涉、破坏本“软件”系统或网站的正常运行，故意传播恶意程序或病毒以及其他破坏干扰正常网络信息服务的行为;伪造TCP/IP数据包名称或部分名称;自行或利用其他软件对微晓提供产品进行反向破解等违法行为。</p>
+                        
+                        　　<p>3.4 进行任何诸如发布广告、推广信息、销售商品的行为，或者进行任何非法的侵害微晓利益的行为。</p>
+                        
+                        　　<p>3.5 进行其他任何违法以及侵犯其他个人、公司、社会团体、组织的合法权益的行为或者法律、行政法规、规章、条例以及任何具有法律效力之规范所限制或禁止的其他行为。</p>
+                        
+                        　　<p>在任何情况下，如果微晓有理由认为用户的任何行为，包括但不限于用户的任何言论和其它行为违反或可能违反法律法规、国家政策以及本协议的任何规定，微晓可在任何时候不经任何事先通知，即有权终止向用户提供服务。</p>
+                        
+                        　　<p>四、微晓声明</p>
+                        
+                        　　<p>4.1 用户须知，在使用微晓服务可能存在有来自任何他人的包括威胁性的、诽谤性的、令人反感的或非法的内容或行为或对他人权利的侵犯(包括知识产权)的匿名或冒名的信息的风险，用户须承担以上风险，微晓对服务不作担保，不论是明确的或隐含的，包括所有有关信息真实性、适当性、适于某一特定用途、所有权和非侵权性的默示担保和条件，对因此导致任何因用户不正当或非法使用服务产生的直接、间接、偶然、特殊及后续的损害，微晓不承担任何责任。</p>
+                        
+                        　　<p>4.2 使用微晓服务必须遵守国家有关法律和政策等，维护国家利益，保护国家安全，并遵守本协议，对于用户违法行为或违反本协议的使用(包括但不限于言论发表、传送等)而引起的一切责任，由用户承担全部责任。</p>
+                        
+                        　　<p>4.3 微晓提供的所有信息、资讯、内容和服务均来自互联网，并不代表微晓的观点，微晓对其真实性、合法性概不负责，亦不承担任何法律责任。</p>
+                        
+                        　　<p>4.4 微晓所提供的产品和服务也属于互联网范畴，也易受到各种安全问题的困扰，包括但不限于：</p>
+                        
+                        　　<p>1)个人资料被不法分子利用，造成现实生活中的骚扰;</p>
+                        
+                        　　<p>2)哄骗、破译密码;</p>
+                        
+                        　　<p>3)下载安装的其它软件中含有“特洛伊木马”等病毒程序，威胁到个人计算机上信息和数据的安全，继而威胁对本服务的使用。
+                        　</p>　
+                        　　<p>4）以及其他类网络安全困扰问题</p>
+                        
+                        　　<p>对于发生上述情况的，用户应当自行承担责任。</p>
+                        
+                        　　<p>4.5 用户须明白，微晓为了整体运营的需要，有权在公告通知后，在不事先通知用户的情况下修改、中断、中止或终止服务，而无须向用户或第三方负责，微晓不承担任何赔偿责任。</p>
+                        
+                        　　<p>4.6 用户应理解，互联网技术存在不稳定性，可能导致政府管制、政策限制、病毒入侵、黑客攻击、服务器系统崩溃或者其他现今技术无法解决的风险发生。由以上原因可能导致微晓服务中断或帐号信息损失，对此非人为因素引起的用户损失由用户自行承担责任。</p>
+                        
+                        　　<p>五、知识产权</p>
+                        
+                        　　<p>5.1 微晓对其旗下运营的网页、应用、软件等产品和服务享有知识产权。受中国法律的保护。</p>
+                        
+                        　　<p>5.2用户不得对微晓服务涉及的相关网页、应用、软件等产品进行反向工程、反向汇编、反向编译等。</p>
+                        
+                        　　<p>5.3 用户只能在本《用户协议》以及相应的授权许可协议授权的范围内使用微晓知识产权，未经授权超范围使用的，构成对微晓的侵权。</p>
+                        
+                        　　<p>5.4 用户在使用微晓产品服务时发表上传的文字、图片、视频、软件以及表演等信息，用户的发表、上传行为是对微晓服务平台的授权，为非独占性、永久性的授权，该授权可转授权。微晓可将前述信息在微晓旗下的所有服务平台上使用，可再次编辑后使用，也可以由微晓授权给合作方使用。</p>
+                        
+                        　　<p>5.5 用户应保证，在使用微晓产品服务时上传的文字、图片、视频、软件以及表演等的信息不侵犯任何第三方知识产权，包括但不限于商标权、著作权等。若用户在使用微晓产品服务时上传的文字、图片、视频、软件以及表演等的信息中侵犯第三方知识产权，微晓有权移除该侵权产品，并对此不负任何责任。用户应当负责处理前述第三方的权利主张，承担由此产生的全部费用，包括但不限于侵权赔偿、律师费及其他合理费用，并保证微晓不会因此而遭受任何损失。</p>
+                        
+                        　　<p>5.6 任何单位或个人认为通过微晓提供服务的内容可能涉嫌侵犯其知识产权或信息网络传播权，应该及时向微晓提出书面权利通知投诉，并提供身份证明、权属证明及详细侵权情况证明。微晓在收到上述法律文件后，将会依法尽快断开相关链接内容。微晓提供投诉通道，wanghao.buaa@gmail.com。如投诉中未向微晓提供合法有效的证明材料，微晓有权不采取任何措施。</p>
+                        
+                        　　<p>六、隐私保护</p>
+                        
+                        　　<p>微晓非常重视用户的隐私权，用户在享受微晓提供的服务时可能涉及用户的隐私，因此请用户仔细阅读本隐私保护条款。</p>
+                        
+                        　　<p>6.1 请用户注意勿在使用微晓服务中透露自己的各类财产帐户、银行卡、信用卡、第三方支付账户及对应密码等重要信息资料，否则由此带来的任何损失由用户自行承担。</p>
+                        
+                        　　<p>6.2 用户的帐号、密码属于保密信息，微晓会努力采取积极的措施保护用户帐号、密码的安全。</p>
+                        
+                        　　<p>6.3 互联网的开放性以及技术更新速度快，因非微晓可控制的因素导致用户信息泄漏的，微晓不承担任何责任。</p>
+                        
+                        　　<p>6.4 用户在使用微晓服务时不应将自认为隐私的信息发表、上传至微晓，也不应将该等信息通过微晓的服务传播给其他人，由于用户的行为引起的隐私泄漏，由用户自行承担责任。</p>
+            			
+            			
+             			</div>',
   'base+local_page_content_page-225003' => 'sdffsdf',
   'base+local_page_content_page-283934' => 'whoohaa',
   'base+local_page_content_page-290357' => 'dsfsdfs
@@ -1344,35 +1439,45 @@ dsadasdsa',
   'base+local_page_content_page_65118983' => 'mmm',
   'base+local_page_content_page_7680520' => 'jjj',
   'base+local_page_content_page_80273168' => 'dsfsdfdsfdsfdsfdsfdsf',
-  'base+local_page_content_page_81959573' => '<p class="ow_smallmargin">
-感谢您访问我们的网站。隐私政策告诉您怎么使用网站所收集的个人信息。请在使用网站和提交个人信息前仔细阅读隐私政策。 当你在使用这个网站，你会遇到一些隐私政策中提及的流程。 这些流程可能不会一成不变，但是任何的改变都会通知，只适用于活动和信息，不具有追溯力。 You are encouraged to review the privacy policy whenever you visit the site to keep track of the policy changes and make sure that you understand how any personal information you provide will be used.
-</p>
-<p class="ow_stdmargin">
-Note: the privacy practices set forth in this privacy policy are for this website only. If you link to other websites, please review the privacy policies posted at those websites.
-</p>
-<h2 class="ow_smallmargin">Collection of Information</h2>
-<p class="ow_stdmargin">
-We collect personally identifiable information, like names, email addresses, etc., when voluntarily submitted by our visitors. This information is only used to fulfill your specific request and to sign you up for our service mailing list, unless you give us permission to use it in other manners.
-</p>
-<h2 class="ow_smallmargin">Cookie/Tracking Technology</h2>
-<p class="ow_stdmargin">
-This website may use cookie and tracking technology depending on the features offered. Cookie and tracking technology are useful for gathering information such as browser type and operating system, tracking the number of visitors to the website, and understanding how visitors use the website. Cookies can also help customize the website for visitors. Personal information cannot be collected via cookies and other tracking technology, however, if you previously provided personally identifiable information, cookies may be tied to such information. Aggregate cookie and tracking information may be shared with third parties.
-</p>
-<h2 class="ow_smallmargin">Distribution of Information</h2>
-<p class="ow_stdmargin">
-We may share information with governmental agencies or other companies assisting us in fraud prevention or investigation. We may do so when: (1) permitted or required by law; or, (2) trying to protect against or prevent actual or potential fraud or unauthorized transactions; or, (3) investigating fraud which has already taken place. The information is not provided to these companies for marketing purposes.
-</p>
-<h2 class="ow_smallmargin">Commitment to Data Security</h2>
-<p class="ow_stdmargin">
-Your personally identifiable information is kept secure. Only authorized employees, agents and contractors (who have agreed to keep information secure and confidential) have access to this information. All emails and newsletters from this website allow you to opt out of further mailings.
-</p>
-<h2 class="ow_smallmargin">Privacy Contact Information</h2>
-<p class="ow_stdmargin">
-If you have any questions, concerns, or comments about our privacy policy you may contact us using means provided on this website.
-</p>
-<p>
-We reserve the right to make changes to this policy. Any changes to this policy will be posted.
-</p>',
+  'base+local_page_content_page_81959573' => '<div class="panel-body" style="padding-left: 20px; padding-right: 20px;">
+            				<p>找乐365提醒您：在使用找乐365前，请您务必仔细阅读并透彻理解本声明。
+            				您可以选择不使用找乐365，但如果您使用找乐365，您的使用行为将被视为对本声明全部内容的认可。
+            				</p>
+                            <ul style="list-style: square outside;">
+                                <li><p>鉴于找乐365以非人工检索方式、根据您键入的关键字自动生成到第三方网页的链接，
+                                    一切因使用找乐365而可能遭致的意外、疏忽、侵权及其造成的损失，
+                                    找乐365对其概不负责，亦不承担任何法律责任。
+                                    </p>
+                                </li>
+                                <li><p>任何通过使用找乐365而搜索链接到的第三方网页內容均系他人制作或提供，您可能从该第三方网页上
+                                    获得资讯及享用服务，找乐365对其合法性概不负责，亦不承担任何法律责任。
+                                    </p>
+                                </li>
+                                <li><p>找乐365搜索结果根据您键入的关键字自动搜索获得并生成，不代表找乐365赞成被搜索链接到
+                                    的第三方网页上的内容或立场。
+                                    </p>
+                                </li>
+                                <li><p>您应该对使用找乐365的结果自行承担风险。找乐365不做任何形式的保证：不保证搜索结果满足您的要求，
+                                    不保证搜索服务不中断，不保证搜索结果的安全性、正确性、及时性、合法性。因网络状况、通讯线路、
+                                    第三方网站等任何原因而导致您不能正常使用找乐365，找乐365不承担任何法律责任。
+                                    </p>
+                                </li>
+                                <li><p>找乐365尊重并保护所有使用找乐365用户的个人隐私权，您注册的用户名、电子邮件地址等个人资料，
+                                    非经您亲自许可或根据相关法律、法规的强制性规定，找乐365不会主动地泄露给第三方。
+                                    找乐365提醒您：您在使用搜索引擎时输入的关键字将不被认为是您的个人隐私资料。
+                                    </p>
+                                </li>
+                                <li><p>任何网站如果不想被找乐365收录，应该及时向找乐365反映，否则，找乐365将视其为可收录网站，
+                                    并可能对相关内容进行挖掘处理。
+                                    </p>
+                                </li>
+                                <li><p>任何单位或个人认为通过找乐365搜索链接到的第三方网页内容可能涉嫌侵犯其信息网络传播权，
+                                    应该及时向找乐365提出书面权利通知，并提供身份证明、权属证明及详细侵权情况证明。
+                                    找乐365在收到上述法律文件后，将会依法尽快断开相关链接内容。
+                                    </p>
+                                </li>
+                            </ul>
+            			</div>',
   'base+local_page_content_page_88027910' => 'mmm',
   'base+local_page_content_test' => 'test',
   'base+local_page_content_test2' => 'test2',
@@ -1387,7 +1492,7 @@ We reserve the right to make changes to this policy. Any changes to this policy 
   'base+local_page_meta_tags_page_81959573' => '',
   'base+local_page_meta_tags_test' => 'Test',
   'base+local_page_meta_tags_test2' => 'test2',
-  'base+local_page_title_page-119658' => '服务条款',
+  'base+local_page_title_page-119658' => '用户协议',
   'base+local_page_title_page-225003' => 'sdfsd',
   'base+local_page_title_page-283934' => 'whoohaa',
   'base+local_page_title_page-290357' => 'test',
@@ -1408,7 +1513,7 @@ We reserve the right to make changes to this policy. Any changes to this policy 
   'base+local_page_title_page_65118983' => 'mmm',
   'base+local_page_title_page_7680520' => 'jjj',
   'base+local_page_title_page_80273168' => 'test',
-  'base+local_page_title_page_81959573' => '隐私政策',
+  'base+local_page_title_page_81959573' => '免责声明',
   'base+local_page_title_page_88027910' => 'mmm',
   'base+local_page_title_test' => 'Test',
   'base+local_page_title_test2' => 'test2',
@@ -1432,7 +1537,7 @@ http://class1.local/zhaole365/',
   'base+maintenance_disable_message' => '根据这个 <a href="{$url}">链接</a> 以取消维护模式',
   'base+main_menu_index' => '首页',
   'base+main_menu_my_profile' => 'My Profile',
-  'base+manage_plugins_add_success_message' => 'Plugin is uploaded and ready for installation',
+  'base+manage_plugins_add_success_message' => '插件已经上传，可以安装',
   'base+manage_plugins_install_empty_key_error_message' => 'Can\'t install plugin with empty key',
   'base+manage_plugins_install_error_message' => 'Errors occurred while installing plugin "{$plugin}". Please uninstall it and try again.',
   'base+mark_email_unverified_btn' => '标记为未邮箱认证',
@@ -1485,11 +1590,11 @@ Thank you.',
   'base+no' => 'No',
   'base+notification_section_label' => '基本功能',
   'base+not_valid_image' => '图片无效',
-  'base+not_writable_avatar_dir' => 'Avatars folder is missing or not writable.',
+  'base+not_writable_avatar_dir' => '头像图片目录缺失或者无法写入.',
   'base+no_items' => '暂时没有',
   'base+openwack' => '找乐365',
   'base+or' => 'or',
-  'base+page-119658' => '服务条款',
+  'base+page-119658' => '用户协议',
   'base+page-290357' => 'test',
   'base+page-728242' => '8aaxaxa',
   'base+pages_add_item' => 'Add Item',
@@ -1512,7 +1617,7 @@ Thank you.',
   'base+page_65118983' => 'mmm',
   'base+page_73405194' => 'testtttt google',
   'base+page_80273168' => 'greyyyy',
-  'base+page_81959573' => '隐私政策',
+  'base+page_81959573' => '免责声明',
   'base+page_88027910' => 'mmm',
   'base+paging_label_first' => '««',
   'base+paging_label_last' => '»»',
@@ -2040,7 +2145,7 @@ http://class1.local/zhaole365/',
   'base+tag_search_empty_value_error' => 'Please enter tag',
   'base+test' => '测试',
   'base+text_is_too_long' => 'This text can\'t be longer than {$max_symbols_count} symbols',
-  'base+tf_allow_pics' => 'Allow picture upload',
+  'base+tf_allow_pics' => '允许文件上传',
   'base+tf_img_choose_file' => 'Choose File',
   'base+tf_img_from_url' => 'From URL',
   'base+tf_img_gal' => 'Gallery',
@@ -2054,14 +2159,14 @@ http://class1.local/zhaole365/',
   'base+total_score_label' => '<span class="ow_small">综合评分: <b>{$avgScore}</b></span> (<span class="ow_outline">{$ratesCount}</span> 人)',
   'base+unique_local_page_error' => 'Sorry, a page with this address already exists',
   'base+unsuspend_user_btn' => 'Re-activate',
-  'base+upload' => 'Upload',
+  'base+upload' => '上传',
   'base+upload_file_cant_write_file_error' => 'Failed to write file to disk',
   'base+upload_file_extension_is_not_allowed' => 'The file extention is not allowed.',
-  'base+upload_file_fail' => 'File upload fail!',
-  'base+upload_file_file_partially_uploaded_error' => 'The uploaded file was only partially uploaded.',
-  'base+upload_file_invalid_extention_error' => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop.',
-  'base+upload_file_max_upload_filesize_error' => 'The uploaded file exceeds the max upload filesize.',
-  'base+upload_file_no_file_error' => 'No file was uploaded.',
+  'base+upload_file_fail' => '文件上传失败!',
+  'base+upload_file_file_partially_uploaded_error' => '只有部分文件成功上传.',
+  'base+upload_file_invalid_extention_error' => '系统禁止文件上传，请联系系统管理员.',
+  'base+upload_file_max_upload_filesize_error' => '上传文件超出最大上传文件大小限制.',
+  'base+upload_file_no_file_error' => '没有文件上传.',
   'base+upload_file_no_tmp_dir_error' => 'Missing a temporary folder.',
   'base+usercredits_action_add_comment' => 'Write on comment wall',
   'base+usercredits_action_daily_login' => 'Daily login',
@@ -2513,17 +2618,17 @@ Sincerely, 找乐365 administration',
   'mailbox+uninstall_inprogress' => 'In progress',
   'mailbox+uninstall_inprogress_desc' => 'The <i>Messages</i> plugin is being uninstalled. Time for completing the uninstallation depends on the number of users and cron schedule. <br />Uninstalled so far: {$percents}%',
   'mailbox+upload_file_cant_write_file_error' => 'Failed to write file to disk.',
-  'mailbox+upload_file_count_files_error' => 'Too many files uploaded!',
+  'mailbox+upload_file_count_files_error' => '上传了太多的文件!',
   'mailbox+upload_file_delete_fail' => 'Delete file fail!',
   'mailbox+upload_file_delete_success' => 'Delete file success!',
   'mailbox+upload_file_extension_is_not_allowed' => 'The file extention is not allowed.',
-  'mailbox+upload_file_fail' => 'File upload fail!',
-  'mailbox+upload_file_file_partially_uploaded_error' => 'The uploaded file was only partially uploaded.',
-  'mailbox+upload_file_invalid_extention_error' => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop.',
-  'mailbox+upload_file_max_upload_filesize_error' => 'The uploaded file exceeds the max upload filesize.',
+  'mailbox+upload_file_fail' => '文件上传失败 !',
+  'mailbox+upload_file_file_partially_uploaded_error' => '只有部分文件成功上传.',
+  'mailbox+upload_file_invalid_extention_error' => '系统禁止上传文件，请联系系统管理员.',
+  'mailbox+upload_file_max_upload_filesize_error' => '上传文件超过最大上传大小限制.',
   'mailbox+upload_file_name' => 'File {$file_name} :',
-  'mailbox+upload_file_not_found' => 'Upload file not found!',
-  'mailbox+upload_file_no_file_error' => 'No file was uploaded.',
+  'mailbox+upload_file_not_found' => '未发现上传文件!',
+  'mailbox+upload_file_no_file_error' => '没有文件上传.',
   'mailbox+upload_file_no_tmp_dir_error' => 'Missing a temporary folder.',
   'mailbox+upload_max_file_size' => '最大上传附件大小',
   'mailbox+usercredits_action_read_chat_message' => 'Read chat messages',
@@ -2831,7 +2936,7 @@ Here\'s the latest activity on 找乐365 related to you:',
   'groups+email_notification_invite' => '<a href="{$inviterUrl}">{$inviterName}</a> invited you to the group "<a href="{$groupUrl}">{$groupName}</a>"',
   'groups+email_notification_section_label' => 'Groups',
   'groups+errors_image_invalid' => '无效图片格式。仅支持 jpg/jpeg/png/gif 格式.',
-  'groups+errors_image_upload' => 'File upload failed',
+  'groups+errors_image_upload' => '图片上传失败',
   'groups+error_forum_disconnected' => 'Attention: Forum is required for Groups. Go to <a href="{$url}">plugin list</a> to activate it',
   'groups+feed_activity_joined' => '{$user} just joined',
   'groups+feed_activity_users' => '会员总数: <span class="ow_txt_value">{$usersCount}</span>',
@@ -2992,7 +3097,7 @@ Here\'s the latest activity on 找乐365 related to you:',
   'photo+email_notifications_setting_comment' => '有人对我的照片进行了评论',
   'photo+enable_advanced_upload' => '开放高级上传功能',
   'photo+error_cant_write' => '将文件写入磁盘失败',
-  'photo+error_extension' => 'A PHP extension stopped the file upload. PHP does not provide a way to ascertain which extension caused the file upload to stop; examining the list of loaded extensions with phpinfo() may help',
+  'photo+error_extension' => '系统禁止文件上传，请联系系统管理员.',
   'photo+error_form_size' => '上传的文件超过了在HTML表单中MAX_FILE_SIZE定义的值',
   'photo+error_ini_size' => '上传的文件超过了在文件php.ini中upload_max_filesize 定义的值',
   'photo+error_no_file' => '没有文件上传',
@@ -3157,7 +3262,7 @@ Here\'s the latest activity on 找乐365 related to you:',
   'video+meta_description_user_video' => 'Videos submitted by user {$displayName}',
   'video+meta_description_video_add' => '添加新视频到 找乐365.',
   'video+meta_description_video_featured' => 'Best videos at 找乐365! Staff picks!',
-  'video+meta_description_video_latest' => 'Recently uploaded videos at 找乐365.',
+  'video+meta_description_video_latest' => '找乐365 上最近上传的视频.',
   'video+meta_description_video_tagged' => '视频标签: {$topTags}, 和其他。',
   'video+meta_description_video_tagged_as' => 'Browse videos tagged as \'{$tag}\'.',
   'video+meta_description_video_toprated' => 'Top rated videos submitted by users at 找乐365.',
@@ -3184,7 +3289,7 @@ Here\'s the latest activity on 找乐365 related to you:',
   'video+quota' => 'Maximum number of videos per user',
   'video+quotas' => 'Quotas',
   'video+quota_desc' => 'Keep this number reasonably big',
-  'video+quota_exceeded' => 'You have exceeded video upload limit: {$limit}',
+  'video+quota_exceeded' => '你已经超出视频上传限制: {$limit}',
   'video+remove_from_featured' => '取消推荐',
   'video+resource_not_allowed' => 'Video resource is not allowed',
   'video+settings_updated' => 'Video settings updated',
@@ -4010,7 +4115,7 @@ User {$inviter} invites you to check out this site:
   'zlgroups+email_notification_invite' => '<a href="{$inviterUrl}">{$inviterName}</a> invited you to the group "<a href="{$groupUrl}">{$groupName}</a>"',
   'zlgroups+email_notification_section_label' => '乐群',
   'zlgroups+errors_image_invalid' => '无效图片格式。仅支持 jpg/jpeg/png/gif 格式.',
-  'zlgroups+errors_image_upload' => 'File upload failed',
+  'zlgroups+errors_image_upload' => '文件上传失败',
   'zlgroups+errors_location' => '请确认地址信息，地图服务暂时无法定位到您提供的这个地址！',
   'zlgroups+error_forum_disconnected' => 'Attention: Forum is required for Groups. Go to <a href="{$url}">plugin list</a> to activate it',
   'zlgroups+feed_activity_joined' => '{$user} 刚加入',
@@ -4252,5 +4357,54 @@ User {$inviter} invites you to check out this site:
   'zlevent+view_page_image_block_cap_label' => '描述',
   'zlevent+view_page_location_label' => '地点',
   'zlevent+view_page_users_block_cap_label' => '参加乐友',
+  'zlbase+about_heading' => '关于我们',
+  'zlbase+about_title' => '关于我们',
+  'zlbase+admin_base_heading' => '找乐基盘配置',
+  'zlbase+admin_base_title' => '找乐基盘配置',
+  'zlbase+agreement_heading' => '用户协议',
+  'zlbase+agreement_title' => '用户协议',
+  'zlbase+bottom_menu_item_about' => '关于我们',
+  'zlbase+bottom_menu_item_agreement' => '用户协议',
+  'zlbase+bottom_menu_item_duty' => '免责声明',
+  'zlbase+duty_heading' => '免责声明',
+  'zlbase+duty_title' => '免责声明',
+  'snippets+active_section_label' => '活动的',
+  'snippets+admin_heading' => '信息概览',
+  'snippets+admin_help_brief' => 'This plugin adds a widget named "Profile Snippets" to &lt;a href="{$userSettings}" target="_blank"&gt;User Profile&lt;/a&gt;.',
+  'snippets+config_step1' => 'Follow to &lt;a href="{$userSettings}" target="_blank"&gt;User Profile settings&lt;/a&gt; page',
+  'snippets+config_step2' => 'Click the edit widget button ( highlighted on the image below ) on the "Profile Snippets" widget',
+  'snippets+config_step3' => 'You will see the widget settings popup.</value></key><key name="config_steps_end"><value>That is all! You can change default settings of the widget in this popup.&lt;br /&gt;&#13;
+You can rearrange the snippets list, hide some of them, etc...&#13;
+&lt;br /&gt;&#13;
+&lt;br /&gt;&#13;
+But do not forget that users are able to overwrite this settings. To disallow them doing it you can check the "Freeze" option of the settings.',
+  'snippets+config_steps_end' => 'That is all! You can change default settings of the widget in this popup.&lt;br /&gt;&#13;
+You can rearrange the snippets list, hide some of them, etc...&#13;
+&lt;br /&gt;&#13;
+&lt;br /&gt;&#13;
+But do not forget that users are able to overwrite this settings. To disallow them doing it you can check the "Freeze" option of the settings.</value></key><key name="config_steps_label"><value>If you do not know how to configure widgets or couldn\'t find the widget settings - &lt;a href="javascript://" id="snippets-show-manual"&gt;click here&lt;/a&gt; to read a brief instruction.&#13;
+&lt;br /&gt;&#13;
+&lt;br /&gt;',
+  'snippets+config_steps_label' => 'If you do not know how to configure widgets or couldn\'t find the widget settings - &lt;a href="javascript://" id="snippets-show-manual"&gt;click here&lt;/a&gt; to read a brief instruction.&#13;
+&lt;br /&gt;&#13;
+&lt;br /&gt;',
+  'snippets+empty_active_section' => 'Drag snippets here to make them visible',
+  'snippets+empty_hidden_section' => 'Drag snippets here to hide them',
+  'snippets+hidden_section_label' => '隐藏',
+  'snippets+leave_review_suggest' => 'Please, &lt;a href="{$pluginUrl}" target="_blank"&gt;leave a review&lt;/a&gt;  if you liked the plugin.',
+  'snippets+no_items' => '没有内容',
+  'snippets+snippet_events' => '乐子: {$count}',
+  'snippets+snippet_events_preview' => '乐子',
+  'snippets+snippet_friends' => '好友: {$count}',
+  'snippets+snippet_friends_preview' => '好友',
+  'snippets+snippet_groups' => '乐群: {$count}',
+  'snippets+snippet_groups_preview' => '乐群',
+  'snippets+snippet_photos' => '照片: {$count}',
+  'snippets+snippet_photo_preview' => '照片',
+  'snippets+snippet_video' => '视频: {$count}',
+  'snippets+snippet_video_preview' => '视频',
+  'snippets+snippet_virtual_gifts' => '礼物: {$count}',
+  'snippets+snippet_virtual_gifts_preview' => '礼物',
+  'snippets+widget_user_title' => '信息概况',
 );
 ?>

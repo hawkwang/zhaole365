@@ -1,0 +1,22 @@
+<div class="s-snippets-wrap clearfix" id="{$uniqId}">
+    {if !empty($snippets)}
+    <div class="s-snippets-clip" data-outlet="clip">
+        <div class="s-snippets" data-outlet="list">
+            {foreach from=$snippets item="snippet"}
+                <div class="s-snippet-wrap" data-outlet="item">
+                    {$snippet.html}
+                    <div class="s-snippet-more-overlay" data-outlet="more">
+                        <div class="s-snippet-more-arrow-wrap" data-outlet="arrows-wrap">
+                            <div class="s-snippet-more-arrow s-arrows-icons"></div>
+                        </div>
+                    </div>
+                </div>
+            {/foreach}
+        </div>
+        
+        
+    </div>
+    {else}
+        <div class="ow_nocontent">{text key="snippets+no_items"}</div>
+    {/if}
+</div>

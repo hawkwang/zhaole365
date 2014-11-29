@@ -2,7 +2,7 @@
 
 BOL_LanguageService::getInstance()->addPrefix('zlbase', '找乐基盘');
 
-$sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlareas_base_property` (
+$sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "zlbase_base_property` (
 	`id` INT(11) NOT NULL AUTO_INCREMENT,
 	`entityType` VARCHAR(50) NOT NULL,
 	`entityId` int(11) NOT NULL,

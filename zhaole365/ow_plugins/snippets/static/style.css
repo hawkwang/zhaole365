@@ -1,0 +1,327 @@
+/**
+ * This software is intended for use with Oxwall Free Community Software http://www.oxwall.org/ and is
+ * licensed under The BSD license.
+
+ * ---
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * Redistribution and use in source and binary forms, with or without modification, are permitted provided that the
+ * following conditions are met:
+ *
+ *  - Redistributions of source code must retain the above copyright notice, this list of conditions and
+ *  the following disclaimer.
+ *
+ *  - Redistributions in binary form must reproduce the above copyright notice, this list of conditions and
+ *  the following disclaimer in the documentation and/or other materials provided with the distribution.
+ *
+ *  - Neither the name of the Oxwall Foundation nor the names of its contributors may be used to endorse or promote products
+ *  derived from this software without specific prior written permission.
+
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+ * INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ * PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ * PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
+ * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ */
+
+/**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package snippets.static
+ */
+
+.s-user-item .s-snippet-box {
+    border-radius: 0px;
+}
+
+.s-snippets-wrap {
+    
+}
+
+.s-snippets-clip {
+    overflow: hidden;
+}
+
+.s-snippets-wrap.s-snippets-more {
+    
+}
+
+.s-snippets {
+    white-space: nowrap;
+    display: inline-block;
+}
+
+.s-snippets-wrap.s-snippets-expanded .s-snippets {
+    white-space: normal;
+}
+
+.s-snippet {
+    width: 100px;
+    height: 100px;
+    
+    border-width: 1px;
+    padding: 2px;
+    
+    border-radius: 4px;
+    overflow: hidden;
+    position: relative;
+}
+
+.s-snippet-wrap {
+    display: inline-block;
+    margin: 5px 2px;
+}
+
+.s-snippet-overlay {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    
+    display: block;
+    text-align: center;
+}
+
+a.s-snippet-overlay {
+    text-decoration: none;
+}
+
+a.s-snippet-overlay .s-snippet-label {
+    margin-top: 64px;
+    color: #ffffff;
+    
+    padding: 6px 10px;
+    display: inline-block;
+    
+    background: rgba(0,0,0, 0.8);
+    border-radius: 5px;
+}
+
+.s-snippet-label {
+    
+}
+
+.s-snippet-image {
+    max-width: 100%;
+    max-height: 100%;
+    
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: cover;
+    
+    float: left;
+    
+    border-color: transparent;
+    border-style: solid;
+    border-width: 0px;
+    background-clip: content-box;
+}
+
+.s-snippet.s-snippet-3 {
+    width: 151px;
+}
+
+.s-snippet.s-snippet-4 {
+    width: 101px;
+}
+
+.s-snippet-1 .s-snippet-image {
+    border-radius: 4px;
+}
+
+.s-snippet-1 .s-snippet-image,
+.s-snippet-2 .s-snippet-image,
+.s-snippet-3 .s-snippet-image {
+    width: 100px;
+    height: 100px;
+}
+
+.s-snippet-4 .s-snippet-image {
+    width: 50px;
+    height: 50px;
+}
+
+.s-snippet-4 .s-snippet-image-1 {
+    border-radius: 4px 0px 0px 0px;
+    border-right-width: 1px;
+    border-bottom-width: 1px;
+    height: 49px;
+}
+
+.s-snippet-4 .s-snippet-image-2 {
+    border-radius: 0px 4px 0px 0px;
+    border-bottom-width: 1px;
+    height: 49px;
+}
+
+.s-snippet-4 .s-snippet-image-3 {
+   border-radius: 0px 0px 0px 4px;
+   border-right-width: 1px;
+}
+
+.s-snippet-4 .s-snippet-image-4 {
+    border-radius: 0px 0px 4px 0px;
+}
+
+
+.s-snippet-2 .s-snippet-image-1 {
+    border-radius: 4px;
+}
+
+.s-snippet-2 .s-snippet-image-2 {
+    display: none;
+}
+
+.s-snippet-3 .s-snippet-image-1 {
+   border-radius: 4px 0px 0px 4px;
+   width: 100px;
+   border-right-width: 1px;
+}
+
+.s-snippet-3 .s-snippet-image-2,
+.s-snippet-3 .s-snippet-image-3
+{
+    width: 50px;
+    height: 50px;
+}
+
+.s-snippet-3 .s-snippet-image-2 {
+    border-radius: 0px 4px 0px 0px;
+    border-bottom-width: 1px;
+    height: 49px;
+}
+
+.s-snippet-3 .s-snippet-image-3 {
+    border-radius: 0px 0px 4px 0px;
+}
+
+.s-snippet-last {
+    position: relative;
+}
+
+.s-snippet-last .s-snippet {
+    opacity: 0.2;
+}
+
+.s-snippets-expanded .s-snippet-last .s-snippet {
+    opacity: 1;
+}
+
+.s-snippet-more-overlay {
+    display: none;
+    
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    top: 0px;
+    bottom: 0px;
+    
+    cursor: pointer;
+}
+
+.s-snippet-last .s-snippet-more-overlay {
+    display: block;
+}
+
+.s-snippets-expanded .s-snippet-last .s-snippet-more-overlay {
+    display: none;
+}
+
+.s-arrows-icons {
+    background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA8AAABKCAYAAABkQw6VAAABYklEQVRYw72UwY2AMAwEKYFSkGiAUu5FW6EgJOgEOsg5UqSDYHvXeRzSPmeU2GGHIfDt+75JfnLOQ0kUzDULDTdgyS2ZesCSQzJ2g+6xEWjCDKjC6I4mzAxHhdmpfuDIOl5wdI8tnBT4pOB6bFpgDYwSeKuCAvRIXIELIwGEWQH6JV0BUwahd8AILqqGDMESas+H4K96n6OPJvSt67pJ4qVfwVzD37kBS27J1AOWHJKxG3SPjUATZkAVRnc0YWY4KsxO9QNH1vGCo3ts4aTAJwXXY9MCa2CUwFsVFKBH4gpgGXgCqkkYAfolXQFTBqF3wAguqoYMwdJTvelVvf9W+vM8b5J46Vcw1/B3bsCSWzL1gCWHZOwG3WMj0IQZUIXRHU2YGY4Ks1P9wJF1vODoHls4KfBJwfXYtMAaGCXwVgUF6JG4AlgGnoBqEkaAfklXwJRB6B0wgouqIUOw9FRvelbvL2/X11Rh1jKeAAAAAElFTkSuQmCC');
+}
+
+.s-snippet-more-arrow-wrap {
+    text-align: center;
+}
+
+.s-snippet-more-overlay:hover .s-snippet-more-arrow {
+    background-position: 0 -25px;
+}
+
+.s-snippet-more-arrow {
+    height: 25px;
+    width: 15px;
+    
+    margin-top: 40px;
+    display: inline-block;
+    
+    background-repeat: no-repeat;
+    background-position: 0 0;
+    -webkit-transform: rotate(-90deg);
+    -moz-transform: rotate(-90deg);
+    -ms-transform: rotate(-90deg);
+    -o-transform: rotate(-90deg);
+    transform: rotate(-90deg);
+}
+
+/* Preview */
+
+.s-snippet-preview {
+    width: 50px;
+    border-width: 1px;
+    border-radius: 4px;
+    
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    
+    cursor: move;
+}
+
+.s-snippet-label {
+    padding-top: 20px;
+    text-align: center;
+    background-position: center 4px;
+    padding-bottom: 2px;
+    background-repeat: no-repeat;
+}
+
+.s-ss-snippet {
+    float: left;
+    margin: 5px 2px;
+    box-sizing: border-box;
+}
+
+.s-ss-section-content {
+    margin-top: 2px;
+    border-top-width: 1px;
+    border-style: dashed;
+    height: 50px;
+}
+
+.s-ss-title {
+    padding-left: 5px;
+}
+
+.s-ss-helper {
+    width: 4px;
+    background: red;
+    height: 50px;
+}
+
+.s-ss-placeholder {
+    display: none;
+}
+
+.s-ss-dragging {
+    display: block!important;
+    opacity: 0;
+}
+
+
+.s-ss-section-empty .s-ss-section-empty-msg {
+    display: block;
+}
+
+.s-ss-section-empty-msg {
+    display: none;
+    text-align: center;
+    line-height: 50px;
+}

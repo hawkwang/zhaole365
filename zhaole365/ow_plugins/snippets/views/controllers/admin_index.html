@@ -1,0 +1,64 @@
+ {style}
+
+ .s-admin-screen
+ {
+    max-width: 95%;
+    border-width: 1px;
+    margin: 10px 0px;
+ }
+ 
+ .s-leave-review {
+    font-size: 11px;
+    margin-top: 30px;
+    background-repeat: no-repeat;
+    background-position: left center;
+    padding-left: 20px;
+ }
+
+ {/style}
+ 
+ {script}
+ var shown = false;
+ $("#snippets-show-manual").click(function() {
+    $("#snippets-manual")[shown ? "hide" : "show"]();
+    shown = !shown;
+ });
+ {/script}
+
+<div class="ow_smallmargin">
+    {text key="snippets+admin_help_brief" userSettings=$userSettings}
+</div>
+
+{text key="snippets+config_steps_label"}
+
+<div style="min-height: 143px;">
+<div id="snippets-manual" style="display: none">
+<ul class="ow_regular ow_stdmargin">
+<li>
+    {text key="snippets+config_step1" userSettings=$userSettings}
+</li>
+
+<li>
+    {text key="snippets+config_step2"}
+    <br />
+    <img src="{$screensUrl}admin-config-page.png" class="s-admin-screen ow_border" />
+</li>
+
+<li>
+    {text key="snippets+config_step3"}
+    <br />
+    <img src="{$screensUrl}admin-config-widget-settings.png"  class="s-admin-screen ow_border" />
+
+</li>
+
+<li>
+    {text key="snippets+config_steps_end"}
+</li>
+</ul>
+</div>
+</div>
+
+<div class="s-leave-review ow_ic_star">
+    {text key="snippets+leave_review_suggest" pluginUrl=$pluginUrl}
+</div>
+
