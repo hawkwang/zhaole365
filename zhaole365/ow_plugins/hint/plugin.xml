@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>User Hint</name>
+    <key>hint</key>
+    <description>Adds a hint for all links to user</description>
+    <author>Sergey Kambalin</author>
+    <authorEmail>greyexpert@gmail.com</authorEmail>
+    <developerKey>4de7d12343ccb157ece55b3ec3feadf5</developerKey>
+    <build>1670</build>
+    <copyright>(C) 2013 Sergey Kambalin. All rights reserved.</copyright>
+    <license>OSCL</license>
+    <licenseUrl>http://www.oxwall.org/store/oscl</licenseUrl>
+</plugin>

@@ -1,0 +1,32 @@
+User Hint 572, 2013-10-25:
+
+New Info line options:
+- Photo count
+- Video count
+
+Enhancements:
+- Default cover images support
+- Minor enhancements
+
+Bug Fixes:
+- Hint tries to load information when hovering on navigation bootm menu item
+- Minor fixes
+
+
+
+User Hint 512, 2013-08-13:
+
+Features:
+- User Credits. Note: produces page reload, will be fixed with the next User Credits plugin update
+- Favorite Gift
+
+Enhancements:
+- New information line ( Line 0 ) right below username
+- Wording: Add to Friends changed to Add Friends, Remove from Friends to Remove Friend
+- View all friends button - if user has more then 6 friends the button will appear
+- Small visual enhancements
+
+Bug Fixes:
+- Wrong hint position when screen size is limited from right
+- Hint tries to load information when hovering on navigation menu item
+- Minor fixes
