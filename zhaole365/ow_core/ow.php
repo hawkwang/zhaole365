@@ -395,7 +395,7 @@ final class OW
         if ( self::$storage === null )
         {
             self::$storage = OW::getEventManager()->call('core.get_storage');
-            
+
             if ( self::$storage === null )
             {
                 switch ( true )
@@ -454,25 +454,32 @@ final class OW
             'arguments' => $arguments
         );
 
-        $instance = OW::getEventManager()->call("class.get_instance." . $className, $params);
+        $eventManager = OW::getEventManager();
+        $eventManager->trigger(new OW_Event("core.performance_test", array("key" => "component_construct.start", "params" => $params)));
+
+        $event = new OW_Event("class.get_instance." . $className, $params);
+        $eventManager->trigger($event);
+        $instance = $event->getData();
 
         if ( $instance !== null )
         {
+            $eventManager->trigger(new OW_Event("core.performance_test", array("key" => "component_construct.end", "params" => $params)));
             return $instance;
         }
 
         $event = new OW_Event("class.get_instance", $params);
 
-        OW::getEventManager()->trigger($event);
+        $eventManager->trigger($event);
         $instance = $event->getData();
 
         if ( $instance !== null )
         {
+            $eventManager->trigger(new OW_Event("core.performance_test", array("key" => "component_construct.end", "params" => $params)));
             return $instance;
         }
 
         $rClass = new ReflectionClass($className);
-
+        $eventManager->trigger(new OW_Event("core.performance_test", array("key" => "component_construct.end", "params" => $params)));
         return $rClass->newInstanceArgs($arguments);
     }
 }

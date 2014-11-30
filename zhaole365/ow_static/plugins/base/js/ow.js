@@ -43,9 +43,9 @@ var OwUtils = function(){
     	this.message(message, 'info');
     };
 
-    this.flagContent = function( entity, id, title, href, lang )
+    this.flagContent = function( entityType, entityId )
     {
-        OW.registry['flag-panel-fb'] = OW.ajaxFloatBox("BASE_CMP_Flag", [entity, id, title, href, lang], {
+        OW.registry['flag-panel-fb'] = OW.ajaxFloatBox("BASE_CMP_Flag", [entityType, entityId], {
             width: 315,
             title: OW.getLanguageText('base', 'flag_as')
         });
@@ -1676,6 +1676,49 @@ var OwRange = function( id, name ){
     return formElement;
 }
 
+var OwAvatarField = function( id, name, params ){
+    var formElement = new OwFormElement(id, name);
+
+    $(formElement.input).change(function(e){
+        document.avatarFloatBox = OW.ajaxFloatBox(
+            "BASE_CMP_AvatarChange",
+            { params : { step : 2, inputId : id, hideSteps: true, displayPreloader: true } },
+            { width : 749, title: OW.getLanguageText('base', 'avatar_change') }
+        );
+    });
+
+    OW.bind('base.avatar_cropped', function(data){
+        var $preview = $(formElement.input).closest(".ow_avatar_field").find(".ow_avatar_field_preview");
+        var $img = $preview.find("img");
+
+        formElement.removeErrors();
+        $(formElement.input).hide();
+        formElement.setValue(data.url);
+        $preview.show();
+
+        var ts = new Date().getTime();
+        $img.attr("src", data.url + "?" + ts);
+        $img.click(function(){
+            $(formElement.input).trigger('click');
+        });
+        $preview.find("span").click(function(){
+            $img.attr("src", "");
+            formElement.resetValue();
+            $preview.hide();
+            $(formElement.input).val("").show();
+
+            $.ajax({
+                url: params.ajaxResponder,
+                type: 'POST',
+                data: { ajaxFunc: 'ajaxDeleteImage' },
+                dataType: 'json',
+                success: function(data){ }
+            });
+        });
+    });
+
+    return formElement;
+}
 
 /* end of forms */
 
@@ -3123,8 +3166,8 @@ OW_UsersApi = function( _settings )
     	OW.ajaxFloatBox('BASE_CMP_FloatboxUserList', [userIds], {iconClass: "ow_ic_user", title: title, width: 470});
     },
 
-    this.suspendUser = function( userId, callback ) {
-        return _query("suspend", {"userId": userId}, callback);
+    this.suspendUser = function( userId, callback, message ) {
+        return _query("suspend", {"userId": userId, 'message': message}, callback);
     };
 
     this.unSuspendUser = function( userId, callback ) {

@@ -37,32 +37,38 @@ abstract class OW_Renderable
      * @var array
      */
     protected $components = array();
+
     /**
      * List of registered forms.
      *
      * @var array
      */
     protected $forms = array();
+
     /**
      * List of assigned vars.
      *
      * @var array
      */
     protected $assignedVars = array();
+
     /**
      * Template path.
      *
      * @var string
      */
     protected $template;
+
     /**
      * @var boolean
      */
     protected $visible = true;
+
     /**
      * @var array
      */
     private static $renderedClasses = array();
+
     /**
      * @var boolean
      */
@@ -225,7 +231,6 @@ abstract class OW_Renderable
     public function render()
     {
         $this->onBeforeRender();
-
         if ( !$this->visible )
         {
             return '';
@@ -236,6 +241,9 @@ abstract class OW_Renderable
         {
             throw new LogicException('No template was provided for render! Class `' . get_class($this) . '`.');
         }
+
+        $className = get_class($this);
+        OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "renderable_render.start", "params" => array("class" => $className))));
 
         $viewRenderer = OW_ViewRenderer::getInstance();
 
@@ -269,8 +277,10 @@ abstract class OW_Renderable
         // temp dirty data collect for dev tool
         if ( self::$devMode )
         {
-            self::$renderedClasses[get_class($this)] = $this->template;
+            self::$renderedClasses[$className] = $this->template;
         }
+
+        OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "renderable_render.end", "params" => array("class" => $className))));
 
         return $renderedMarkup;
     }

@@ -207,7 +207,6 @@ class BASE_CLASS_InvitationEventHandler
                 {
                     $data[$langProperty] = OW::getLanguage()->text($key[0], $key[1], $vars);
                 }
-
             }
         }
 
@@ -225,6 +224,12 @@ class BASE_CLASS_InvitationEventHandler
         else
         {
             $data['contentImage'] = null;
+        }
+        
+        if ( !empty($data["avatar"]["userId"]) )
+        {
+            $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($data["avatar"]["userId"]));
+            $data["avatar"] = $avatarData[$data["avatar"]["userId"]];
         }
 
         $data['contentImage'] = empty($data['contentImage']) ? array() : $data['contentImage'];

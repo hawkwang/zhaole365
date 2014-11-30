@@ -86,7 +86,7 @@ class BASE_CTRL_Join extends OW_ActionController
         $urlParams = $_GET;
         if ( is_array($params) && !empty($params) )
         {
-                $urlParams = array_merge($_GET, $params);
+            $urlParams = array_merge($_GET, $params);
         }
         
         $this->joinForm = OW::getClassInstance('JoinForm', $this);
@@ -215,7 +215,7 @@ class BASE_CTRL_Join extends OW_ActionController
                     if ( $this->joinForm->isLastStep() )
                     {
                         $session->set(JoinForm::SESSION_JOIN_DATA, $joinData);
-                        $this->joinUser($joinData, $this->joinForm->getAccountType());
+                        $this->joinUser($joinData, $this->joinForm->getAccountType(), $params);
 
                         $this->redirect(OW::getRouter()->getBaseUrl());
                     }
@@ -284,7 +284,7 @@ class BASE_CTRL_Join extends OW_ActionController
         exit;
     }
 
-    protected function joinUser( $joinData, $accountType )
+    protected function joinUser( $joinData, $accountType, $params )
     {
         $event = new OW_Event(OW_EventManager::ON_BEFORE_USER_REGISTER, $joinData);
         OW::getEventManager()->trigger($event);
@@ -314,7 +314,7 @@ class BASE_CTRL_Join extends OW_ActionController
                 // create Avatar
                 $this->createAvatar($user->id);
 
-                $event = new OW_Event(OW_EventManager::ON_USER_REGISTER, array('userId' => $user->id, 'method' => 'native', 'params' => $_GET));
+                $event = new OW_Event(OW_EventManager::ON_USER_REGISTER, array('userId' => $user->id, 'method' => 'native', 'params' => $params));
                 OW::getEventManager()->trigger($event);
 
                 OW::getFeedback()->info(OW::getLanguage()->text('base', 'join_successful_join'));
@@ -339,44 +339,49 @@ class BASE_CTRL_Join extends OW_ActionController
     {
         $avatarService = BOL_AvatarService::getInstance();
 
-        if ( !empty($_FILES['userPhoto']['tmp_name']) && strlen($_FILES['userPhoto']['tmp_name']) )
-        {
-            if ( !UTIL_File::validateImage($_FILES['userPhoto']['name']) )
-            {
-                return false;
-            }
-
-            $event = new OW_Event('base.before_avatar_change', array(
-                'userId' => $userId,
-                'avatarId' => null,
-                'upload' => true,
-                'crop' => false
-            ));
-            OW::getEventManager()->trigger($event);
-
-            $avatarSet = $avatarService->setUserAvatar($userId, $_FILES['userPhoto']['tmp_name']);
-
-            if ( $avatarSet )
-            {
-                $avatar = $avatarService->findByUserId($userId);
-                if ( $avatar )
-                {
-                    $event = new OW_Event('base.after_avatar_change', array(
-                        'userId' => $userId,
-                        'avatarId' => $avatar->id,
-                        'upload' => true,
-                        'crop' => false
-                    ));
-                    OW::getEventManager()->trigger($event);
-                }
-            }
-
-            return $avatarSet;
-        }
-        else
+        $key = $avatarService->getAvatarChangeSessionKey();
+        $path = $avatarService->getTempAvatarPath($key, 2);
+        
+        if ( !file_exists($path) )
         {
             return false;
         }
+
+        if ( !UTIL_File::validateImage($path) )
+        {
+            return false;
+        }
+
+        $event = new OW_Event('base.before_avatar_change', array(
+            'userId' => $userId,
+            'avatarId' => null,
+            'upload' => true,
+            'crop' => false,
+            'isModerable' => false
+        ));
+        OW::getEventManager()->trigger($event);
+
+        $avatarSet = $avatarService->setUserAvatar($userId, $path, array('isModerable' => false, 'trackAction' => false ));
+
+        if ( $avatarSet )
+        {
+            $avatar = $avatarService->findByUserId($userId);
+            
+            if ( $avatar )
+            {
+                $event = new OW_Event('base.after_avatar_change', array(
+                    'userId' => $userId,
+                    'avatarId' => $avatar->id,
+                    'upload' => true,
+                    'crop' => false
+                ));
+                OW::getEventManager()->trigger($event);
+            }
+            
+            $avatarService->deleteUserTempAvatar($key);
+        }
+
+        return $avatarSet;
     }
 }
 
@@ -866,24 +871,23 @@ class JoinForm extends BASE_CLASS_UserQuestionForm
             $this->questions = BOL_QuestionService::getInstance()->findBaseSignUpQuestions();
         }
     }
-
+    
     protected function addLastStepQuestions( $controller )
     {
         $displayPhoto = false;
 
         $displayPhotoUpload = OW::getConfig()->getValue('base', 'join_display_photo_upload');
-
-        $photoValidator = new photoValidator(false);
+        $avatarValidator = OW::getClassInstance("BASE_CLASS_AvatarFieldValidator", true);
 
         switch ( $displayPhotoUpload )
         {
             case BOL_UserService::CONFIG_JOIN_DISPLAY_AND_SET_REQUIRED_PHOTO_UPLOAD :
-                $photoValidator = new photoValidator(true);
+                $avatarValidator = OW::getClassInstance("BASE_CLASS_AvatarFieldValidator", true);
 
             case BOL_UserService::CONFIG_JOIN_DISPLAY_PHOTO_UPLOAD :
-                $userPhoto = new FileField('userPhoto');
+                $userPhoto = OW::getClassInstance("BASE_CLASS_JoinUploadPhotoField", 'userPhoto');
                 $userPhoto->setLabel(OW::getLanguage()->text('base', 'questions_question_user_photo_label'));
-                $userPhoto->addValidator($photoValidator);
+                $userPhoto->addValidator($avatarValidator);
                 $this->addElement($userPhoto);
 
                 $displayPhoto = true;
@@ -1202,115 +1206,6 @@ class PasswordValidator extends BASE_CLASS_PasswordValidator
                        if( window.join.errors['password']['error'] !== undefined ){ return window.join.errors['password']['error'] }
                        else{ return " . json_encode($this->getError()) . " }
                 }
-        }";
-    }
-}
-
-class photoValidator extends OW_Validator
-{
-    protected $setRequired = false;
-
-    /**
-     * Constructor.
-     *
-     * @param array $params
-     */
-    public function __construct( $setRequired = false )
-    {
-        $this->setRequired = $setRequired;
-
-        $language = OW::getLanguage();
-        $this->setErrorMessage($language->text('base', 'not_valid_image'));
-    }
-
-    /**
-     * @see Validator::isValid()
-     *
-     * @param mixed $value
-     */
-    public function isValid( $value )
-    {
-        $language = OW::getLanguage();
-
-        if ( !isset($_FILES['userPhoto']['name']) || strlen($_FILES['userPhoto']['name']) == 0 )
-        {
-            $return = false;
-            if ( !$this->setRequired )
-            {
-                $return = true;
-            }
-            return $return;
-        }
-
-        if ( isset($_FILES['userPhoto']['name']) && !UTIL_File::validateImage($_FILES['userPhoto']['name']) )
-        {
-            return false;
-        }
-
-        if ( !is_writable(BOL_AvatarService::getInstance()->getAvatarsDir()) )
-        {
-            $this->setErrorMessage($language->text('base', 'not_writable_avatar_dir'));
-            return false;
-        }
-
-        if ( $_FILES['userPhoto']['error'] != UPLOAD_ERR_OK )
-        {
-            $message = '';
-
-            switch ( $_FILES['userPhoto']['error'] )
-            {
-                case UPLOAD_ERR_INI_SIZE:
-                    $message = $language->text('base', 'upload_file_max_upload_filesize_error');
-                    break;
-
-                case UPLOAD_ERR_PARTIAL:
-                    $message = $language->text('base', 'upload_file_file_partially_uploaded_error');
-                    break;
-
-                case UPLOAD_ERR_NO_FILE:
-                    $message = $language->text('base', 'upload_file_no_file_error');
-                    break;
-
-                case UPLOAD_ERR_NO_TMP_DIR:
-                    $message = $language->text('base', 'upload_file_no_tmp_dir_error');
-                    break;
-
-                case UPLOAD_ERR_CANT_WRITE:
-                    $message = $language->text('base', 'upload_file_cant_write_file_error');
-                    break;
-
-                case UPLOAD_ERR_EXTENSION:
-                    $message = $language->text('base', 'upload_file_invalid_extention_error');
-                    break;
-            }
-
-            if ( !empty($message) )
-            {
-                $this->setErrorMessage($message);
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    /**
-     * @see Validator::getJsValidator()
-     *
-     * @return string
-     */
-    public function getJsValidator()
-    {
-        $condition = '';
-
-        if ( $this->setRequired )
-        {
-            $condition = "if( !value || $.trim(value).length == 0 ){ throw " . json_encode($this->getError()) . "; }";
-        }
-
-        return "{
-                validate : function( value ){ " . $condition . " },
-                getErrorMessage : function(){ return " . json_encode($this->getError()) . " }
         }";
     }
 }

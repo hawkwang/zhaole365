@@ -37,7 +37,7 @@ class BOL_ThemeService
     const MANIFEST_FILE = 'theme.xml';
     const PREVIEW_FILE = 'theme_preview.jpg';
     const ICON_FILE = 'theme.jpg';
-    const CONTROL_IMAGE_MAX_FILE_SIZE = 1000000;
+    const CONTROL_IMAGE_MAX_FILE_SIZE = 2000000;
     const DIR_NAME_DECORATORS = 'decorators';
     const DIR_NAME_IMAGES = 'images';
     const DIR_NAME_MASTER_PAGES = 'master_pages';

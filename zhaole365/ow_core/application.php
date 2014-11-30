@@ -147,6 +147,7 @@ class OW_Application
         }
 
         $beckend = OW::getEventManager()->call('base.cache_backend_init');
+
         if ( $beckend !== null )
         {
             OW::getCacheManager()->setCacheBackend($beckend);
@@ -231,11 +232,9 @@ class OW_Application
         $viewRenderer->assignVar('siteName', OW::getConfig()->getValue('base', 'site_name'));
         $viewRenderer->assignVar('siteTagline', OW::getConfig()->getValue('base', 'site_tagline'));
         $viewRenderer->assignVar('siteUrl', OW_URL_HOME);
-        // FIXME, by hawk
         //$viewRenderer->assignVar('bottomPoweredByLink', '<a href="http://www.oxwall.org/" target="_blank" title="Powered by Oxwall Community Software"><img src="' . $currentThemeImagesDir . 'powered-by-oxwall.png" alt="Oxwall Community Software" /></a>');
-        $viewRenderer->assignVar('bottomPoweredByLink', '');
-        $viewRenderer->assignVar('adminDashboardIframeUrl', "http://static.oxwall.org/spotlight/?platform=oxwall&platform-version=" . OW::getConfig()->getValue('base', 'soft_version') . "&platform-build=" . OW::getConfig()->getValue('base', 'soft_build'));
-        
+        //$viewRenderer->assignVar('adminDashboardIframeUrl', "//static.oxwall.org/spotlight/?platform=oxwall&platform-version=" . OW::getConfig()->getValue('base', 'soft_version') . "&platform-build=" . OW::getConfig()->getValue('base', 'soft_build'));
+
         if ( function_exists('ow_service_actions') )
         {
             call_user_func('ow_service_actions');
@@ -261,6 +260,8 @@ class OW_Application
         {
             OW::getRequestHandler()->setHandlerAttributes($e->getHandlerAttrs());
         }
+
+        $this->httpVsHttpsRedirect();
     }
 
     /**
@@ -646,24 +647,10 @@ class OW_Application
 
                 //events
                 $eventsData = OW::getEventManager()->getLog();
-                $hiddenEvents = array(
-                    "core.get_text",
-                    "core.get_storage",
-                    "class.get_instance",
-                    "base.before_decorator",
-                    "core.sql.get_query_result",
-                    "core.sql.set_query_result",
-                    "core.sql.exec_query"
-                );
                 $eventsDataToAssign = array('bind' => array(), 'calls' => array());
 
                 foreach ( $eventsData['bind'] as $eventName => $listeners )
                 {
-                    if ( in_array($eventName, $hiddenEvents) )
-                    {
-                        continue;
-                    }
-
                     $listenersList = array();
 
                     foreach ( $listeners as $priority )
@@ -699,11 +686,6 @@ class OW_Application
 
                 foreach ( $eventsData['call'] as $eventItem )
                 {
-                    if ( in_array($eventItem["event"]->getName(), $hiddenEvents) )
-                    {
-                        continue;
-                    }
-
                     $listenersList = array();
 
                     foreach ( $eventItem['listeners'] as $priority )
@@ -849,74 +831,85 @@ class OW_Application
             $this->redirect(OW_URL_HOME . OW::getRequest()->getRequestUri());
         }
     }
+    /**
+     * @var array 
+     */
+    protected $httpsHandlerAttrsList = array();
 
-    //TODO temp fix for https pages
-    protected function handleHttps()
+    public function addHttpsHandlerAttrs( $controller, $action = false )
     {
-        if ( !stristr($_SERVER['SERVER_PROTOCOL'], 'https') )
+        $this->httpsHandlerAttrsList[] = array(OW_RequestHandler::ATTRS_KEY_CTRL => $controller, OW_RequestHandler::ATTRS_KEY_ACTION => $action);
+    }
+
+    protected function httpVsHttpsRedirect()
+    {
+        $isSsl = OW::getRequest()->isSsl();
+
+        if ( $isSsl === null )
         {
             return;
         }
 
-        function base_pre_handle_https_static_content()
+        $attrs = OW::getRequestHandler()->getHandlerAttributes();
+        $specAttrs = false;
+
+        foreach ( $this->httpsHandlerAttrsList as $item )
         {
-            $styleSheets = OW::getDocument()->getStyleSheets();
-            $jsIncludes = OW::getDocument()->getJavaScripts();
-
-            foreach ( $styleSheets['added'] as $key => $item )
+            if ( $item[OW_RequestHandler::ATTRS_KEY_CTRL] == $attrs[OW_RequestHandler::ATTRS_KEY_CTRL] && ( empty($item[OW_RequestHandler::ATTRS_KEY_ACTION]) || $item[OW_RequestHandler::ATTRS_KEY_ACTION] == $attrs[OW_RequestHandler::ATTRS_KEY_ACTION] ) )
             {
-                if ( mb_substr($item, 0, 5) != 'https' )
+                $specAttrs = true;
+                if ( !$isSsl )
                 {
-                    $styleSheets['added'][$key] = 'https' . mb_substr($item, 4);
+                    $this->redirect(str_replace("http://", "https://", OW_URL_HOME) . OW::getRequest()->getRequestUri());
                 }
             }
-
-            foreach ( $styleSheets['items'] as $pkey => $priority )
-            {
-                foreach ( $priority as $tkey => $type )
-                {
-                    foreach ( $type as $key => $item )
-                    {
-                        if ( mb_substr($item, 0, 5) != 'https' )
-                        {
-                            $styleSheets['items'][$pkey][$tkey][$key] = 'https' . mb_substr($item, 4);
-                        }
-                    }
-                }
-            }
-
-            foreach ( $jsIncludes['added'] as $key => $item )
-            {
-                if ( mb_substr($item, 0, 5) != 'https' )
-                {
-                    $jsIncludes['added'][$key] = 'https' . mb_substr($item, 4);
-                }
-            }
-
-            foreach ( $jsIncludes['items'] as $pkey => $priority )
-            {
-                foreach ( $priority as $tkey => $type )
-                {
-                    foreach ( $type as $key => $item )
-                    {
-                        if ( mb_substr($item, 0, 5) != 'https' )
-                        {
-                            $jsIncludes['items'][$pkey][$tkey][$key] = 'https' . mb_substr($item, 4);
-                        }
-                    }
-                }
-            }
-
-            OW::getDocument()->setStyleSheets($styleSheets);
-            OW::getDocument()->setJavaScripts($jsIncludes);
         }
-        OW::getEventManager()->bind('core.before_master_page_render', 'base_pre_handle_https_static_content');
+
+        if ( $specAttrs )
+        {
+            return;
+        }
+
+        $urlArray = parse_url(OW_URL_HOME);
+
+        if ( !empty($urlArray["scheme"]) )
+        {
+            $homeUrlSsl = ($urlArray["scheme"] == "https");
+
+            if ( ($isSsl && !$homeUrlSsl) || (!$isSsl && $homeUrlSsl) )
+            {
+                $this->redirect(OW_URL_HOME . OW::getRequest()->getRequestUri());
+            }
+        }
+    }
+
+    protected function handleHttps()
+    {
+        if ( !OW::getRequest()->isSsl() )
+        {
+            return;
+        }
 
         function base_post_handle_https_static_content()
         {
-            OW::getResponse()->setMarkup(preg_replace('/src="(http:)([^<>"]+)"/', "src=\"https:$2\"", OW::getResponse()->getMarkup()));
+            $markup = OW::getResponse()->getMarkup();
+            $matches = array();
+            preg_match_all("/<a([^>]+)>(.+?)<\/a>/", $markup, $matches);
+            $search = array_unique($matches[0]);
+            $replace = array();
+
+            for ( $i = 0; $i < sizeof($search); $i++ )
+            {
+                $replace[] = "<#|#|#" . $i . "#|#|#>";
+            }
+
+            $markup = str_replace($search, $replace, $markup);
+            $markup = str_replace("http://", "https://", $markup);
+            $markup = str_replace($replace, $search, $markup);
+
+            OW::getResponse()->setMarkup($markup);
         }
-        OW::getEventManager()->bind(OW_EventManager::ON_AFTER_DOCUMENT_RENDER, 'base_post_handle_https_static_content');
+        OW::getEventManager()->bind(OW_EventManager::ON_AFTER_DOCUMENT_RENDER, "base_post_handle_https_static_content");
     }
 
     protected function userAutoLogin()

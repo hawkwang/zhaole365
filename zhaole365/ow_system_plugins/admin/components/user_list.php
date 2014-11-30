@@ -65,7 +65,7 @@ class ADMIN_CMP_UserList extends OW_Component
                         continue;
                     }
                     
-                    $userService->suspend($id);
+                    $userService->suspend($id, $_POST['suspend_message']);
                 }
 
                 OW::getFeedback()->info($language->text('admin', 'user_feedback_profiles_suspended'));

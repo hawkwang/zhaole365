@@ -63,6 +63,7 @@ class BASE_CMP_ChangePassword extends OW_Component
         $submit->setLabel($language->text('base', 'change_password_submit'));
 
         $form->setAjax(true);
+        $form->setAjaxResetOnSuccess(false);
 
         $form->addElement($submit);
 
@@ -73,6 +74,7 @@ class BASE_CMP_ChangePassword extends OW_Component
             if ( $form->isValid($_POST) )
             {
                 $data = $form->getValues();
+                
                 BOL_UserService::getInstance()->updatePassword( OW::getUser()->getId(), $data['password'] );
 
                 $result = true;
@@ -86,12 +88,17 @@ class BASE_CMP_ChangePassword extends OW_Component
             $messageError = $language->text('base', 'change_password_error');
             $messageSuccess = $language->text('base', 'change_password_success');
 
-            $js = " owForms['" . $form->getName() . "'].bind( 'success',
-            function( json )
+            $form->bindJsFunction(FORM::BIND_SUCCESS, "function( json )
             {
-            	if( json.result == true )
+            	if( json.result )
             	{
-            	    $('#TB_closeWindowButton').click();
+            	    var floatbox = OW.getActiveFloatBox();
+
+                    if ( floatbox )
+                    {
+                        floatbox.close();
+                    }
+
             	    OW.info('{$messageSuccess}');
                 }
                 else
@@ -99,9 +106,7 @@ class BASE_CMP_ChangePassword extends OW_Component
                     OW.error('{$messageError}');
                 }
 
-            } ); ";
-
-            OW::getDocument()->addOnloadScript( $js );
+            } " );
 
             $this->addForm($form);
 

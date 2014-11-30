@@ -112,7 +112,7 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
                         {
                             $xml = simplexml_load_file($service->getImportDirPath() . "language_{$tag}" . DS . "{$prefix}.xml");
 
-                            $service->importPrefix($xml);
+                            $service->importPrefix($xml, false, true);
                         }
 
                         $language = $service->findByTag($tag);
@@ -129,7 +129,8 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
 
                     $prefix = $_POST['set']['lang']["lang_{$tag}"][0];
                     $xml = simplexml_load_file($service->getImportDirPath() . "{$prefix}.xml");
-                    $service->importPrefix($xml, $true);
+
+                    $service->importPrefix($xml, true, true);
 
                     break;
             }
@@ -396,7 +397,7 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
 
                     if ( is_dir("{$dir}/{$file}") )
                     {
-//printVar("$file/");
+                        //printVar("$file/");
                     }
                     else
                     {
@@ -410,11 +411,17 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
                         $tmp = $xmlElement->xpath('/prefix');
 
                         $prefixElement = $tmp[0];
-
-                        $p = array('label' => strval($prefixElement->attributes()->label), 'prefix' => strval($prefixElement->attributes()->name));
-
-                        if ( !in_array($p, $prefixesToImport) )
-                            $prefixesToImport[] = $p;
+                        
+                        
+                        $plugin = BOL_PluginService::getInstance()->findPluginByKey(strval($prefixElement->attributes()->name));
+                        
+                        if ( !empty($plugin) )
+                        {
+                            $p = array('label' => strval($prefixElement->attributes()->label), 'prefix' => strval($prefixElement->attributes()->name));
+                            
+                            if ( !in_array($p, $prefixesToImport) )
+                                $prefixesToImport[] = $p;
+                        }
                     }
                 }
 
@@ -446,17 +453,22 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
             $tmp = $xmlElement->xpath('/prefix');
 
             $prefixElement = $tmp[0];
+            
+            $plugin = BOL_PluginService::getInstance()->findPluginByKey(strval($prefixElement->attributes()->name));
 
-            $l = array(
-                'tag' => strval($prefixElement->attributes()->language_tag),
-                'label' => strval($prefixElement->attributes()->language_label),
-            );
-            $langsToImport[] = $l;
+            if ( !empty($plugin) )
+            {
+                $l = array(
+                    'tag' => strval($prefixElement->attributes()->language_tag),
+                    'label' => strval($prefixElement->attributes()->language_label),
+                );
+                $langsToImport[] = $l;
 
-            $prefixesToImport[] = array(
-                'label' => $prefixElement->attributes()->label,
-                'prefix' => $prefixElement->attributes()->name,
-            );
+                $prefixesToImport[] = array(
+                    'label' => $prefixElement->attributes()->label,
+                    'prefix' => $prefixElement->attributes()->name,
+                );
+            }
         }
 
         $this->assign('langsToImport', $langsToImport);
@@ -572,7 +584,7 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
             $uploadFilePath = $languageService->getImportDirPath() . $_FILES['file']['name'];
 
             move_uploaded_file($tmpName, $uploadFilePath);
-
+            
             if ( file_exists($tmpName) )
             {
                 unlink($tmpName);

@@ -85,6 +85,9 @@ class ADMIN_CTRL_Questions extends ADMIN_CTRL_Abstract
         $previewQuestionValuesContent = array();
         $pagesCheckboxContent = array();
         
+        $sectionsNameList = array_keys($questions);
+        $sectionDtoList = BOL_QuestionService::getInstance()->findSectionBySectionNameList($sectionsNameList);
+        
         foreach ( $questions as $section => $list )
         {
             $sectionDeleteUrlList[$section] = OW::getRouter()->urlFor('ADMIN_CTRL_Questions', 'deleteSection', array("sectionName" => $section));
@@ -207,6 +210,7 @@ class ADMIN_CTRL_Questions extends ADMIN_CTRL_Abstract
         $this->assign('deleteEditButtons', $deleteEditButtonsContent);
         $this->assign('previewValues', $previewQuestionValuesContent);
         $this->assign('pagesCheckboxContent', $pagesCheckboxContent);
+        $this->assign('sectionList', $sectionDtoList);
         
 
         $language->addKeyForJs('admin', 'questions_delete_section_confirmation');
@@ -251,6 +255,9 @@ class ADMIN_CTRL_Questions extends ADMIN_CTRL_Abstract
         $previewQuestionValuesContent = array();
         $accountTypesCheckboxContent = array();
 
+        $sectionsNameList = array_keys($questions);
+        $sectionDtoList = BOL_QuestionService::getInstance()->findSectionBySectionNameList($sectionsNameList);
+        
         foreach ( $questions as $section => $list )
         {
             $sectionDeleteUrlList[$section] = OW::getRouter()->urlFor('ADMIN_CTRL_Questions', 'deleteSection', array("sectionName" => $section));
@@ -384,6 +391,7 @@ class ADMIN_CTRL_Questions extends ADMIN_CTRL_Abstract
         $this->assign('deleteEditButtons', $deleteEditButtonsContent);
         $this->assign('previewValues', $previewQuestionValuesContent);
         $this->assign('accountTypesCheckboxContent', $accountTypesCheckboxContent);
+        $this->assign('sectionList', $sectionDtoList);
 
         $language->addKeyForJs('admin', 'questions_delete_section_confirmation');
 
@@ -588,14 +596,61 @@ class ADMIN_CTRL_Questions extends ADMIN_CTRL_Abstract
                 exit;
 
                 break;
+            
+            
+            case 'findNearestSection':
+                
+                $sectionName = $_POST['sectionName'];
+                
+                if ( !empty($sectionName) )
+                {
+                    $section = $this->questionService->findSectionBySectionName($sectionName);
+                    
+                    if ( empty($section) )
+                    {
+                        echo json_encode(array('result' => false));
+                        exit;
+                    }
+                    
+                    $nearSection = $this->questionService->findNearestSection( $section );
+                            
+                    if ( empty($nearSection) )
+                    {
+                        echo json_encode(array('result' => false));
+                        exit;
+                    }
+                    
+                    echo json_encode( array(
+                        'result' => "success", 
+                        'message' => OW::getLanguage()->text('admin', 'questions_delete_section_confirmation_with_move_questions' , array('sectionName' => BOL_QuestionService::getInstance()->getSectionLang($nearSection->name) ))
+                    ) );
+                    exit;
+                }
+                
+                echo json_encode(array('result' => false));
+                exit;
 
+                break;
+                
             case 'deleteSection':
 
                 if ( !empty($_POST['sectionName']) && mb_strlen($_POST['sectionName']) > 0 )
                 {
-                    if ( $this->questionService->deleteSection(htmlspecialchars($_POST['sectionName'])) )
+                    /*@var $nearSection BOL_QuestionSection*/
+                    $nearSection = $this->questionService->findSectionBySectionName($_POST['sectionName']);
+                    
+                    $moveQuestionsToSection = null;
+                    
+                    if ( !empty($nearSection) && $nearSection->isDeletable && $this->questionService->deleteSection(htmlspecialchars($_POST['sectionName']), $moveQuestionsToSection) )
                     {
-                        echo json_encode(array('result' => "success", 'message' => OW::getLanguage()->text('admin', 'questions_section_was_deleted')));
+                        $result = array('result' => "success", 'message' => OW::getLanguage()->text('admin', 'questions_section_was_deleted'));
+                        
+                        if ( !empty($moveQuestionsToSection) )
+                        {
+                            $result['moveTo'] = $moveQuestionsToSection->name;
+                        }
+                        
+                        echo json_encode($result);
                         exit;
                     }
                 }

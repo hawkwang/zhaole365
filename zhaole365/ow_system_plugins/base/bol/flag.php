@@ -23,149 +23,40 @@
  */
 
 /**
- * Data Transfer Object for `base_flag` table
  *
- * @author Aybat Duyshokov <duyshokov@gmail.com>
+ * @author Sergey Kambalin <greyexpert@gmail.com>
  * @package ow_system_plugins.base.bol
  * @since 1.0
  */
 class BOL_Flag extends OW_Entity
 {
-    public $type,
-    $entityId,
-    $userId,
-    $reason,
-    $title,
-    $url,
-    $timestamp,
-    $langKey;
-
-    public function __construct()
-    {
-        $this->timestamp = time();
-    }
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
     /**
      *
-     * @return int
+     * @var int
      */
-    public function setType( $type )
-    {
-        $this->type = $type;
-
-        return $this;
-    }
-
-    public function getEntityId()
-    {
-        return $this->entityId;
-    }
-
+    public $userId;
+    
     /**
      *
-     * @return int
+     * @var string
      */
-    public function setEntityId( $entityId )
-    {
-        $this->entityId = $entityId;
-
-        return $this;
-    }
-
-    public function getUserId()
-    {
-        return $this->userId;
-    }
-
+    public $entityType;
+    
     /**
      *
-     * @return unknown_type
+     * @var int
      */
-    public function setUserId( $userId )
-    {
-        $this->userId = $userId;
-
-        return $this;
-    }
-
-    public function getTimestamp()
-    {
-        return $this->timestamp;
-    }
-
+    public $entityId;
+    
     /**
      *
-     * @return unknown_type
+     * @var string
      */
-    public function setTimestamp( $timestamp )
-    {
-        $this->timestamp = $timestamp;
-
-        return $this;
-    }
-
-    public function getReason()
-    {
-        return $this->reason;
-    }
-
-    public function setReason( $reason )
-    {
-        $this->reason = $reason;
-
-        return $this;
-    }
-
-    public function getTitle()
-    {
-        return $this->title;
-    }
-
+    public $reason;
+    
     /**
      *
-     * @return string
+     * @var int
      */
-    public function setTitle( $title )
-    {
-        $this->title = $title;
-
-        return $this;
-    }
-
-    public function getUrl()
-    {
-        return $this->url;
-    }
-
-    /**
-     *
-     * @return string
-     */
-    public function setUrl( $url )
-    {
-        $this->url = $url;
-
-        return $this;
-    }
-
-    public function getLangKey()
-    {
-        return $this->langKey;
-    }
-
-    /**
-     *
-     * @return unknown_type
-     */
-    public function setLangKey( $langKey )
-    {
-        $this->langKey = $langKey;
-
-        return $this;
-    }
+    public $timeStamp;
 }

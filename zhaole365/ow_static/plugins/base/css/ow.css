@@ -1404,6 +1404,9 @@ a.ow_btn_sound:hover span, span.ow_btn_sort_users span:hover {
 .ow_mailchat_autocomplete ul li.selected{
     background:#f1f1f1;
 }
+.ow_mailchat_autocomplete {
+    z-index: 1;
+}
 .ow_chat_user_not_found {
     display:block; 
     padding: 8px 8px 8px 4px; 
@@ -1707,6 +1710,12 @@ a.ow_btn_settings.ow_active span {
     right: 8px;
     z-index: 2;
 }
+.ow_chat_message.scroll .ow_attachment_icons {
+    right: 20px;
+}
+.ow_chat_message_block .ow_chat_message.scroll  textarea {
+    padding-right: 46px;
+}
 .ow_chat_wink {
     margin: 3px;
     padding: 5px;
@@ -1774,8 +1783,9 @@ a.ow_btn_settings.ow_active span {
     -webkit-box-sizing: border-box;
     background: #fff;
     display: none;
+    position: relative;
 }
-.ow_chat_mailchat_inputarea textarea {
+.ow_chat_block form .ow_chat_mailchat_inputarea .jhtmlarea {
     width: 100%;
     resize: none;
     border: none;
@@ -1789,6 +1799,17 @@ a.ow_btn_settings.ow_active span {
     color: #585858;
     height: 219px;
     background: #fff;
+}
+form .ow_chat_mailchat_inputarea .toolbar {
+    background: #fafafa;
+    border-bottom: 1px solid #e8e8e8;
+}
+form .ow_chat_mailchat_inputarea .toolbar ul li a {
+    background-image: url(images/wysiwyg.png);
+    border: 1px solid #ccc;
+}
+body form .ow_chat_mailchat_inputarea .toolbar ul li a:hover {
+    border-color: #626060;
 }
 .ow_chat_mailchat_buttons {
     border-top: 1px solid #ccc;
@@ -1862,6 +1883,7 @@ a.ow_btn_settings.ow_active span {
     height: 25px;
     overflow: hidden;
     padding-left: 4px;
+    color: #000;
 }
 .ow_mailchat_new_message .ow_mailchat_select_user .ow_mailchat_autocomplete {
     position: absolute;
@@ -1977,6 +1999,9 @@ a.ow_btn_close:hover {
 body .ow_dialog_item.ow_chat_video_item {
     max-width: 227px;
 }
+.ow_chat_in_dialog_wrap .ow_dialog_items_wrap {
+    width: 100%;
+}
 .ow_dialog_items_wrap .ow_chat_video_item p,
 .ow_mailbox_log_wrap .ow_chat_video_item p {
     margin-bottom: 8px;
@@ -2022,6 +2047,10 @@ body .ow_dialog_item.ow_chat_video_item {
     text-align: center;
     margin:0;
     clear:both;
+}
+.ow_mailbox_message_content img {
+    max-width: 80%;
+    height: auto;
 }
 .ow_chat_in_dialog .ow_time_block p {
     margin:0;
@@ -2764,7 +2793,7 @@ a.ow_context_action_value {
     height: 9px;
     padding-bottom: 2px;
 }
-.ow_photo_userlist_info {
+body a.ow_photo_userlist_info {
     color: #fff;
     display: block;
 }
@@ -2847,3 +2876,108 @@ body .ow_photo_context_action a.ow_context_action_divider {
     padding: 0 4px;
     margin-bottom: 1px;
 }
+
+/*Box Toolbar*/
+.ow_bl.ow_box_toolbar  li {
+    float: left;
+    line-height: 24px;
+}
+.ow_bl.ow_box_toolbar li a {
+    display: inline-block;
+}
+
+/* Avatar field */
+.ow_avatar_field_preview {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    cursor: pointer;
+}
+.ow_avatar_field_preview span {
+    width: 20px;
+    height: 20px;
+    position: absolute;
+    right: 2px;
+    top: 2px;
+    background: url(images/chat_btn_close.png) no-repeat center top;
+    cursor: pointer;
+}
+.ow_avatar_field_preview img {
+    width: 100%;
+    height: 100%;
+}
+
+/* Moderation */
+.ow_moderation_wrap {
+    margin-left: 206px;
+}
+.ow_moderation_sticky {
+	width: 190px;
+	margin-left: -206px; 
+	float: left;
+}
+.ow_vertical_nav {
+	width: 100%; 
+	overflow: hidden;
+	border-radius: 4px;
+	border-width: 1px;
+	border-style: solid;
+}
+.ow_vertical_nav_item {
+	cursor: pointer;
+	border-width: 0 0 1px 0;
+	border-style: solid;
+	padding: 10px 38px 10px 16px;
+}
+.ow_vertical_nav_item:hover {
+    text-decoration: none;
+}
+.ow_vertical_nav_item:last-child {
+	border-bottom: none;
+}
+.ow_moderation_label_bnts {
+	max-width: 100%;
+	text-align: center;
+	vertical-align: middle
+}
+.ow_moderation_content_wrap {
+	width: 100%;
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+	padding-left: 16px;
+	position: relative;
+}
+.ow_moderation_content_wrap input[type="checkbox"] {
+	margin-left: -16px;
+	margin-top: 18px;
+	width: 13px;
+	height: 13px;
+}
+.ow_moderation_table tr td,
+.ow_moderation_table tr th {
+	padding: 8px;
+} 
+.ow_vertical_nav_item .ow_count_wrap {
+	float: right;
+	margin-right: -26px;
+	margin-top: 2px;
+}
+/*Premoderation console button*/
+.ow_pending_approval_list ul.ow_console_dropdown .ow_console_dropdown_cont a {
+    padding-right: 30px;
+}
+.ow_pending_approval_list ul.ow_console_dropdown .ow_console_dropdown_cont a .ow_count_wrap {
+    margin-right: -24px;
+}
+.ow_pending_approval_list ul.ow_console_dropdown {
+    overflow-x: visible;
+}
+/*Video iframe*/
+.ow_ws_video iframe,
+.ow_ws_video object,
+.ow_ws_video embed,
+.ow_video_playing iframe {
+	width: 100%;
+}
+/*End of the Video iframe*/

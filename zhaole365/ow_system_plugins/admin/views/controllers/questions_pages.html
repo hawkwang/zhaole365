@@ -69,7 +69,9 @@ window.editLangValue = function editLangValue(_prefix, _key, _callback){
                    <div class="delete_edit_buttons quest_buttons ow_right">
                         {if $section}
                             <a href="javascript://" class="ow_lbutton edit_sectionNameLang" style="visibility:hidden;" >{text key='admin+btn_label_edit'}</a>
-                            <a href="javascript://" class="ow_lbutton ow_red section_delete_button"style="visibility:hidden;" >{text key='admin+btn_label_delete'}</a>
+                            {if $sectionList[$section]->isDeletable }
+                                <a href="javascript://" class="ow_lbutton ow_red section_delete_button"style="visibility:hidden;" >{text key='admin+btn_label_delete'}</a>
+                            {/if}
                         {/if}
                     </div>
 

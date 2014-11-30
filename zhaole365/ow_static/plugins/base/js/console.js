@@ -699,6 +699,7 @@ OW_ConsoleList =
             });
 
             self.$list().append($item);
+            OW.trigger('base.onAddConsoleItem', [], $item);
         });
 
         if ( updateScrooll !== false )

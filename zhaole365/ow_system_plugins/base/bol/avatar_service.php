@@ -43,6 +43,10 @@ final class BOL_AvatarService
 
     const AVATAR_ORIGINAL_PREFIX = 'avatar_original_';
 
+    const AVATAR_CHANGE_GALLERY_LIMIT = 12;
+
+    const AVATAR_CHANGE_SESSION_KEY = 'base.avatar_change_key';
+
     /**
      * @var BOL_AvatarService
      */
@@ -77,9 +81,25 @@ final class BOL_AvatarService
      * @param int $userId
      * @return BOL_Avatar
      */
-    public function findByUserId( $userId )
+    public function findByUserId( $userId, $checkCache = true )
     {
-        return $this->avatarDao->findByUserId($userId);
+        return $this->avatarDao->findByUserId($userId, $checkCache);
+    }
+    
+    public function findAvatarByIdList( $idList )
+    {
+        return $this->avatarDao->findByIdList($idList);
+    }
+    
+    /**
+     * Find avatar object by userId list
+     *
+     * @param int $userId
+     * @return BOL_Avatar
+     */
+    public function findByUserIdList( $userIdList )
+    {
+        return $this->avatarDao->getAvatarsList($userIdList);
     }
 
     public function findAvatarById( $id )
@@ -95,9 +115,15 @@ final class BOL_AvatarService
      */
     public function updateAvatar( BOL_Avatar $avatar )
     {
+        $this->clearCahche($avatar->userId);
         $this->avatarDao->save($avatar);
 
         return $avatar->id;
+    }
+    
+    public function clearCahche( $userId )
+    {
+        $this->avatarDao->clearCahche($userId);
     }
 
     /**
@@ -135,23 +161,53 @@ final class BOL_AvatarService
 
         $avatar = $this->findByUserId($userId);
 
+        $event = new OW_Event('base.before_user_avatar_delete', array('avatarId' => $avatar->id ));
+        OW::getEventManager()->trigger($event);
+        
         if ( $avatar )
         {
-            $this->avatarDao->deleteById($avatar->id);
+            return $this->deleteAvatar($avatar);
+        }
 
-            // avatar image
-            $avatarPath = $this->getAvatarPath($userId, 1, $avatar->hash);
-            $this->removeAvatarImage($avatarPath);
+        return false;
+    }
+    
+    private function deleteAvatar( BOL_Avatar $avatar )
+    {
+        if ( empty($avatar) )
+        {
+            return false;
+        }
+        
+        $this->avatarDao->deleteById($avatar->id);
 
-            // avatar big image
-            $bigAvatarPath = $this->getAvatarPath($userId, 2, $avatar->hash);
-            $this->removeAvatarImage($bigAvatarPath);
+        // avatar image
+        $avatarPath = $this->getAvatarPath($avatar->userId, 1, $avatar->hash);
+        $this->removeAvatarImage($avatarPath);
 
-            // avatar original image
-            $origAvatarPath = $this->getAvatarPath($userId, 3, $avatar->hash);
-            $this->removeAvatarImage($origAvatarPath);
+        // avatar big image
+        $bigAvatarPath = $this->getAvatarPath($avatar->userId, 2, $avatar->hash);
+        $this->removeAvatarImage($bigAvatarPath);
 
-            return true;
+        // avatar original image
+        $origAvatarPath = $this->getAvatarPath($avatar->userId, 3, $avatar->hash);
+        $this->removeAvatarImage($origAvatarPath);
+
+        return true;
+    }
+    
+    public function deleteAvatarById( $id )
+    {
+        if ( !$id )
+        {
+            return false;
+        }
+
+        $avatar = $this->avatarDao->findById($id);
+
+        if ( $avatar )
+        {
+            return $this->deleteAvatar($avatar);
         }
 
         return false;
@@ -161,56 +217,122 @@ final class BOL_AvatarService
      * Crops user avatar using coordinates
      *
      * @param int $userId
+     * @param $path
      * @param array $coords
      * @param int $viewSize
-     * @param int $hash
+     * @return bool
      */
-    public function cropAvatar( $userId, $coords, $viewSize, $hash )
+    public function cropAvatar( $userId, $path, $coords, $viewSize, array $editionalParams = array() )
     {
-        if ( !empty($coords) )
+        $this->deleteUserAvatar($userId);
+
+        $avatar = new BOL_Avatar();
+        $avatar->userId = $userId;
+        $avatar->hash = time();
+        
+        $this->updateAvatar($avatar);
+
+        $params = array(
+                'avatarId' => $avatar->id, 
+                'userId' => $userId, 
+                'trackAction' => isset($editionalParams['trackAction'])  ? $editionalParams['trackAction'] : true 
+            );
+        
+        $event = new OW_Event('base.after_avatar_update', array_merge($editionalParams, $params));
+        OW::getEventManager()->trigger($event);
+        
+        // destination path
+        $avatarPath = $this->getAvatarPath($userId, 1, $avatar->hash);
+        $avatarBigPath = $this->getAvatarPath($userId, 2, $avatar->hash);
+        $avatarOriginalPath = $this->getAvatarPath($userId, 3, $avatar->hash);
+
+        // pluginfiles tmp path
+        $avatarPFPath = $this->getAvatarPluginFilesPath($userId, 1, $avatar->hash);
+        $avatarPFBigPath = $this->getAvatarPluginFilesPath($userId, 2, $avatar->hash);
+        $avatarPFOriginalPath = $this->getAvatarPluginFilesPath($userId, 3, $avatar->hash);
+
+        if ( !is_writable(dirname($avatarPFPath)) )
         {
-            $origAvatarPath = $this->getAvatarPath($userId, 3);
+            $this->deleteUserAvatar($userId);
 
-            // tmp file in pluginfiles
-            $tmpPath = $this->getAvatarPluginFilesPath($userId, 3, $hash);
+            return false;
+        }
 
-            $storage = OW::getStorage();
-            $storage->copyFileToLocalFS($origAvatarPath, $tmpPath);
+        $storage = OW::getStorage();
+        
+        if ( !empty($editionalParams['isLocalFile']) )
+        {
+            $toFilePath = $path;
+        }
+        else 
+        {
+            $toFilePath = OW::getPluginManager()->getPlugin('base')->getPluginFilesDir() . uniqid(md5( rand(0,9999999999) )).UTIL_File::getExtension($path);
 
-            $image = new UTIL_Image($tmpPath);
+            $storage->copyFileToLocalFS($path, $toFilePath);
+        }
+        
+        $result = true;
+        try 
+        {
+            $image = new UTIL_Image($toFilePath);
 
             $width = $image->getWidth();
-            $height = $image->getHeight();
-
             $k = $width / $viewSize;
 
             $config = OW::getConfig();
             $avatarSize = (int) $config->getValue('base', 'avatar_size');
             $bigAvatarSize = (int) $config->getValue('base', 'avatar_big_size');
 
-            $avatarPath = $this->getAvatarPath($userId, 1, $hash);
-            $bigAvatarPath = trim($this->getAvatarPath($userId, 2, $hash));
-
-            // pluginfiles tmp path
-            $avatarPFPath = $this->getAvatarPluginFilesPath($userId, 1, $hash);
-            $bigAvatarPFPath = trim($this->getAvatarPluginFilesPath($userId, 2, $hash));
-
-            $image->cropImage($coords['x'] * $k, $coords['y'] * $k, $coords['w'] * $k, $coords['h'] * $k)
+            $image->copyImage($avatarPFOriginalPath)
+                ->cropImage($coords['x'] * $k, $coords['y'] * $k, $coords['w'] * $k, $coords['h'] * $k)
                 ->resizeImage($bigAvatarSize, $bigAvatarSize, true)
-                ->saveImage($bigAvatarPFPath)
+                ->saveImage($avatarPFBigPath)
                 ->resizeImage($avatarSize, $avatarSize, true)
                 ->saveImage($avatarPFPath);
 
-            $storage->copyFile($bigAvatarPFPath, $bigAvatarPath);
+            $storage->copyFile($avatarPFOriginalPath, $avatarOriginalPath);
+            $storage->copyFile($avatarPFBigPath, $avatarBigPath);
             $storage->copyFile($avatarPFPath, $avatarPath);
-
-            @unlink($tmpPath);
-            @unlink($avatarPFPath);
-            @unlink($bigAvatarPFPath);
+        } 
+        catch (Exception $ex) 
+        {
+            $result = false;
         }
+
+        @unlink($avatarPFPath);
+        @unlink($avatarPFBigPath);
+        @unlink($avatarPFOriginalPath);
+        @unlink($toFilePath);
+        
+        return $result;
+    }
+    
+    public function cropTempAvatar( $key, $coords, $viewSize )
+    {
+        $originalPath = $this->getTempAvatarPath($key, 3);
+        $bigAvatarPath = $this->getTempAvatarPath($key, 2);
+        $avatarPath = $this->getTempAvatarPath($key, 1);
+
+        $image = new UTIL_Image($originalPath);
+
+        $width = $image->getWidth();
+
+        $k = $width / $viewSize;
+
+        $config = OW::getConfig();
+        $avatarSize = (int) $config->getValue('base', 'avatar_size');
+        $bigAvatarSize = (int) $config->getValue('base', 'avatar_big_size');
+
+        $image->cropImage($coords['x'] * $k, $coords['y'] * $k, $coords['w'] * $k, $coords['h'] * $k)
+            ->resizeImage($bigAvatarSize, $bigAvatarSize, true)
+            ->saveImage($bigAvatarPath)
+            ->resizeImage($avatarSize, $avatarSize, true)
+            ->saveImage($avatarPath);
+
+        return true;
     }
 
-    public function setUserAvatar( $userId, $uploadedFileName )
+    public function setUserAvatar( $userId, $uploadedFileName, array $editionalParams = array() )
     {
         $avatar = $this->findByUserId($userId);
 
@@ -223,6 +345,7 @@ final class BOL_AvatarService
         {
             $oldHash = $avatar->hash;
         }
+        
         $avatar->hash = time();
 
         // destination path
@@ -256,6 +379,15 @@ final class BOL_AvatarService
                 ->saveImage($avatarPFPath);
 
             $this->updateAvatar($avatar);
+            
+            $params = array(
+                'avatarId' => $avatar->id, 
+                'userId' => $userId, 
+                'trackAction' => isset($editionalParams['trackAction'])  ? $editionalParams['trackAction'] : true 
+            );
+            
+            $event = new OW_Event('base.after_avatar_update', array_merge( $editionalParams, $params) );
+            OW::getEventManager()->trigger($event);
 
             // remove old images
             if ( isset($oldHash) )
@@ -287,6 +419,81 @@ final class BOL_AvatarService
         }
     }
 
+    public function uploadUserTempAvatar( $key, $uploadedFileName )
+    {
+        $path = $this->getTempAvatarPath($key, 3);
+
+        if ( !is_writable(dirname($path)) )
+        {
+            @unlink($uploadedFileName);
+
+            return false;
+        }
+
+        if ( move_uploaded_file($uploadedFileName, $path) )
+        {
+            @unlink($uploadedFileName);
+
+            return true;
+        }
+
+        @unlink($uploadedFileName);
+
+        return false;
+    }
+
+    public function deleteUserTempAvatar( $key, $size = null )
+    {
+        if ( !$key )
+        {
+            return false;
+        }
+
+        if ( $size === null )
+        {
+            @unlink($this->getTempAvatarPath($key, 1));
+            @unlink($this->getTempAvatarPath($key, 2));
+            @unlink($this->getTempAvatarPath($key, 3));
+
+            return true;
+        }
+
+        $path = $this->getTempAvatarPath($key, $size);
+
+        if ( file_exists($path) )
+        {
+            @unlink($path);
+        }
+
+        return true;
+    }
+
+    public function deleteTempAvatars( )
+    {
+        $path = OW::getPluginManager()->getPlugin('base')->getUserFilesDir() . 'avatars' . DS . 'tmp' . DS;
+
+        if ( $handle = opendir($path) )
+        {
+            while ( false !== ($file = readdir($handle)) )
+            {
+                if ( !is_file($path.$file) )
+                {
+                    continue;
+                }
+
+                if ( time() - filemtime($path.$file) >= 60*60*24 )
+                {
+                    if ( !preg_match('/\.jpg$/i', $file) )
+                    {
+                        continue;
+                    }
+
+                    @unlink($path.$file);
+                }
+            }
+        }
+    }
+
     /**
      * Give avatar original new name after hash is changed
      *
@@ -308,17 +515,23 @@ final class BOL_AvatarService
      * @param int $userId
      * @param int $size
      * @param null $hash
+     * @param bool $checkCache
      * @return string
      */
-    public function getAvatarUrl( $userId, $size = 1, $hash = null )
+    public function getAvatarUrl( $userId, $size = 1, $hash = null, $checkCache = true, $checkModerationStatus = true )
     {
-        $avatar = $this->avatarDao->findByUserId($userId);
-
+        $avatar = $this->avatarDao->findByUserId($userId, false);
+        
         if ( $avatar )
         {
             $dir = OW::getPluginManager()->getPlugin('base')->getUserFilesDir() . 'avatars' . DS;
 
             $hash = isset($hash) ? $hash : $avatar->getHash();
+            
+            if ( $checkModerationStatus && $avatar->getStatus() != BOL_ContentService::STATUS_ACTIVE )
+            {
+                return $this->getDefaultAvatarUrl($size);
+            }
 
             switch ( $size )
             {
@@ -470,6 +683,11 @@ final class BOL_AvatarService
                 if ( array_key_exists($userId, $avatars) )
                 {
                     $urlsList[$userId] = OW::getStorage()->getFileUrl($prefix . $userId . '_' . $avatars[$userId]->hash . '.jpg');
+                    
+                    if ( $avatars[$userId]->status != BOL_ContentService::STATUS_ACTIVE )
+                    {
+                        $urlsList[$userId] = $defAvatarUrl;
+                    }
                 }
                 else
                 {
@@ -536,6 +754,44 @@ final class BOL_AvatarService
 
             case 3:
                 return $dir . self::AVATAR_ORIGINAL_PREFIX . $userId . '_' . $hash . '.jpg';
+        }
+
+        return null;
+    }
+
+    public function getTempAvatarPath( $key, $size = 1 )
+    {
+        $dir = $this->getAvatarsDir() . 'tmp' . DS;
+
+        switch ( $size )
+        {
+            case 1:
+                return $dir . self::AVATAR_PREFIX . $key . '.jpg';
+
+            case 2:
+                return $dir . self::AVATAR_BIG_PREFIX . $key . '.jpg';
+
+            case 3:
+                return $dir . self::AVATAR_ORIGINAL_PREFIX . $key . '.jpg';
+        }
+
+        return null;
+    }
+
+    public function getTempAvatarUrl( $key, $size = 1 )
+    {
+        $url = OW::getPluginManager()->getPlugin('base')->getUserFilesUrl() . 'avatars/tmp/';
+
+        switch ( $size )
+        {
+            case 1:
+                return $url . self::AVATAR_PREFIX . $key . '.jpg';
+
+            case 2:
+                return $url . self::AVATAR_BIG_PREFIX . $key . '.jpg';
+
+            case 3:
+                return $url . self::AVATAR_ORIGINAL_PREFIX . $key . '.jpg';
         }
 
         return null;
@@ -628,6 +884,8 @@ final class BOL_AvatarService
 
         foreach ( $userIdList as $userId )
         {
+            $data[$userId]["userId"] = $userId;
+            
             if ( $src )
             {
                 $data[$userId]['src'] = !empty($srcArr[$userId]) ? $srcArr[$userId] : '_AVATAR_SRC_';
@@ -648,5 +906,77 @@ final class BOL_AvatarService
         }
 
         return $data;
+    }
+
+    public function collectAvatarChangeSections()
+    {
+        $event = new BASE_CLASS_EventCollector(
+            'base.avatar_change_collect_sections',
+            array('limit' => self::AVATAR_CHANGE_GALLERY_LIMIT)
+        );
+
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        return $data;
+    }
+
+    public function getAvatarChangeSection( $entityType, $entityId, $offset )
+    {
+        $params = array('entityType' => $entityType, 'entityId' => $entityId, 'offset' => $offset, 'limit' => self::AVATAR_CHANGE_GALLERY_LIMIT);
+        $event = new BASE_CLASS_EventCollector('base.avatar_change_get_section', $params);
+        
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        if ( !empty($data[0]) && count($data[0]) )
+        {
+            foreach ( $data[0]['list'] as &$image )
+            {
+                $image['entityType'] = $entityType;
+                $image['entityId'] = $entityId;
+            }
+
+            return $data[0];
+        }
+
+        return $data;
+    }
+
+    public function getAvatarChangeGalleryItem( $entityType, $entityId, $itemId )
+    {
+        if ( !$entityType || !$itemId )
+        {
+            return null;
+        }
+
+        $params = array('entityType' => $entityType, 'entityId' => $entityId, 'id' => $itemId);
+        $event = new OW_Event('base.avatar_change_get_item', $params);
+
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        return $data;
+    }
+
+    public function getAvatarChangeSessionKey()
+    {
+        $key = OW::getSession()->get(self::AVATAR_CHANGE_SESSION_KEY);
+
+        return $key;
+    }
+
+    public function setAvatarChangeSessionKey()
+    {
+        $key = OW::getSession()->get(self::AVATAR_CHANGE_SESSION_KEY);
+
+        if ( !strlen($key) )
+        {
+            $key = uniqid();
+            OW::getSession()->set(self::AVATAR_CHANGE_SESSION_KEY, $key);
+        }
     }
 }

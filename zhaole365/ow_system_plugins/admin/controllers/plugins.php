@@ -160,15 +160,57 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
             {
                 $data = $form->getValues();
 
-                if ( empty($_FILES['file']) || $_FILES['file']['error'] > 0 || !is_uploaded_file($_FILES['file']['tmp_name']) )
+                // check server file upload limits
+                $uploadMaxFilesize = (float) ini_get("upload_max_filesize");
+                $postMaxSize = (float) ini_get("post_max_size");
+
+                $serverLimit = $uploadMaxFilesize < $postMaxSize ? $uploadMaxFilesize : $postMaxSize;
+
+                if ( ($_FILES['file']['error'] != UPLOAD_ERR_OK && $_FILES['file']['error'] == UPLOAD_ERR_INI_SIZE ) || ( empty($_FILES['file']) || $_FILES['file']['size'] > $serverLimit * 1024 * 1024 ) )
                 {
-                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_empty_field_error_message'));
+                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_size_error_message', array('limit' => $serverLimit)));
                     $this->redirect();
                 }
 
-                if ( $_FILES['file']['size'] > 50000000 )
+                if ( $_FILES['file']['error'] != UPLOAD_ERR_OK )
                 {
-                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_size_error_message'));
+                    switch ( $_FILES['file']['error'] )
+                    {
+                        case UPLOAD_ERR_INI_SIZE:
+                            $error = $language->text('base', 'upload_file_max_upload_filesize_error');
+                            break;
+
+                        case UPLOAD_ERR_PARTIAL:
+                            $error = $language->text('base', 'upload_file_file_partially_uploaded_error');
+                            break;
+
+                        case UPLOAD_ERR_NO_FILE:
+                            $error = $language->text('base', 'upload_file_no_file_error');
+                            break;
+
+                        case UPLOAD_ERR_NO_TMP_DIR:
+                            $error = $language->text('base', 'upload_file_no_tmp_dir_error');
+                            break;
+
+                        case UPLOAD_ERR_CANT_WRITE:
+                            $error = $language->text('base', 'upload_file_cant_write_file_error');
+                            break;
+
+                        case UPLOAD_ERR_EXTENSION:
+                            $error = $language->text('base', 'upload_file_invalid_extention_error');
+                            break;
+
+                        default:
+                            $error = $language->text('base', 'upload_file_fail');
+                    }
+
+                    OW::getFeedback()->error($error);
+                    $this->redirect();
+                }
+
+                if ( !is_uploaded_file($_FILES['file']['tmp_name']) )
+                {
+                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_empty_field_error_message'));
                     $this->redirect();
                 }
 
@@ -257,11 +299,25 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
         }
         else
         {
-            $pluginDir = OW_DIR_PLUGIN . $innerDir;
+            $pluginDir = false;
+            $itemsXmlList = BOL_PluginService::getInstance()->getPluginsXmlInfo();
 
-            while ( file_exists($pluginDir) )
+            foreach ( $itemsXmlList as $xmlItem )
             {
-                $pluginDir .= rand(1, 99);
+                if ( $xmlItem["key"] == $pluginXmlInfo["key"] && $xmlItem["developerKey"] == $pluginXmlInfo['developerKey'] )
+                {
+                    $pluginDir = $xmlItem["path"];
+                }
+            }
+
+            if ( !$pluginDir )
+            {
+                $pluginDir = OW_DIR_PLUGIN . $innerDir;
+
+                while ( file_exists($pluginDir) )
+                {
+                    $pluginDir .= rand(1, 99);
+                }
             }
         }
 
@@ -392,6 +448,7 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
     public function update( array $params )
     {
         $this->checkXP();
+        $pluginDto = $this->getPluginDtoByKey($params);
 
         if ( !empty($_GET['mode']) )
         {
@@ -402,6 +459,12 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
                     break;
 
                 case 'plugin_update_success':
+                    if ( $pluginDto !== null )
+                    {
+                        $event = new OW_Event(OW_EventManager::ON_AFTER_PLUGIN_UPDATE, array('pluginKey' => $pluginDto->getKey()));
+                        OW::getEventManager()->trigger($event);
+                    }
+
                     OW::getFeedback()->info(OW::getLanguage()->text('admin', 'manage_plugins_update_success_message'));
                     break;
 
@@ -412,8 +475,6 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
 
             $this->redirectToAction('index');
         }
-
-        $pluginDto = $this->getPluginDtoByKey($params);
 
         $ftp = $this->getFtpConnection();
 
@@ -517,6 +578,7 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
     public function manualUpdateRequest( array $params )
     {
         $this->checkXP();
+        $pluginDto = $this->getPluginDtoByKey($params);
 
         if ( !empty($_GET['mode']) )
         {
@@ -527,6 +589,13 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
                     break;
 
                 case 'plugin_update_success':
+
+                    if ( $pluginDto !== null )
+                    {
+                        $event = new OW_Event(OW_EventManager::ON_AFTER_PLUGIN_UPDATE, array('pluginKey' => $pluginDto->getKey()));
+                        OW::getEventManager()->trigger($event);
+                    }
+
                     OW::getFeedback()->info(OW::getLanguage()->text('admin', 'manage_plugins_update_success_message'));
                     break;
 
@@ -537,8 +606,6 @@ class ADMIN_CTRL_Plugins extends ADMIN_CTRL_Abstract
 
             $this->redirectToAction('index');
         }
-
-        $pluginDto = $this->getPluginDtoByKey($params);
 
         if ( (int) $pluginDto->getUpdate() !== 2 )
         {

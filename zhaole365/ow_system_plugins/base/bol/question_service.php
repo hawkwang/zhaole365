@@ -31,6 +31,7 @@
  */
 class BOL_QuestionService
 {
+	const EVENT_ON_ACCOUNT_TYPE_REORDER = 'base.event.on_account_type_reorder';
     const EVENT_ON_QUESTION_DELETE = 'base.event.on_question_delete';
     const EVENT_ON_ACCOUNT_TYPE_DELETE = 'base.event.on_account_type_delete';
     const EVENT_ON_ACCOUNT_TYPE_ADD = 'base.event.on_account_type_add';
@@ -910,7 +911,34 @@ class BOL_QuestionService
         return $deleted;
     }
 
-    public function deleteSection( $sectionName )
+    public function findVisibleNotDeletableSection()
+    {
+        return $this->sectionDao->findVisibleNotDeletableSection();
+    }
+    
+    public function findNearestSection( BOL_QuestionSection $section )
+    {
+        if ( empty($section) )
+        {
+            return null;
+        }
+        
+        $nearestSection = $this->sectionDao->findPreviousSection($section);
+
+        if ( empty($nearestSection) )
+        {
+            $nearestSection = $this->sectionDao->findNextSection($section);
+        }
+        
+        if ( empty($nearestSection) )
+        {
+            $moveQuestionsToSection = $this->findVisibleNotDeletableSection();
+        }
+        
+        return $nearestSection;
+    }
+    
+    public function deleteSection( $sectionName, BOL_QuestionSection &$moveQuestionsToSection = null )
     {
         if ( $sectionName === null || mb_strlen($sectionName) === 0 )
         {
@@ -921,12 +949,12 @@ class BOL_QuestionService
 
         if ( $section !== null )
         {
-            $nextSection = $this->sectionDao->findPreviousSection($section->sortOrder);
-
-            if ( $nextSection === null )
+            if ( empty($moveQuestionsToSection) )
             {
-                $nextSection = $this->sectionDao->findNextSection($section->sortOrder);
+                $moveQuestionsToSection = $this->findNearestSection($section);
             }
+            
+            $nextSectionName = $moveQuestionsToSection->name;
         }
         else
         {
@@ -934,7 +962,7 @@ class BOL_QuestionService
         }
 
         $questions = $this->questionDao->findQuestionsBySectionNameList(array($sectionName));
-        $nextSectionName = isset($nextSection) ? $nextSection->name : null;
+        $nextSectionName = isset($moveQuestionsToSection) ? $moveQuestionsToSection->name : null;
 
         $lastOrder = $this->questionDao->findLastQuestionOrder($nextSectionName);
 
@@ -948,7 +976,7 @@ class BOL_QuestionService
             $questions[$key]->sectionName = $nextSectionName;
             $questions[$key]->sortOrder = ++$lastOrder;
         }
-
+        
         if ( count($questions) > 0 )
         {
             $this->questionDao->batchReplace($questions);
@@ -1136,6 +1164,25 @@ class BOL_QuestionService
     {
         return $this->sectionDao->findBySectionName($sectionName);
     }
+    
+    public function findSectionBySectionNameList( $list )
+    {
+        $list = $this->sectionDao->findBySectionNameList($list);
+        
+        $result = array();
+        
+        if ( !empty($list) )
+        {
+            foreach ( $list as $item )
+            {
+                /* @var $item BOL_QuestionSection */
+                $result[$item->name] = $item;
+            }
+        }
+        
+        return $result;
+    }
+
 
     public function findLastSectionOrder()
     {

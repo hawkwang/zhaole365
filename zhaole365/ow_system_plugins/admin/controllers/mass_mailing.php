@@ -183,9 +183,10 @@ class ADMIN_CTRL_MassMailing extends ADMIN_CTRL_Abstract
                     OW::getEventManager()->trigger($event);
                     $vars = call_user_func_array('array_merge', $event->getData());
 
+                    $hasUnsubscribeUrl = preg_match('/{\$(unsubscribe_url)}/i', $data['body']);
+                    
                     foreach ( $result as $key => $user )
                     {
-
                         $vars['user_email'] = $user->email;
 
                         $mail = OW::getMailer()->createMail();
@@ -196,14 +197,21 @@ class ADMIN_CTRL_MassMailing extends ADMIN_CTRL_Abstract
                         $code = md5($user->username . $user->password);
 
                         $link = OW::getRouter()->urlForRoute('base_massmailing_unsubscribe', array('id' => $user->id, 'code' => $code));
+                        
+                        $vars['unsubscribe_url'] = $link;
 
                         $subjectText = UTIL_String::replaceVars($data['subject'], $vars);
                         $mail->setSubject($subjectText);
-
+                        
                         if ( $data['emailFormat'] === self::EMAIL_FORMAT_HTML )
                         {
                             $htmlContent = UTIL_String::replaceVars($data['body'], $vars);
-                            $htmlContent .= $language->text('admin', 'massmailing_unsubscribe_link_html', array('link' => $link));
+                            
+                            if( !$hasUnsubscribeUrl )
+                            {
+                                $htmlContent .= $language->text('admin', 'massmailing_unsubscribe_link_html', array('link' => $link));
+                            }
+                            
                             $mail->setHtmlContent($htmlContent);
 
                             $textContent = preg_replace("/\<br\s*[\/]?\s*\>/", "\n", $htmlContent);
@@ -213,7 +221,12 @@ class ADMIN_CTRL_MassMailing extends ADMIN_CTRL_Abstract
                         else
                         {
                             $textContent = UTIL_String::replaceVars($data['body'], $vars);
-                            $textContent .= "\n\n" . $language->text('admin', 'massmailing_unsubscribe_link_text', array('link' => $link));
+                            
+                            if( !$hasUnsubscribeUrl )
+                            {
+                                $textContent .= "\n\n" . $language->text('admin', 'massmailing_unsubscribe_link_text', array('link' => $link));
+                            }
+                            
                             $mail->setTextContent($textContent);
                         }
 

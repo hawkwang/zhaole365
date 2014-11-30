@@ -1,3 +1,68 @@
+Oxwall 1.7.2 beta, 2014-11-18
+====================================
+
+Platform:
+- fully re-imagined and enhanced the “Flags” feature:
+	- redesigned the page for moderators, to more effectively and simpler review and manage all flagged content. The link 	to the page will now appear in the Console for quicker access.
+	- added the ability to flag all following content: users, events, comments, and newsfeed status updates.
+- redesigned the interface for user avatar upload on "Join Form" and "Change Avatar" pages.
+- added the option for admin/moderator to list the reason for the user suspension, which will be send to users’ email address.
+- added the option for suspended users to delete their profiles from the site.
+- fixed a bug affecting the user avatar display in console notifications after user changes avatars.
+- the system now recognizes the value of php.ini directive “max_post_size” during the upload of a new theme archive.
+- fixed a bug affecting the display of embed videos inserted through rich media in blogs, forum topics and newsfeed status updates.
+- the invitation code is now removed from the database after the user is recognized as successfully registered on the site.
+- made the invitations sent through Facebook contact importer eligible for registration, when “by invitations only” mode is on.
+- added button "Mail notifications" in the Console for quicker access.
+- during the import of language packs, only language keys of the installed plugins are added to the database now.
+- removed the check for PHP directive "register_globals" in the installation script, since the directive is no longer supported by PHP http://php.net/manual/en/security.globals.php 
+- fixed a bug which affected the behavior of frozen widgets in the Admin Area.
+- fixed a bug which allowed a profile registered through Facebook Connect but without all required fields filled to appear on the site.
+- made the label “More” in the context menu of the “View profile” page to be a part of the language system.
+- added an error message to be displayed when a user changes password, but enters a wrong value during password confirmation.
+- added correct https support for operation of individual SSL pages.
+- introduced the size limit for the event log file. In addition, there is now an option to add exceptions to the log for the most frequent events.
+- error log is now divided into separate contexts. 
+
+Messages:
+- the plugin’s performance and stability is significantly improved.
+- increased the speed of search within conversations.
+- increased the speed of user search during the creation of a new message.
+- increased the display size of the conversation window.
+- added formatting buttons, including bold, italic, underline, and link.
+- added option to perform group actions with conversations.
+- icons “envelope” and “bubble” are no longer displayed in the conversations list, if either of the Chat or Mailbox modes are on. 
+- the behavior of the “Back” button for a conversation in the list is now more clear: it now appears only when a user added a conversation response. 
+- added an attachment indicator for a conversation in the list, if it includes at least one attachment inside.
+- the Console now loads more conversations during the first activation of the “Messages” button. 
+- added plugin option “Allow to send messages once in…” for admin to prevent receiving spam sent by bots. 
+- fixed the error “Call to a member function getId()”
+
+Photos:
+- fixed a bug preventing a photo to resize correctly during the switch from “View full size” to regular mode.
+- fixed a bug affecting the display of photos in the album “Profile cover gallery”, when photos’ privacy is set to “My friends only”. 
+- fixed the display of the photo description in the “Photo view” page title.view
+- added social sharing buttons on the “Photo view” page, if the Social Sharing plugin is installed.
+- added option to include hashtags for photos in any language. 
+- fixed a bug preventing the editing of album covers if the Amazon Cloud mode is activated on the site. 
+- fixed the display of the meta tag value “description” on the page “Most discussed photos”
+- reduced space size taken by photos after conversion. The reduction is achieved through lowering of the end quality ration during the conversion. 
+
+Blogs:
+- “Edit” button is no longer displayed to moderators, unless they are specifically assigned blog moderation rights.
+- fixed the display format of a newsfeed record about the creation of new blog posts. 
+
+Video:
+- added support of thumbnail grabbing for embed videos from Facebook. 
+- fixed the display of embed videos, which had percentage values for width in their embed code.
+
+Newsfeed:
+- fixed a bug allowing a user to delete another user’s post after leaving a comment after it.
+
+Contact us:
+- captcha field is now displayed on Contact form for suspended users.
+
+
 Oxwall 1.7.1 beta, 2014-08-18:
 ====================================
 

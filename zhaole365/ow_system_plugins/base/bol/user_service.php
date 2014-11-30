@@ -745,6 +745,10 @@ final class BOL_UserService
 
         BOL_QuestionService::getInstance()->deleteQuestionDataByUserId((int) $userId);
         BOL_AvatarService::getInstance()->deleteUserAvatar($userId);
+        
+        $this->userSuspendDao->deleteById($userId);
+        $this->userBlockDao->deleteByUserId($userId);
+        
         $this->userDao->deleteById($userId);
 
         return true;
@@ -804,7 +808,7 @@ final class BOL_UserService
         }
     }
 
-    public function suspend( $userId )
+    public function suspend( $userId, $message )
     {
         if ( $this->isSuspended($userId) )
         {
@@ -814,11 +818,11 @@ final class BOL_UserService
         $dto = new BOL_UserSuspend();
 
         $dto->setUserId($userId)
-            ->setTimestamp(time());
+            ->setTimestamp(time())->setMessage($message);
 
         $this->userSuspendDao->save($dto);
 
-        $event = new OW_Event(OW_EventManager::ON_USER_SUSPEND, array('userId' => $userId));
+        $event = new OW_Event(OW_EventManager::ON_USER_SUSPEND, array('userId' => $userId, 'message' => $message));
         OW::getEventManager()->trigger($event);
     }
 
@@ -972,6 +976,11 @@ final class BOL_UserService
     public function findInvitationInfo( $code )
     {
         return $this->inviteCodeDao->findByCode($code);
+    }
+    
+    public function deleteInvitationCode( $code )
+    {
+        return $this->inviteCodeDao->deleteByCode($code);
     }
 
     public function sendAdminInvitation( $email )

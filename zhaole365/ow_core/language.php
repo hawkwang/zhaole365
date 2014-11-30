@@ -88,7 +88,13 @@ class OW_Language
             return $prefix . '+' . $key;
         }
 
-        $this->eventManager->trigger(new OW_Event("core.get_text", array("prefix" => $prefix, "key" => $key, "vars" => $vars)));
+        $event = new OW_Event("core.get_text", array("prefix" => $prefix, "key" => $key, "vars" => $vars));
+        $this->eventManager->trigger($event);
+
+        if ( $event->getData() !== null )
+        {
+            return $event->getData();
+        }
 
         $text = UTIL_String::replaceVars($text, $vars);
 

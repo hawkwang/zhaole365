@@ -55,7 +55,7 @@ class BASE_CMP_UserViewWidget extends BASE_CLASS_Widget
 
         $questions = self::getUserViewQuestions($userId, $adminMode);
         
-        if ( empty($questions['questions']) )
+        if ( empty($questions['questions']) && $adminMode )
         {
             $list = BOL_QuestionService::getInstance()->getRequiredQuestionsForNewAccountType();
             

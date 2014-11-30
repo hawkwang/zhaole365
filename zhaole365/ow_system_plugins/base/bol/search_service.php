@@ -102,9 +102,9 @@ class BOL_SearchService
      * @param int $count
      * @return array
      */
-    public function getUserIdList( $listId, $first, $count )
+    public function getUserIdList( $listId, $first, $count, $excludeList = array() )
     {
-        return $this->searchResultDao->getUserIdList($listId, $first, $count);
+        return $this->searchResultDao->getUserIdList($listId, $first, $count, $excludeList);
     }
 
     public function countSearchResultItem( $listId )

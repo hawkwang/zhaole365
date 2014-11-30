@@ -138,8 +138,10 @@ class BASE_CMP_CommentsList extends OW_Component
         {
             $deleteButton = true;
         }
+        
+        $flagButton = $value->getUserId() != OW::getUser()->getId();
 
-        if ( $this->isBaseModerator || $deleteButton )
+        if ( $this->isBaseModerator || $deleteButton || $flagButton )
         {
             $cAction = new BASE_CMP_ContextAction();
             $parentAction = new BASE_ContextAction();
@@ -149,14 +151,14 @@ class BASE_CMP_CommentsList extends OW_Component
 
             if ( $deleteButton )
             {
-                $delAction = new BASE_ContextAction();
-                $delAction->setLabel($language->text('base', 'contex_action_comment_delete_label'));
-                $delAction->setKey('udel');
-                $delAction->setParentKey($parentAction->getKey());
+                $flagAction = new BASE_ContextAction();
+                $flagAction->setLabel($language->text('base', 'contex_action_comment_delete_label'));
+                $flagAction->setKey('udel');
+                $flagAction->setParentKey($parentAction->getKey());
                 $delId = 'del-' . $value->getId();
-                $delAction->setId($delId);
+                $flagAction->setId($delId);
                 $this->actionArr['comments'][$delId] = $value->getId();
-                $cAction->addAction($delAction);
+                $cAction->addAction($flagAction);
             }
 
             if ( $this->isBaseModerator && $value->getUserId() != OW::getUser()->getId() )
@@ -169,6 +171,19 @@ class BASE_CMP_CommentsList extends OW_Component
                 $modAction->setId($delId);
                 $this->actionArr['users'][$delId] = $value->getUserId();
                 $cAction->addAction($modAction);
+            }
+            
+            if ( $flagButton )
+            {
+                $flagAction = new BASE_ContextAction();
+                $flagAction->setLabel($language->text('base', 'flag'));
+                $flagAction->setKey('cflag');
+                $flagAction->setParentKey($parentAction->getKey());
+                $flagAction->addAttribute("onclick", "var d = $(this).data(); OW.flagContent(d.etype, d.eid);");
+                $flagAction->addAttribute("data-etype", "comment");
+                $flagAction->addAttribute("data-eid", $value->id);
+
+                $cAction->addAction($flagAction);
             }
         }
 

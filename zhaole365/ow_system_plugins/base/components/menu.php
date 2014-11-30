@@ -50,6 +50,8 @@ class BASE_CMP_Menu extends OW_Component
     {
         parent::__construct();
 
+        $this->setMenuItems($menuItems);
+        
         $this->setTemplate(OW::getPluginManager()->getPlugin('base')->getCmpViewDir() . 'menu.html');
     }
 
@@ -66,7 +68,15 @@ class BASE_CMP_Menu extends OW_Component
      */
     public function setMenuItems( $menuItems )
     {
-        $this->menuItems = $menuItems;
+        if ( empty($menuItems) )
+        {
+            return;
+        }
+        
+        foreach ( $menuItems as $item )
+        {
+            $this->addElement($item);
+        }
     }
 
     /**
@@ -130,6 +140,21 @@ class BASE_CMP_Menu extends OW_Component
         }
     }
 
+    protected function getItemViewData( BASE_MenuItem $menuItem )
+    {
+        return array(
+            'label' => $menuItem->getLabel(),
+            'url' => $menuItem->getUrl(),
+            'class' => $menuItem->getPrefix() . '_' . $menuItem->getKey(),
+            'iconClass' => $menuItem->getIconClass(),
+            'active' => $menuItem->isActive(),
+            'new_window' => $menuItem->getNewWindow(),
+            'prefix' => $menuItem->getPrefix(),
+            'key' => $menuItem->getKey()
+        );
+    }
+
+
     /**
      * @see OW_Renderable::onBeforeRender()
      *
@@ -144,17 +169,7 @@ class BASE_CMP_Menu extends OW_Component
         foreach ( $this->menuItems as $menuItem )
         {
             $menuItem->activate(OW::getRouter()->getBaseUrl() . OW::getRequest()->getRequestUri());
-
-            $arrayToAssign[] = array(
-                'label' => $menuItem->getLabel(),
-                'url' => $menuItem->getUrl(),
-                'class' => $menuItem->getPrefix() . '_' . $menuItem->getKey(),
-                'iconClass' => $menuItem->getIconClass(),
-                'active' => $menuItem->isActive(),
-                'new_window' => $menuItem->getNewWindow(),
-                'prefix' => $menuItem->getPrefix(),
-                'key' => $menuItem->getKey()
-            );
+            $arrayToAssign[] = $this->getItemViewData($menuItem);
         }
 
         $this->assign('class', 'ow_' . OW_Autoload::getInstance()->classToFilename(get_class($this), false));

@@ -45,6 +45,7 @@ class OW_EventManager
     const ON_BEFORE_PLUGIN_UNINSTALL = 'core.plugin_uninstall';
     const ON_AFTER_PLUGIN_ACTIVATE = 'core.plugin_activate';
     const ON_BEFORE_PLUGIN_DEACTIVATE = 'core.plugin_deactivate';
+    const ON_AFTER_PLUGIN_UPDATE = "core.plugin_update";
 
     /* list of predefined system events: general events  */
     const ON_BEFORE_USER_REGISTER = 'base.before_user_register';
@@ -64,22 +65,43 @@ class OW_EventManager
     const ON_USER_DISAPPROVE = 'base.on_user_disapprove';
     const ON_USER_MARK_FEATURED = 'base.on_user_mark_featured';
     const ON_USER_UNMARK_FEATURED = 'base.on_user_unmark_featured';
-    
     const ON_BEFORE_USER_COMPLETE_PROFILE = 'base.on_before_user_complete_profile';
     const ON_BEFORE_USER_COMPLETE_ACCOUNT_TYPE = 'base.on_before_user_complete_account_type';
+
+    /**
+     * @var array
+     */
+    private $eventsToSkip = array(
+        "core.get_text",
+        "core.get_storage",
+        "class.get_instance",
+        "base.before_decorator",
+        "core.sql.get_query_result",
+        "core.sql.set_query_result",
+        "core.sql.exec_query",
+        "core.performance_test"
+    );
+
+    /**
+     * @var int
+     */
+    private $maxItemsInLog = 200;
 
     /**
      * @var boolean
      */
     private $devMode = false;
+
     /**
      * @var array
      */
     private $eventsLog = array();
+
     /**
      * @var UTIL_Profiler
      */
     private $profiler;
+
     /**
      * List of binded listeners.
      *
@@ -186,7 +208,7 @@ class OW_EventManager
                     }
                 }
 
-                if ( OW_PROFILER_ENABLE )
+                if ( !in_array($event->getName(), $this->eventsToSkip) && count($this->eventsLog) < $this->maxItemsInLog )
                 {
                     $this->eventsLog[] = array('type' => 'trigger', 'start' => $startTime, 'exec' => $this->profiler->getTotalTime(), 'event' => $event, 'listeners' => $this->listeners[$event->getName()]);
                 }
@@ -209,8 +231,8 @@ class OW_EventManager
         {
             // log events with no listeners
             $startTime = UTIL_Profiler::getInstance()->getTotalTime();
-            
-            if ( OW_PROFILER_ENABLE )
+
+            if ( $this->devMode && !in_array($event->getName(), $this->eventsToSkip) && count($this->eventsLog) < $this->maxItemsInLog )
             {
                 $this->eventsLog[] = array('type' => 'trigger', 'start' => $startTime, 'event' => $event, 'listeners' => array(), 'exec' => 0);
             }
@@ -241,8 +263,8 @@ class OW_EventManager
                 $this->profiler->reset();
                 $handlers = reset($this->listeners[$eventName]);
                 $result = call_user_func(end($handlers), $event);
-                
-                if ( OW_PROFILER_ENABLE )
+
+                if ( !in_array($event->getName(), $this->eventsToSkip) && count($this->eventsLog) < $this->maxItemsInLog )
                 {
                     $this->eventsLog[] = array('type' => 'call', 'start' => $startTime, 'exec' => $this->profiler->getTotalTime(), 'event' => $event, 'listeners' => $this->listeners[$event->getName()]);
                 }
@@ -259,8 +281,8 @@ class OW_EventManager
         {
             // log events with no listeners
             $startTime = UTIL_Profiler::getInstance()->getTotalTime();
-            
-            if ( OW_PROFILER_ENABLE )
+
+            if ( $this->devMode && !in_array($event->getName(), $this->eventsToSkip) && count($this->eventsLog) < $this->maxItemsInLog )
             {
                 $this->eventsLog[] = array('type' => 'call', 'start' => $startTime, 'event' => $event, 'listeners' => array(), 'exec' => 0);
             }

@@ -82,7 +82,7 @@
                         window.htmlAreaData.tempStyles = '';
                         $.each( crules,
                             function(key, data){
-                                if( data.selectorText && data.selectorText.match(/body\.htmlarea_styles/i) ){
+                                if( data.selectorText && data.selectorText.match(/.htmlarea_styles/i) ){
                                     window.htmlAreaData.tempStyles += ( self.isMsie() ? data.selectorText + '{' + data.style.cssText + '}' : data.cssText );
                                 }
                             }
@@ -95,6 +95,9 @@
                     if ( icontents )
                     {
                         $('body', icontents).addClass('htmlarea_styles');
+                        if( options.customClass ){
+                            $('body', icontents).addClass(options.customClass);
+                        }
                         $('head', icontents).html('<style>'+window.htmlAreaData.tempStyles+'</style>');
                         if( window.htmlAreaData.rtl ){
                             $('html', icontents).attr('dir', 'rtl');
@@ -118,6 +121,8 @@
                 if (opts.loaded) {
                     opts.loaded.call(this);
                 }
+
+                OW.trigger('base.initjHtmlArea', [], this);
             }
         },
         dispose: function() {
@@ -386,7 +391,7 @@
         image: function(){
             this.saveCaret();
             this.tempFB = new OW_FloatBox({
-                $title: 'Insert Image',
+                $title: window.htmlAreaData.labels.buttons.image,
                 width: '600px',
                 height: '600px',
                 $contents: '<center><iframe style="min-width: 550px; min-height: 500px;" src="'+window.htmlAreaData.imagesUrl.replace('__id__', this.textarea.attr('id'))+'"></iframe></center>'
@@ -485,7 +490,7 @@
             var fbInput = $('input[name=wLabel]', $contents);
             
             this.tempFB = new OW_FloatBox({
-                $title: 'Insert Link',
+                $title: window.htmlAreaData.labels.buttons.link,
                 width: '500px',
                 height: '300px',
                 $contents: $contents

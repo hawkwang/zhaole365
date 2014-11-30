@@ -36,6 +36,15 @@ class BASE_CLASS_ConsoleEventHandler
             $item->addItem('main', array('label' => $language->text('base', 'console_item_label_profile'), 'url' => $router->urlForRoute('base_user_profile', array('username' => OW::getUser()->getUserObject()->getUsername()))));
             $item->addItem('main', array('label' => $language->text('base', 'edit_index'), 'url' => $router->urlForRoute('base_edit')));
             $item->addItem('main', array('label' => $language->text('base', 'preference_index'), 'url' => $router->urlForRoute('base_preference_index')));
+            
+            if ( OW::getUser()->isAdmin() || BOL_AuthorizationService::getInstance()->isModerator() )
+            {
+                $item->addItem('main', array(
+                    'label' => $language->text('base', 'moderation_tools'),
+                    'url' => $router->urlForRoute('base.moderation_tools')
+                ));
+            }
+            
             $item->addItem('foot', array('label' => $language->text('base', 'console_item_label_sign_out'), 'url' => $router->urlForRoute('base_sign_out')));
 
             $addItemsEvent = new BASE_CLASS_EventCollector('base.add_main_console_item');

@@ -93,8 +93,6 @@ $router->addRoute(new OW_Route('base_page_alert', 'alert-page', 'BASE_CTRL_BaseD
 $router->addRoute(new OW_Route('base_page_confirm', 'confirm-page', 'BASE_CTRL_BaseDocument', 'confirmPage'));
 $router->addRoute(new OW_Route('base_page_install_completed', 'install/completed', 'BASE_CTRL_BaseDocument', 'installCompleted'));
 
-$router->addRoute(new OW_Route('base_avatar_crop', 'profile/avatar', 'BASE_CTRL_Avatar', 'crop'));
-
 $router->addRoute(new OW_Route('base_delete_user', 'profile/delete', 'BASE_CTRL_DeleteUser', 'index'));
 $router->addRoute(new OW_Route('base.reset_user_password', 'reset-password/:code', 'BASE_CTRL_User', 'resetPassword'));
 $router->addRoute(new OW_Route('base.reset_user_password_request', 'reset-password-request', 'BASE_CTRL_User', 'resetPasswordRequest'));
@@ -115,6 +113,11 @@ $router->addRoute(new OW_Route('base.robots_txt', 'robots.txt', 'BASE_CTRL_Base'
 
 $router->addRoute(new OW_Route('base.complete_account_type', 'fill/account_type', 'BASE_CTRL_CompleteProfile', 'fillAccountType'));
 $router->addRoute(new OW_Route('base.complete_required_questions', 'fill/profile_questions', 'BASE_CTRL_CompleteProfile', 'fillRequiredQuestions'));
+
+$router->addRoute(new OW_Route('base.moderation_flags', 'moderation/flags/:group', 'BASE_CTRL_Moderation', 'flags'));
+$router->addRoute(new OW_Route('base.moderation_flags_index', 'moderation/flags', 'BASE_CTRL_Moderation', 'flags'));
+$router->addRoute(new OW_Route('base.moderation_tools', 'moderation', 'BASE_CTRL_Moderation', 'index'));
+
 
 OW_ViewRenderer::getInstance()->registerFunction('display_rate', array('BASE_CTRL_Rate', 'displayRate'));
 

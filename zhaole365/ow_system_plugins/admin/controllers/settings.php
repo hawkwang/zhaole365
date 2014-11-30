@@ -186,7 +186,7 @@ class ADMIN_CTRL_Settings extends ADMIN_CTRL_Abstract
         $resourceList->setLabel($language->text('admin', 'input_settings_resource_list_label'));
         $resourceList->setDescription($language->text('admin', 'input_settings_resource_list_desc'));
         $settingsForm->addElement($resourceList);
-
+        
         $attchMaxUploadSize = new TextField('attch_max_upload_size');
         $attchMaxUploadSize->setLabel($language->text('admin', 'input_settings_attch_max_upload_size_label'));
         $attchMaxUploadSize->addValidator($maxUploadMaxFilesizeValidator);
@@ -280,15 +280,22 @@ class ADMIN_CTRL_Settings extends ADMIN_CTRL_Abstract
             $this->redirect(OW::getRouter()->urlForRoute('admin_settings_user'));
         }
 
+        $uploadMaxFilesize = (float) ini_get("upload_max_filesize");
+        $postMaxSize = (float) ini_get("post_max_size");
 
-        $userSettingsForm = new UserSettingsForm();
+        $maxUploadMaxFilesize = $uploadMaxFilesize >= $postMaxSize ? $postMaxSize : $uploadMaxFilesize;
+        $this->assign('maxUploadMaxFilesize', $maxUploadMaxFilesize);        
+        
+        $userSettingsForm = new UserSettingsForm($maxUploadMaxFilesize);
         $this->addForm($userSettingsForm);
 
         $conf = OW::getConfig();
-
+        
         $avatarSize = $conf->getValue('base', 'avatar_size');
         $bigAvatarSize = $conf->getValue('base', 'avatar_big_size');
+        $avatarUploadSize = $conf->getValue('base', 'avatar_max_upload_size');
 
+        $userSettingsForm->getElement('avatar_max_upload_size')->setValue((float)$avatarUploadSize);
         $userSettingsForm->getElement('avatarSize')->setValue($avatarSize);
         $userSettingsForm->getElement('bigAvatarSize')->setValue($bigAvatarSize);
         $userSettingsForm->getElement('displayName')->setValue($conf->getValue('base', 'display_name_question'));
@@ -297,13 +304,11 @@ class ADMIN_CTRL_Settings extends ADMIN_CTRL_Abstract
 
         if ( OW::getRequest()->isPost() && $userSettingsForm->isValid($_POST) )
         {
-            if ( !empty($_FILES['avatar']['tmp_name']) )
+            if ( !empty($_FILES['avatar']['tmp_name']) && !UTIL_File::validateImage($_FILES['avatar']['name'])
+                || !empty($_FILES['bigAvatar']['tmp_name']) && !UTIL_File::validateImage($_FILES['bigAvatar']['name']) )
             {
-                if ( !UTIL_File::validateImage($_FILES['avatar']['name']) )
-                {
-                    OW::getFeedback()->error($language->text('base', 'not_valid_image'));
-                    $this->redirect();
-                }
+                OW::getFeedback()->error($language->text('base', 'not_valid_image'));
+                $this->redirect();
             }
 
             $res = $userSettingsForm->process();
@@ -836,7 +841,7 @@ class UserSettingsForm extends Form
      * Class constructor
      *
      */
-    public function __construct()
+    public function __construct($maxUploadMaxFilesize)
     {
         parent::__construct('userSettingsForm');
 
@@ -859,7 +864,18 @@ class UserSettingsForm extends Form
         $validator->setErrorMessage($language->text('admin', 'user_settings_big_avatar_size_error', array('max' => 250)));
         $bigAvatarSize->addValidator($validator);
         $this->addElement($bigAvatarSize->setLabel($language->text('admin', 'user_settings_big_avatar_size_label')));
+        
+        // --- avatar max size
 
+        $maxUploadMaxFilesizeValidator = new FloatValidator(0, $maxUploadMaxFilesize);
+        $maxUploadMaxFilesizeValidator->setErrorMessage($language->text('admin', 'settings_max_upload_size_error'));
+        
+        $avatarMaxUploadSize = new TextField('avatar_max_upload_size');
+        $avatarMaxUploadSize->setLabel($language->text('admin', 'input_settings_avatar_max_upload_size_label'));
+        $avatarMaxUploadSize->addValidator($maxUploadMaxFilesizeValidator);
+        $this->addElement($avatarMaxUploadSize);
+        // --- avatar max size
+        
         if ( !defined('OW_PLUGIN_XP') )
         {
             // confirm Email
@@ -931,6 +947,8 @@ class UserSettingsForm extends Form
 
         $config->saveConfig('base', 'join_display_photo_upload', $values['join_display_photo_upload']);
         $config->saveConfig('base', 'join_display_terms_of_use', $values['join_display_terms_of_use']);
+        
+        $config->saveConfig('base', 'avatar_max_upload_size', round((float) $values['avatar_max_upload_size'], 2));
 
         if ( !defined('OW_PLUGIN_XP') )
         {

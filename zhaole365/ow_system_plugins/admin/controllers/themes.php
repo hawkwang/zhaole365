@@ -159,15 +159,56 @@ class ADMIN_CTRL_Themes extends ADMIN_CTRL_Abstract
             {
                 $data = $form->getValues();
 
-                if ( empty($_FILES['file']) || $_FILES['file']['error'] > 0 || !is_uploaded_file($_FILES['file']['tmp_name']) )
+                $uploadMaxFilesize = (float) ini_get("upload_max_filesize");
+                $postMaxSize = (float) ini_get("post_max_size");
+
+                $serverLimit = $uploadMaxFilesize < $postMaxSize ? $uploadMaxFilesize : $postMaxSize;
+
+                if ( ($_FILES['file']['error'] != UPLOAD_ERR_OK && $_FILES['file']['error'] == UPLOAD_ERR_INI_SIZE ) || ( empty($_FILES['file']) || $_FILES['file']['size'] > $serverLimit * 1024 * 1024 ) )
                 {
-                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_empty_field_error_message'));
+                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_size_error_message', array('limit' => $serverLimit)));
                     $this->redirect();
                 }
 
-                if ( $_FILES['file']['size'] > 50000000 )
+                if ( $_FILES['file']['error'] != UPLOAD_ERR_OK )
                 {
-                    OW::getFeedback()->error($language->text('admin', 'manage_plugins_add_size_error_message'));
+                    switch ( $_FILES['file']['error'] )
+                    {
+                        case UPLOAD_ERR_INI_SIZE:
+                            $error = $language->text('base', 'upload_file_max_upload_filesize_error');
+                            break;
+
+                        case UPLOAD_ERR_PARTIAL:
+                            $error = $language->text('base', 'upload_file_file_partially_uploaded_error');
+                            break;
+
+                        case UPLOAD_ERR_NO_FILE:
+                            $error = $language->text('base', 'upload_file_no_file_error');
+                            break;
+
+                        case UPLOAD_ERR_NO_TMP_DIR:
+                            $error = $language->text('base', 'upload_file_no_tmp_dir_error');
+                            break;
+
+                        case UPLOAD_ERR_CANT_WRITE:
+                            $error = $language->text('base', 'upload_file_cant_write_file_error');
+                            break;
+
+                        case UPLOAD_ERR_EXTENSION:
+                            $error = $language->text('base', 'upload_file_invalid_extention_error');
+                            break;
+
+                        default:
+                            $error = $language->text('base', 'upload_file_fail');
+                    }
+
+                    OW::getFeedback()->error($error);
+                    $this->redirect();
+                }
+
+                if ( !is_uploaded_file($_FILES['file']['tmp_name']) )
+                {
+                    OW::getFeedback()->error($language->text('admin', 'manage_themes_add_empty_field_error_message'));
                     $this->redirect();
                 }
 

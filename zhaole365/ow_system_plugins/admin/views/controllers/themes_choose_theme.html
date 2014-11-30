@@ -158,7 +158,7 @@ html body .selected_theme_info_stick{
 				<td class="ow_value"><span class="author_url"><a href="{$themeInfo.authorUrl}">{$themeInfo.authorUrl}</a></span></td>
 			</tr>
 			</table>
-        <div class="clearfix"><div class="ow_right theme_control_button"><span class="dlt_btn"{if empty($themeInfo.delete_url)} style="display:none;"{/if}>{decorator name='button' class='theme_select_delete_btn ow_ic_delete' langLabel='admin+themes_choose_delete_button_label'}</span> {decorator name='button' class='theme_select_submit ow_positive' langLabel='admin+themes_choose_activate_button_label'}</div></div>
+        <div class="clearfix"><div class="ow_right theme_control_button ow_btn_delimiter"><span class="dlt_btn"{if empty($themeInfo.delete_url)} style="display:none;"{/if}>{decorator name='button' class='theme_select_delete_btn ow_ic_delete' langLabel='admin+themes_choose_delete_button_label'}</span> {decorator name='button' class='theme_select_submit ow_positive' langLabel='admin+themes_choose_activate_button_label'}</div></div>
             <div style="display: none;"><div class="theme_preview" style="text-align: center;"><img src="{$themeInfo.previewUrl}" /></div></div>
 		</div>
 {/block_decorator}

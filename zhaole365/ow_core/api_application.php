@@ -68,7 +68,17 @@ class OW_ApiApplication extends OW_Application
 
         $authToken = empty($_SERVER["HTTP_API_AUTH_TOKEN"]) ? null : $_SERVER["HTTP_API_AUTH_TOKEN"];
         OW_Auth::getInstance()->setAuthenticator(new OW_TokenAuthenticator($authToken));
-
+        
+        if ( !empty($_SERVER["HTTP_API_LANGUAGE"]) )
+        {
+            $languageDto = BOL_LanguageService::getInstance()->findByTag($_SERVER["HTTP_API_LANGUAGE"]);
+            
+            if ( !empty($languageDto) )
+            {
+                BOL_LanguageService::getInstance()->setCurrentLanguage($languageDto);
+            }
+        }
+        
         // setting default time zone
         date_default_timezone_set(OW::getConfig()->getValue('base', 'site_timezone'));
 

@@ -37,15 +37,16 @@ class BASE_CTRL_SuspendedUser extends OW_ActionController
 
     public function suspend( $params )
     {
-        if ( !OW::getUser()->isAuthorized('base') || empty($params['id']) )
+        if ( !OW::getUser()->isAuthorized('base') || empty($params['id']) || empty($params['message']) )
         {
             exit;
         }
 
         $id = (int) $params['id'];
+        $message = $params['message'];
 
         $userService = BOL_UserService::getInstance();
-        $userService->suspend($id);
+        $userService->suspend($id, $message);
 
         OW::getFeedback()->info(OW::getLanguage()->text('base', 'user_feedback_profile_suspended'));
 

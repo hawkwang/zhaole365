@@ -15,7 +15,6 @@
 {/literal}{/style}
 
 {add_content key='base.widget_panel.content.top' placeName=$placeName entityId=$entityId}
-{add_content key='base.`$placeName`.content.top' entityId=$entityId}
 
 {if $allowCustomize}
 	{block_decorator name='box' addClass='ow_highbox ow_stdmargin customize_box' type="empty"}
@@ -78,4 +77,3 @@
 </div>
 
 {add_content key='base.widget_panel.content.bottom' placeName=$placeName entityId=$entityId}
-{add_content key='base.`$placeName`.content.bottom' entityId=$entityId}

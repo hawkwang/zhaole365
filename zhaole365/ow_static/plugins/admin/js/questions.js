@@ -977,29 +977,68 @@ var indexQuestions = function( $params )
             var th = $(this).parents("table:eq(0)");
             var name = th.attr('sectionName');
             
-            if( confirm(OW.getLanguageText('admin', 'questions_delete_section_confirmation')) )
+            if ( self.sendRequest == true )
             {
-                self.sendRequest = true;
-                $.ajax( {
+                return;
+            }
+            
+            
+            $.ajax( {
                     url: self.responderUrl,
                     type: 'POST',
+                    dataType: 'json',
                     data:
                        {
-                            command: 'deleteSection',
+                            command: 'findNearestSection',
                             sectionName: name
                        },
-                    success: function( result ) {
-                        self.sendRequest = false;
-                        
-                        if ( result && result.result == 'success' )
-                        {
-                            th.remove();
-                            OW.info(result['message']);
-                        }
-                    },
-                    dataType: 'json'
-                } );
-            }
+                   })
+            .done(
+                function ( result ) {
+              
+                    self.sendRequest == false;
+              
+                    var message = OW.getLanguageText('admin', 'questions_delete_section_confirmation');
+
+                    if ( result.message )
+                    {
+                        message = result.message;
+                    }
+
+                    if( confirm( message ) )
+                    {
+                        self.sendRequest = true;
+                        $.ajax( {
+                            url: self.responderUrl,
+                            type: 'POST',
+                            data:
+                               {
+                                    command: 'deleteSection',
+                                    sectionName: name
+                               },
+                            success: function( result ) {
+                                self.sendRequest = false;
+
+                                if ( result && result.result == 'success' )
+                                {
+                                    if ( result.moveTo )
+                                    {
+                                        var moveToSection = $questionDiv.find("table[sectionName="+result.moveTo+"]");
+                                        var questions = th.find("tr.question_tr:not(.no_question)");
+                                        moveToSection.append(questions);
+                                    }
+
+                                    th.remove();
+                                    OW.info(result['message']);
+                                }
+                            },
+                            dataType: 'json'
+                        } );
+                    }
+                }        
+            )
+            .always(function() { self.sendRequest == false }); 
+            
         } );
 
     $questionTable.find("tr.question_section_tr, tr.question_tr").bind( "mouseover", function(){$(this).find(".delete_edit_buttons a").css('visibility', 'visible');} )

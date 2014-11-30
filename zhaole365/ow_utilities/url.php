@@ -121,4 +121,23 @@ class UTIL_Url
 
         return $protocol . "://" . $_SERVER['SERVER_NAME'] . $port . $_SERVER['REQUEST_URI'];
     }
+
+    public static function getLocalPath( $uri )
+    {
+        $userFilesUrl = OW::getStorage()->getFileUrl(OW_DIR_USERFILES);
+        $path = null;
+
+        if ( stripos($uri, OW_URL_HOME) !== false )
+        {
+            $path = str_replace(OW_URL_HOME, OW_DIR_ROOT, $uri);
+            $path = str_replace('/', DS, $path);
+        }
+        else if ( stripos($uri, $userFilesUrl) !== false )
+        {
+            $path = str_replace($userFilesUrl, OW_DIR_USERFILES, $uri);
+            $path = str_replace('/', DS, $path);
+        }
+
+        return $path;
+    }
 }

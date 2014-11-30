@@ -23,9 +23,8 @@
  */
 
 /**
- * Singleton. 'Flag' Data Access Object
  *
- * @author Aybat Duyshokov <duyshokov@gmail.com>
+ * @author Sergey Kambalin <greyexpert@gmail.com>
  * @package ow_system_plugins.base.bol
  * @since 1.0
  */
@@ -62,137 +61,102 @@ class BOL_FlagDao extends OW_BaseDao
         return 'BOL_Flag';
     }
 
-    public function flag( $type, $entityId, $reason, $title, $url, $userId, $langKey )
+    /**
+     * 
+     * @param string $entityType
+     * @param int $entityId
+     * @param int $userId
+     * @return BOL_Flag
+     */
+    public function findFlag( $entityType, $entityId, $userId )
     {
-        $dto = $this->find($type, $entityId, $userId);
+        $example = new OW_Example();
 
-        if ( $dto === null )
-        {
-            $dto = new BOL_Flag();
-        }
-
-        $this->save(
-                $dto->setEntityId($entityId)
-                ->setReason($reason)
-                ->setUserId($userId)
-                ->setType($type)
-                ->setTitle($title)
-                ->setUrl($url)
-                ->setLangKey($langKey)
-        );
-    }
-
-    public function find( $type, $entityId, $userId )
-    {
-        $ex = new OW_Example();
-
-        $ex->andFieldEqual('type', $type)
+        $example->andFieldEqual('entityType', $entityType)
             ->andFieldEqual('entityId', $entityId)
             ->andFieldEqual('userId', $userId);
-        $ex->setLimitClause(0, 1);
 
-        return $this->findObjectByExample($ex);
+        return $this->findObjectByExample($example);
+    }
+    
+    /**
+     * 
+     * @param array $entityTypes
+     * @return array
+     */
+    public function findByEntityTypeList( $entityTypes, array $limit = null )
+    {
+        $example = new OW_Example();
+        $example->andFieldInArray("entityType", $entityTypes);
+        
+        if ( !empty($limit) )
+        {
+            $example->setLimitClause($limit[0], $limit[1]);
+        }
+        
+        $example->setOrder("timeStamp DESC");
+        
+        return $this->findListByExample($example);
     }
 
-    public function count( $type )
+    /**
+     * 
+     * @param string $entityType
+     * @return int
+     */
+    public function countByEntityType( $entityType )
     {
-        $q = "SELECT *
-		FROM `{$this->getTableName()}`
-		WHERE `type` =?
-		ORDER BY `entityId`";
+        $example = new OW_Example();
+        $example->andFieldEqual("entityType", $entityType);
 
-        return $this->dbo->queryForColumn($q, array($type));
+        return $this->countByExample($example);
     }
-
-    public function findList( $first, $count, $type )
+    
+    /**
+     * 
+     * @param array $entityTypes
+     * @return array
+     */
+    public function findCountForEntityTypeList( $entityTypes )
     {
-        $q = "SELECT `f`.*,
-			(
-				select count(*)
-				FROM `{$this->getTableName()}` as `f2`
-				where `f2`.`entityId` = `f`.`entityId` and `f2`.`reason` = 'spam'
-			) as `spamC`,
-			(
-				select count(*)
-				FROM `{$this->getTableName()}` as `f2`
-				where `f2`.`entityId` = `f`.`entityId` and `f2`.`reason` = 'illegal'
-			) as `illegalC`,
-			(
-				select count(*)
-				FROM `{$this->getTableName()}` as `f2`
-				where `f2`.`entityId` = `f`.`entityId` and `f2`.`reason` = 'offence'
-			) as `offenceC`
-		FROM `{$this->getTableName()}` as `f`
-		WHERE `f`.`type` = ?
-		GROUP BY `f`.`entityId`
-		ORDER BY `offenceC` + `illegalC` + `spamC` DESC
-		LIMIT ?, ?";
-
-        return $this->dbo->queryForList($q, array($type, $first, $count));
-    }
-
-    public function countFlaggedItems( $type )
-    {
-        $q = "SELECT count(DISTINCT `entityId`) FROM `{$this->getTableName()}` WHERE `type`=?";
-
-        return $this->dbo->queryForColumn($q, array($type));
-    }
-
-    public function countFlaggedItemsByTypeList( $types )
-    {
-        if ( empty($types) )
+        if ( empty($entityTypes) )
         {
             return array();
         }
-
-        $q = "SELECT count(DISTINCT `entityId`) count, `type` FROM `{$this->getTableName()}` WHERE `type` IN ('" . implode("', '", $types) . "') GROUP BY `type`";
-
-        $countList = $this->dbo->queryForList($q);
+        
+        $query = "SELECT count(DISTINCT `entityId`) `count`, `entityType` "
+                    . "FROM `" . $this->getTableName() . "` "
+                    . "WHERE `entityType` IN ('" . implode("', '", $entityTypes) . "') "
+                    . "GROUP BY `entityType`";
+        
         $out = array();
-
-        foreach ( $countList as $countItem )
+        foreach ( $this->dbo->queryForList($query) as $row )
         {
-            $out[$countItem['type']] = $countItem['count'];
+            $out[$row['entityType']] = $row['count'];
         }
-
+        
         return $out;
     }
-
-    public function findTypeList()
+    
+    public function deleteFlagList( $entityType, array $entityIdList = null )
     {
-        $q = "SELECT `type`, `langKey` FROM `{$this->getTableName()}` GROUP BY `type` ORDER BY `type` ASC";
+        $example = new OW_Example();
+        $example->andFieldEqual('entityType', $entityType);
+        
+        if ( !empty($entityIdList) )
+        {
+            $example->andFieldInArray("entityId", $entityIdList);
+        }
 
-        return $this->dbo->queryForList($q);
+        $this->deleteByExample($example);
     }
-
-    public function findFlaggedUserIdList( $type, $entityId, $reason )
+    
+    public function deleteEntityFlags( $entityType, $entityId )
     {
-        $q = "SELECT `userId` FROM `{$this->getTableName()}` WHERE `type`= ? AND `entityId`= ? AND `reason`= ?";
+        $example = new OW_Example();
+        $example->andFieldEqual('entityType', $entityType);
+        $example->andFieldEqual('entityId', $entityId);
 
-        return $this->dbo->queryForColumnList($q, array($type, $entityId, $reason));
-    }
-
-    public function deleteByTypeAndEntityId( $type, $entityId )
-    {
-        $ex = new OW_Example();
-        $ex->andFieldEqual('type', $type)
-            ->andFieldEqual('entityId', $entityId);
-
-        $this->deleteByExample($ex);
-    }
-
-    public function findLangKey( $type )
-    {
-        $q = "select `langKey` from `{$this->getTableName()}` where `type` = ? order by `timestamp` DESC limit 1";
-
-        return $this->dbo->queryForColumn($q, array($type));
-    }
-
-    public function deleteByType( $type )
-    {
-        $ex = new OW_Example();
-        $ex->andFieldEqual('type', $type);
-
-        $this->deleteByExample($ex);
+        $this->deleteByExample($example);
     }
 }

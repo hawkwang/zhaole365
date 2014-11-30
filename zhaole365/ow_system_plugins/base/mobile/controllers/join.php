@@ -23,7 +23,7 @@ class BASE_MCTRL_Join extends BASE_CTRL_Join
         
         if ( is_array($params) && !empty($params) )
         {
-                $urlParams = array_merge($_GET, $params);
+            $urlParams = array_merge($_GET, $params);
         }
 
         /* @var $form JoinForm */
@@ -59,7 +59,7 @@ class BASE_MCTRL_Join extends BASE_CTRL_Join
     {
         return BASE_MCLASS_JoinFormUtlis::presentationToCssClass();
     }
-
+    
     public function ajaxResponder()
     {
         parent::ajaxResponder();
@@ -69,5 +69,51 @@ class BASE_MCTRL_Join extends BASE_CTRL_Join
     {
         parent::joinFormSubmit($params);
         $this->setTemplate(OW::getPluginManager()->getPlugin('base')->getMobileCtrlViewDir() . 'join_index.html');
+    }
+    
+    protected function createAvatar( $userId )
+    {
+        $avatarService = BOL_AvatarService::getInstance();
+
+        $path = $_FILES['userPhoto']['tmp_name'];
+
+        if ( !file_exists($path) )
+        {
+            return false;
+        }
+
+        if ( !UTIL_File::validateImage($_FILES['userPhoto']['name']) )
+        {
+            return false;
+        }
+
+        $event = new OW_Event('base.before_avatar_change', array(
+            'userId' => $userId,
+            'avatarId' => null,
+            'upload' => true,
+            'crop' => false,
+            'isModerable' => false
+        ));
+        OW::getEventManager()->trigger($event);
+
+        $avatarSet = $avatarService->setUserAvatar($userId, $path, array('isModerable' => false, 'trackAction' => false ));
+
+        if ( $avatarSet )
+        {
+            $avatar = $avatarService->findByUserId($userId);
+            
+            if ( $avatar )
+            {
+                $event = new OW_Event('base.after_avatar_change', array(
+                    'userId' => $userId,
+                    'avatarId' => $avatar->id,
+                    'upload' => true,
+                    'crop' => false
+                ));
+                OW::getEventManager()->trigger($event);
+            }
+        }
+
+        return $avatarSet;
     }
 }

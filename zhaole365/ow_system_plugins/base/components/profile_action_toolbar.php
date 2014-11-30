@@ -51,6 +51,8 @@ class BASE_CMP_ProfileActionToolbar extends OW_Component
     const GROUP_GLOBAL = 'global';
 
     protected $userId;
+    protected $shownButtonsCount = 3;
+
 
     /**
      * Constructor.
@@ -165,14 +167,14 @@ class BASE_CMP_ProfileActionToolbar extends OW_Component
         }
         
         usort($tplActions, array($this, "sortCallback"));
-        $visibleActions = array_slice($tplActions, 0, 3);
-        $moreActions = array_slice($tplActions, 3);
+        $visibleActions = array_slice($tplActions, 0, $this->shownButtonsCount);
+        $moreActions = array_slice($tplActions, $this->shownButtonsCount);
         
         $this->assign('toolbar', $visibleActions);
         
         $moreGroup = array(
             "key" => "base.more",
-            "label" => OW::getLanguage()->text('base', 'more'),
+            "label" => OW::getLanguage()->text("base", "more"),
             "toolbar" => $moreActions
         );
         

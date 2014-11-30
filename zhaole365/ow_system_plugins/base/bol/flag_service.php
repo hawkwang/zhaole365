@@ -23,9 +23,8 @@
  */
 
 /**
- * Singleton. 'Flag' Data Access Object
  *
- * @author Aybat Duyshokov <duyshokov@gmail.com>
+ * @author Sergey Kambalin <greyexpert@gmail.com>
  * @package ow_system_plugins.base.bol
  * @since 1.0
  */
@@ -34,7 +33,7 @@ class BOL_FlagService
     /*
      * @type BOL_FlagDao
      */
-    private $dao;
+    private $flagDao;
     /**
      *
      * @var BOL_FlagService
@@ -58,91 +57,137 @@ class BOL_FlagService
 
     public function __construct()
     {
-        $this->dao = BOL_FlagDao::getInstance();
+        $this->flagDao = BOL_FlagDao::getInstance();
     }
 
-    public function flag( $type, $entityId, $reason, $title, $url, $langKey, $userId=null )
+    public function addFlag( $entityType, $entityId, $reason, $userId )
     {
-
-        if ( $userId == null && !OW::getUser()->isAuthenticated() )
+        $flagDto = $this->flagDao->findFlag($entityType, $entityId, $userId);
+        
+        if ( $flagDto === null )
         {
-            throw new InvalidArgumentException("Can't be flagged by guest");
+            $flagDto = new BOL_Flag;
         }
-
-        $userId = OW::getUser()->getId();
-
-        $this->dao->flag($type, $entityId, $reason, $title, $url, $userId, $langKey);
+        
+        $flagDto->userId = $userId;
+        $flagDto->entityType = $entityType;
+        $flagDto->entityId = $entityId;
+        $flagDto->reason = $reason;
+        $flagDto->timeStamp = time();
+        
+        $this->flagDao->save($flagDto);
     }
 
-    public function isFlagged( $type, $entityId, $userId )
+    public function isFlagged( $entityType, $entityId, $userId )
     {
-        return null !== $this->dao->find($type, $entityId, $userId);
+        return $this->findFlag($entityType, $entityId, $userId) !== null;
     }
 
     /**
      *
-     * @param type $type
-     * @param type $entityId
-     * @param type $userId
+     * @param string $entityType
+     * @param int $entityId
+     * @param int $userId
      * @return BOL_Flag
      */
-    public function findFlag( $type, $entityId, $userId )
+    public function findFlag( $entityType, $entityId, $userId )
     {
-        return $this->dao->find($type, $entityId, $userId);
+        return $this->flagDao->findFlag($entityType, $entityId, $userId);
+    }
+    
+    /**
+     * 
+     * @param array $entityTypes
+     * @return array
+     */
+    public function findFlagsByEntityTypeList( $entityTypes, array $limit = null )
+    {
+        return $this->flagDao->findByEntityTypeList($entityTypes, $limit);
+    }
+    
+    /**
+     * 
+     * @param array $entityTypes
+     * @return int
+     */
+    public function findCountForEntityTypeList( $entityTypes )
+    {
+        return $this->flagDao->findCountForEntityTypeList($entityTypes);
+    }
+    
+    public function getContentGroupsWithCount()
+    {
+        $contentTypes = $this->getContentTypeListWithCount();
+        $contentGroups = BOL_ContentService::getInstance()->getContentGroups(array_keys($contentTypes));
+        
+        foreach ( $contentGroups as &$group )
+        {
+            $group["url"] = OW::getRouter()->urlForRoute("base.moderation_flags", array(
+                "group" => $group["name"]
+            ));
+            
+            $group["count"] = 0;
+            foreach ( $group["entityTypes"] as $entityType )
+            {
+                $group["count"] += $contentTypes[$entityType]["count"];
+            }
+        }
+        
+        return $contentGroups;
+    }
+    
+    public function getContentTypeListWithCount()
+    {
+        $contentTypes = BOL_ContentService::getInstance()->getContentTypes();
+        $entityTypes = array_keys($contentTypes);
+        $counts = $this->findCountForEntityTypeList($entityTypes);
+        
+        $out = array();
+        
+        foreach ( $counts as $entityType => $count )
+        {
+            if ( !OW::getUser()->isAuthorized($contentTypes[$entityType]["authorizationGroup"]) )
+            {
+                continue;
+            }
+            
+            $out[$entityType] = $contentTypes[$entityType];
+            $out[$entityType]["count"] = $count;
+        }
+        
+        return $out;
+    }
+    
+    public function deleteFlagList($entityType, array $entityIdList = null)
+    {
+    	$this->flagDao->deleteFlagList($entityType, $entityIdList);
+    }
+    
+    public function deleteEntityFlags( $entityType, $entityId )
+    {
+        $this->flagDao->deleteEntityFlags($entityType, $entityId);
+    }
+    
+    public function deleteFlagListByIds( $idList )
+    {
+        $this->flagDao->deleteByIdList($idList);
     }
 
-    public function count( $type )
-    {
-        return $this->dao->count($type);
-    }
-
-    public function findList( $first, $count, $type )
-    {
-        return $this->dao->findList($first, $count, $type);
-    }
-
-    public function findTypeList()
-    {
-        return $this->dao->findTypeList();
-    }
-
-    public function countFlaggedItems( $type )
-    {
-        return $this->dao->countFlaggedItems($type);
-    }
-
-    public function countFlaggedItemsByTypeList( $types )
-    {
-        return $this->dao->countFlaggedItemsByTypeList($types);
-    }
-
-    public function findFlaggedUserIdList( $type, $entityId, $reason )
-    {
-        return $this->dao->findFlaggedUserIdList($type, $entityId, $reason);
-    }
-
-    public function deleteById( $id )
-    {
-        $this->dao->deleteById($id);
-    }
-
+    
+    /* Backward compatibility methods */
+    
+    /**
+     * 
+     * @param type $type
+     * @param type $entityId
+     */
     public function deleteByTypeAndEntityId( $type, $entityId )
     {
-        $this->dao->deleteByTypeAndEntityId($type, $entityId);
+        $this->deleteEntityFlags($type, $entityId);
     }
-
-    /**
-     *
-     * @param string $type
-     */
-    public function findLangKey( $type )
+    
+    public function deleteByType( $entityType )
     {
-        return $this->dao->findLangKey($type);
-    }
-
-
-    public function deleteByType($type)
-    {
-    	$this->dao->deleteByType($type);
+        $this->deleteFlagList($entityType);
     }
 }

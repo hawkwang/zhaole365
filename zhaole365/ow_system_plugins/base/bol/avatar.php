@@ -39,6 +39,11 @@ class BOL_Avatar extends OW_Entity
      * @var integer
      */
     public $hash;
+    
+    /**
+     * @var string
+     */
+    public $status = 'active';
 
     /**
      *
@@ -56,5 +61,14 @@ class BOL_Avatar extends OW_Entity
     public function getHash()
     {
         return (int) $this->hash;
+    }
+    
+    /**
+     *
+     * @return integer
+     */
+    public function getStatus()
+    {
+        return $this->status;
     }
 }

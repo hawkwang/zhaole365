@@ -8,7 +8,7 @@ OW_Components_DragAndDrop = function() {
     this.events.allowCustomize = [];
     
     $('#allow_customize_btn').click(function(){
-    	self.trigger('allowCustomize', [this.checked])
+    	self.trigger('allowCustomize', [this.checked]);
     });
 };
 
@@ -50,8 +50,8 @@ OW_Components_DragAndDrop.prototype = new componentDragAndDrop ({
 	setHandler: function(handler) {
 		
 		this.bind('allowCustomize', function(state, callbackFnc){
-			handler.allowCustomize(state, callbackFnc);
-		})
+                    handler.allowCustomize(state, callbackFnc);
+		});
 	
 		this.parent_setHandler(handler);
 	}

@@ -83,17 +83,23 @@ class BOL_AvatarDao extends OW_BaseDao
 
     protected $cachedItems = array();
 
+    public function clearCahche( $userId )
+    {
+        unset($this->cachedItems[$userId]);
+    }
+    
     /**
      * Finds user avatar by userId
      *
      * @param int $userId
+     * @param bool $checkCache
      * @return BOL_Avatar
      */
-    public function findByUserId( $userId )
+    public function findByUserId( $userId, $checkCache = true )
     {
         $userId = intval($userId);
 
-        if ( empty($this->cachedItems[$userId]) )
+        if ( !$checkCache || empty($this->cachedItems[$userId]) )
         {
             $example = new OW_Example();
             $example->andFieldEqual('userId', $userId);
@@ -107,8 +113,8 @@ class BOL_AvatarDao extends OW_BaseDao
 
     /**
      * Get list of avatars
-     * 
-     * @param array $ids
+     *
+     * @param $idList
      * @return array of BOL_Avatar
      */
     public function getAvatarsList( $idList )

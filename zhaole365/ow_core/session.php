@@ -91,7 +91,7 @@ class OW_Session
             $this->regenerate();
         }
 
-        $userAgent = $_SERVER['HTTP_USER_AGENT'];
+        $userAgent = OW::getRequest()->getUserAgentName();
 
         if ( isset($_SESSION['session.user_agent']) )
         {

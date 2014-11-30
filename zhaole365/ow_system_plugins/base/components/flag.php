@@ -32,18 +32,18 @@
 class BASE_CMP_Flag extends OW_Component
 {
 
-    public function __construct( $type, $id, $title, $url, $langKey, $ownerId = null )
+    public function __construct( $entityType, $entityId )
     {
         parent::__construct();
 
-        $this->addForm(new FlagForm($type, $id, $title, $url, $langKey, $ownerId));
+        $this->addForm(new FlagForm($entityType, $entityId));
     }
 }
 
 class FlagForm extends Form
 {
 
-    public function __construct( $type, $id, $title, $url, $langKey, $ownerId )
+    public function __construct( $entityType, $entityId )
     {
         parent::__construct('flag');
 
@@ -51,43 +51,37 @@ class FlagForm extends Form
 
         $this->setAction(OW::getRouter()->urlFor('BASE_CTRL_Flag', 'flag'));
 
-        $hiddenType = new HiddenField('type');
-        $hiddenId = new HiddenField('id');
+        $element = new HiddenField('entityType');
+        $element->setValue($entityType);
+        $this->addElement($element);
+        
+        $element = new HiddenField('entityId');
+        $element->setValue($entityId);
+        $this->addElement($element);
+        
 
-        $hiddenTitle = new HiddenField('title');
-        $hiddenUrl = new HiddenField('url');
-        $hiddenOwnerId = new HiddenField('ownerId');
-
-        $hiddenLangKey = new HiddenField('langKey');
-
-        $this->addElement($hiddenType->setValue($type))
-            ->addElement($hiddenId->setValue($id))
-            ->addElement($hiddenTitle->setValue(htmlspecialchars($title)))
-            ->addElement($hiddenUrl->setValue($url))
-            ->addElement($hiddenLangKey->setValue($langKey))
-            ->addElement($hiddenOwnerId->setValue($ownerId));
-
-        $reasonField = new RadioField('reason');
-        $reasonField->setOptions(array(
+        $element = new RadioField('reason');
+        $element->setOptions(array(
             'spam' => OW::getLanguage()->text('base', 'flag_spam'),
             'offence' => OW::getLanguage()->text('base', 'flag_offence'),
             'illegal' => OW::getLanguage()->text('base', 'flag_illegal'))
         );
 
-        $flagDto = BOL_FlagService::getInstance()->findFlag($type, $id, OW::getUser()->getId());
+        $flagDto = BOL_FlagService::getInstance()->findFlag($entityType, $entityId, OW::getUser()->getId());
+        
         if ( $flagDto !== null )
         {
-            $reasonField->setValue($flagDto->reason);
+            $element->setValue($flagDto->reason);
         }
 
-        $this->addElement($reasonField);
+        $this->addElement($element);
 
         OW::getDocument()->addOnloadScript(
             "owForms['{$this->getName()}'].bind('success', function(json){
 			switch( json['result'] ){
 				case 'success':
 					OW.registry['flag-panel-fb'].close();
-					eval(json.js);
+					OW.addScript(json.js);
 					break;
 			}
 		})");

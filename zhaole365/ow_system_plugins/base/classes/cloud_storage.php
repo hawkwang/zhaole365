@@ -524,4 +524,8 @@ class BASE_CLASS_CloudStorage implements OW_Storage
         }
         return $result;
     }
+
+    public function chmod($destPath, $premissions) {
+        
+    }
 }

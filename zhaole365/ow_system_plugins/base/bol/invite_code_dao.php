@@ -90,4 +90,17 @@ class BOL_InviteCodeDao extends OW_BaseDao
 
         return $this->findObjectByExample($example);
     }
+    
+    public function deleteByCode( $code )
+    {
+        if ( empty($code) )
+        {
+            return;
+        }
+        
+        $example = new OW_Example();
+        $example->andFieldEqual(self::CODE, trim($code));
+
+        return $this->deleteByExample($example);
+    }
 }

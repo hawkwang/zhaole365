@@ -35,7 +35,6 @@ class OW_RequestHandler
     const ATTRS_KEY_CTRL = 'controller';
     const ATTRS_KEY_ACTION = 'action';
     const ATTRS_KEY_VARLIST = 'params';
-
     const CATCH_ALL_REQUEST_KEY_CTRL = 'controller';
     const CATCH_ALL_REQUEST_KEY_ACTION = 'action';
     const CATCH_ALL_REQUEST_KEY_REDIRECT = 'redirect';
@@ -47,18 +46,22 @@ class OW_RequestHandler
      * @var array
      */
     protected $handlerAttributes;
+
     /**
      * @var array
      */
     protected $indexPageAttributes;
+
     /**
      * @var array
      */
     protected $staticPageAttributes;
+
     /**
      * @var array
      */
     protected $catchAllRequestsAttributes = array();
+
     /**
      * @var array
      */
@@ -98,7 +101,7 @@ class OW_RequestHandler
      */
     public function getCatchAllRequestsAttributes( $key )
     {
-        return!empty($this->catchAllRequestsAttributes[$key]) ? $this->catchAllRequestsAttributes[$key] : null;
+        return !empty($this->catchAllRequestsAttributes[$key]) ? $this->catchAllRequestsAttributes[$key] : null;
     }
 
     /**
@@ -257,11 +260,11 @@ class OW_RequestHandler
         {
             throw new Redirect404Exception();
         }
-
+        OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "controller_call.start", "handlerAttrs" => $this->handlerAttributes)));
         call_user_func_array(array($controller, $this->handlerAttributes[self::ATTRS_KEY_ACTION]), array(
             self::ATTRS_KEY_VARLIST => ( empty($this->handlerAttributes[self::ATTRS_KEY_VARLIST]) ? array() : $this->handlerAttributes[self::ATTRS_KEY_VARLIST] )
         ));
-
+        OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "controller_call.end", "handlerAttrs" => $this->handlerAttributes)));
         // set default template for controller action if template wasn't set
         if ( $controller->getTemplate() === null )
         {

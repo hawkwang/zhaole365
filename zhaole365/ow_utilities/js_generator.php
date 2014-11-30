@@ -266,7 +266,7 @@ class UTIL_JsGenerator
         $jsonData = empty($data) ? '' : ' ' . json_encode($data) . ',';
 
         $operation = <<<EOT
-$('$selector').bind('$event',$jsonData function($eventParams) {
+$('$selector').on('$event',$jsonData function($eventParams) {
      $callbackContent
 })
 EOT;

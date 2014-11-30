@@ -819,9 +819,9 @@ class DateField extends FormElement
         {
             $result = '<div class="' . $this->getAttribute('name') . '">
                             ' . UTIL_HtmlTag::generateTag('input', $attributes) . '
-                            <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $yearAttributes, true, $yearOptionsString) . '</div>
                             <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $monthAttributes, true, $mounthOptionsString) . '</div>
                             <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $dayAttributes, true, $dayOptionsString) . '</div>
+                            <div class="ow_inline owm_inline">' . UTIL_HtmlTag::generateTag('select', $yearAttributes, true, $yearOptionsString) . '</div>
                         </div>';
         }
 
@@ -2960,6 +2960,11 @@ class WysiwygTextarea extends InvitationFormElement
     private $textarea;
 
     /**
+     * @var string
+     */
+    private $customBodyClass;
+
+    /**
      * Constructor.
      *
      * @param string $name
@@ -3132,6 +3137,11 @@ class WysiwygTextarea extends InvitationFormElement
 
         $params = array('toolbar' => $this->buttons, 'size' => $this->size);
 
+        if ( !empty($this->customBodyClass) )
+        {
+            $params["customClass"] = $this->customBodyClass;
+        }
+
         OW::getDocument()->addOnloadScript("
             $('#{$this->getId()}').get(0).htmlarea = function(){ $(this).htmlarea( " . json_encode($params) . " );};
             $('#{$this->getId()}').get(0).htmlareaFocus = function(){this.jhtmlareaObject.iframe[0].contentWindow.focus();};
@@ -3215,6 +3225,16 @@ class WysiwygTextarea extends InvitationFormElement
         }
 
         return array_values($buttons);
+    }
+
+    public function getCustomBodyClass()
+    {
+        return $this->customBodyClass;
+    }
+
+    public function setCustomBodyClass( $customBodyClass )
+    {
+        $this->customBodyClass = $customBodyClass;
     }
 }
 

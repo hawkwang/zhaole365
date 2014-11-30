@@ -80,7 +80,7 @@ class BASE_CTRL_AjaxUsersApi extends OW_ActionController
     {
         $this->checkAdmin();
 
-        BOL_UserService::getInstance()->suspend($params["userId"]);
+        BOL_UserService::getInstance()->suspend($params["userId"], $params["message"]);
 
         return array(
             "info" => OW::getLanguage()->text('base', 'user_feedback_profile_suspended')

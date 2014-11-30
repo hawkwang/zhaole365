@@ -50,18 +50,21 @@ final class OW_Response
      * @var array
      */
     private $headers = array();
+
     /**
      * Document to send
      *
      * @var OW_Document
      */
     private $document;
+
     /**
      * Rendered markup
      *
      * @var string
      */
     private $markup = '';
+
     /**
      * Singleton instance.
      *
@@ -117,6 +120,22 @@ final class OW_Response
     public function setHeader( $name, $value )
     {
         $this->headers[trim($name)] = trim($value);
+    }
+
+    /**
+     * @return array
+     */
+    public function getHeaders()
+    {
+        return $this->headers;
+    }
+
+    /**
+     * @param array $headers
+     */
+    public function setHeaders( array $headers )
+    {
+        $this->headers = $headers;
     }
 
     /**

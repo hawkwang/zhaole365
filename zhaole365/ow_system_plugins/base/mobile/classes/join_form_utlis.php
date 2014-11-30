@@ -123,7 +123,7 @@ final class BASE_MCLASS_JoinFormUtlis
             }
         }
     }
-
+    
     public static function addOnloadJs( $formName )
     {
         /* OW::getDocument()->addOnloadScript('window.owForms['.  json_encode($formName).'].validate = function(){

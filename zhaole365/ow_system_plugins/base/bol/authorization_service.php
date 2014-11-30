@@ -534,7 +534,7 @@ class BOL_AuthorizationService
                 {
                     $option['url'] = null;
                 }
-                $label = strtolower($option['label']);
+                $label = mb_strtolower($option['label']);
                 $links[] = !empty($option['url']) ? '<a href="'.$option['url'].'">'.$label.'</a>' : $label;
             }
         }
@@ -548,7 +548,7 @@ class BOL_AuthorizationService
                 'msg' => $lang->text(
                     'base',
                     'authorization_action_promotion',
-                    array('alternatives' => implode(' '.$lang->text('base', 'or').' ', $links), 'action' => strtolower($actionLabel))
+                    array('alternatives' => implode(' '.$lang->text('base', 'or').' ', $links), 'action' => mb_strtolower($actionLabel))
                 )
             );
         }
@@ -1153,7 +1153,7 @@ class BOL_AuthorizationService
             if ( $lang !== null )
             {
                 BOL_LanguageService::getInstance()
-                    ->addValue($lang->id, 'base', 'authorization_group_' . strtolower($group->name), $label);
+                    ->addValue($lang->id, 'base', 'authorization_group_' . mb_strtolower($group->name), $label);
             }
         }
 
@@ -1218,7 +1218,7 @@ class BOL_AuthorizationService
             $lang = BOL_LanguageService::getInstance()->findByTag($tag);
             if ( $lang !== null )
             {
-                $key = 'authorization_action_' . strtolower($group->name) . '_' . strtolower($action->name);
+                $key = 'authorization_action_' . mb_strtolower($group->name) . '_' . mb_strtolower($action->name);
                 try
                 {
                     BOL_LanguageService::getInstance()->addValue($lang->id, 'base', $key, $label);

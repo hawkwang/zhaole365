@@ -55,6 +55,7 @@ body table.theme_controls td.ow_desc{
 	width:30px;
 	height:27px;
 	padding:0;
+	box-shadow: 0px 0px 2px rgba(0,0,0,0.5);
 }
 
 .preview_graphics{
@@ -120,7 +121,7 @@ body table.theme_controls td.ow_desc{
        {capture name='resetLabel'}{text key='admin+theme_settings_reset_confirm_message'}{/capture}
 
 </table>
-    <div class="clearfix ow_stdmargin">
+    <div class="clearfix ow_stdmargin ow_btn_delimiter">
         <div class="ow_right">
             {decorator name="button" class='ow_red ow_ic_delete' langLabel='admin+themes_settings_reset_label' onclick="if(confirm('`$smarty.capture.resetLabel`')) window.location = '`$resetUrl`';"}    
 			{submit name='submit' class='ow_positive ow_btn_delimiter'}     

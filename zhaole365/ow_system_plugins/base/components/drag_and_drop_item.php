@@ -91,6 +91,8 @@ class BASE_CMP_DragAndDropItem extends OW_Component
     {
         $this->checkComponent($className);
         $this->componentContentClass = $className;
+        
+        $this->prepareComponentParamObject();
     }
 
     protected function getBoxSettingList( array $settingList, array $runTimeSettingList )
@@ -99,7 +101,6 @@ class BASE_CMP_DragAndDropItem extends OW_Component
         
         $standartSettingList = $this->getComponentStandartSettingValueList();
         $this->syncFromParamsObject($paramsSettingList);
-        
         $settingList = array_merge($standartSettingList, $settingList, $paramsSettingList, $runTimeSettingList);
         
         $resultSettingList = array();
@@ -142,7 +143,7 @@ class BASE_CMP_DragAndDropItem extends OW_Component
      *
      * @return BASE_CLASS_WidgetParameter
      */
-    private function getComponentParamObject()
+    private function prepareComponentParamObject()
     {
         $paramObject = $this->componentParamObject;
 
@@ -290,7 +291,7 @@ class BASE_CMP_DragAndDropItem extends OW_Component
         $this->assign('render', true);
         $this->assign('access', $this->getComponentAccess());
 
-        $paramsObject = $this->getComponentParamObject();
+        $paramsObject = $this->componentParamObject;
         $isCustomizeMode = $paramsObject->customizeMode;
 
         if ( !$this->isComponentAvaliable($paramsObject) && !$isCustomizeMode )
@@ -327,7 +328,7 @@ class BASE_CMP_DragAndDropItem extends OW_Component
         $boxSettings = $this->getBoxSettingList($this->settingList, $this->runTimeSettingList);
         $boxSettings['access'] = $this->getComponentAccess();
         $this->assign('box', $boxSettings);
-
+        
         return parent::render();
     }
 }

@@ -55,9 +55,9 @@ OW_Components_DragAndDropAjaxHandler.prototype = {
             }), successFunction);
         },
 
-		complete: function(successFunction) {
+        complete: function(successFunction) {
             this.ajax.sendQueue(successFunction);
-		},
+        },
 
         reload: function( id, renderView, successFunction )
         {

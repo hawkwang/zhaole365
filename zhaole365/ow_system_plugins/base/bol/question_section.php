@@ -41,7 +41,12 @@ class BOL_QuestionSection extends OW_Entity
     public $sortOrder;
     
     /**
-     * @var string
+     * @var int
      */
     public $isHidden = false;
+    
+    /**
+     * @var int
+     */
+    public $isDeletable = true;
 }

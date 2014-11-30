@@ -372,7 +372,7 @@ class BOL_PluginService
         }
 
         $requestUrl = OW::getRequest()->buildUrlQueryString(self::UPDATE_SERVER . 'get-item-info', $data);
-        ZLAREAS_CLASS_Logger::getInstance()->log($requestUrl);
+
         return (array) json_decode((file_get_contents($requestUrl)));
     }
 
@@ -488,7 +488,7 @@ class BOL_PluginService
      *
      * @param string $key
      */
-    public function install( $key )
+    public function install( $key, $generateCache = true )
     {
         $availablePlugins = $this->getAvailablePluginsList();
 
@@ -557,8 +557,12 @@ class BOL_PluginService
 
         include_once OW_DIR_PLUGIN . $pluginDto->getModule() . DS . 'install.php';
         include_once OW_DIR_PLUGIN . $pluginDto->getModule() . DS . 'activate.php';
-        BOL_LanguageService::getInstance()->generateCacheForAllActiveLanguages();
-
+        
+        if ( $generateCache )
+        {
+            BOL_LanguageService::getInstance()->generateCacheForAllActiveLanguages();
+        }
+        
         // trigger event
         $event = new OW_Event(OW_EventManager::ON_AFTER_PLUGIN_INSTALL, array('pluginKey' => $pluginDto->getKey()));
         OW::getEventManager()->trigger($event);

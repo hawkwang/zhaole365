@@ -3,7 +3,7 @@
 <table class="ow_table_1 ow_small ow_form ow_smallmargin">
     {foreach from=$settings key='name' item='item' name='i'}
         {if !in_array($name, $hidden)}
-		    <tr class="{if $item.display == 'table'}{cycle name="custom" values="ow_alt2,ow_alt1"}{/if} {if $smarty.foreach.i.first}ow_tr_first{/if}{if $smarty.foreach.i.last}ow_tr_last{/if}">
+		    <tr class="{if !empty($item.class)}{$item.class}{/if} {if $item.display == 'table'}{cycle name="custom" values="ow_alt2,ow_alt1"}{/if} {if $smarty.foreach.i.first}ow_tr_first{/if}{if $smarty.foreach.i.last}ow_tr_last{/if}">
                         {if !empty($item.label)}
                             <td class="ow_label">{$item.label|escape:"html"}</td>
                             <td class="ow_value">

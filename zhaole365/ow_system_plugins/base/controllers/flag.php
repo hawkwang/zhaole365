@@ -23,48 +23,12 @@
  */
 
 /**
- * @author Aybat Duyshokov <duyshokov@gmail.com>
+ * @author Aybat Duyshokov <duyshokov@gmail.com>, Kambalin Sergey <greyexpert@gmail.com>
  * @package ow_system_plugins.base.bol
  * @since 1.0
  */
 class BASE_CTRL_Flag extends OW_ActionController
 {
-
-    public function form()
-    {
-        if ( !OW::getUser()->isAuthenticated() )
-        {
-            exit;
-        }
-
-        $type = $_POST['type'];
-        $id = $_POST['id'];
-
-        $title = $_POST['title'];
-        $url = $_POST['url'];
-
-        $langKey = $_POST['langKey'];
-
-        $cmp = new BASE_CMP_Flag($type, $id, $title, $url, $langKey);
-
-        if ( BOL_FlagService::getInstance()->isFlagged($type, $id, OW::getUser()->getId()) )
-        {
-            exit(json_encode(array(
-                "isFlagged" => true
-            )));
-        }
-
-        exit(
-            json_encode(
-                array(
-                    'markup' => $cmp->render(),
-                    'js' => OW::getDocument()->getOnloadScript(),
-                    'include_js' => OW::getDocument()->getScripts(),
-                    'css' => '.foo ul li{ float: left; width: 100px !important;}'// TODO: style via ajax
-                )
-            )
-        );
-    }
 
     public function flag()
     {
@@ -73,8 +37,14 @@ class BASE_CTRL_Flag extends OW_ActionController
             return;
         }
 
-        $ownerId = (int) $_POST['ownerId'];
-        if ( $ownerId == OW::getUser()->getId() )
+        $entityType = $_POST["entityType"];
+        $entityId = $_POST["entityId"];
+        
+        $data = BOL_ContentService::getInstance()->getContent($entityType, $entityId);
+        $ownerId = $data["userId"];
+        $userId = OW::getUser()->getId();
+        
+        if ( $ownerId == $userId )
         {
             exit(json_encode(array(
                 'result' => 'success',
@@ -82,26 +52,23 @@ class BASE_CTRL_Flag extends OW_ActionController
             )));
         }
 
-        $s = BOL_FlagService::getInstance();
-
-        $s->isFlagged($_POST['type'], $_POST['id'], OW::getUser()->getId());
-
-        $s->flag($_POST['type'], $_POST['id'], $_POST['reason'], $_POST['title'], $_POST['url'], $_POST['langKey'], OW::getUser()->getId());
-
+        $service = BOL_FlagService::getInstance();
+        $service->addFlag($entityType, $entityId, $_POST['reason'], $userId);
+                
         exit(json_encode(array(
-                'result' => 'success',
-                'js' => 'OW.info("' . OW::getLanguage()->text('base', 'flag_accepted') . '")'
-            )));
+            'result' => 'success',
+            'js' => 'OW.info("' . OW::getLanguage()->text('base', 'flag_accepted') . '")'
+        )));
     }
 
     public function delete( $params )
     {
         if ( !(OW::getUser()->isAdmin() || BOL_AuthorizationService::getInstance()->isModerator()) )
         {
-            exit();
+            throw new Redirect403Exception;
         }
 
-        BOL_FlagService::getInstance()->deleteById($params['id']);
+        BOL_FlagService::getInstance()->deleteFlagById($params['id']);
         OW::getFeedback()->info(OW::getLanguage()->text('base', 'flags_deleted'));
         $this->redirect($_SERVER['HTTP_REFERER']);
     }

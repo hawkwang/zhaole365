@@ -186,30 +186,8 @@ class BASE_CTRL_ComponentPanel extends OW_ActionController
         $this->setTemplate($controllersTemplate);
 
         $this->assign('isAdmin', OW::getUser()->isAdmin());
-
         $this->assign('isModerator', BOL_AuthorizationService::getInstance()->isModerator());
-        if ( BOL_AuthorizationService::getInstance()->isModerator() || OW::getUser()->isAdmin() )
-        {
-            $this->assign('disaprvdCount', BOL_UserService::getInstance()->countDisapproved());
-            $types = BOL_FlagService::getInstance()->findTypeList();
-            $typeNames = array();
-            foreach ( $types as $typeName )
-            {
-                $typeNames[] = $typeName['type'];
-            }
-
-            $flaggedCountList = BOL_FlagService::getInstance()->countFlaggedItemsByTypeList($typeNames);
-
-            $flags = array();
-            foreach ( $types as $type )
-            {
-                $count = empty($flaggedCountList[$type['type']]) ? 0 : $flaggedCountList[$type['type']];
-                $flags[] = array('type' => $type['type'], 'langKey' => $type['langKey'], 'count' => $count);
-            }
-
-            $this->assign('flags', $flags);
-        }
-
+        
         $this->setDocumentKey('base_user_dashboard');
     }
 
@@ -317,14 +295,21 @@ class BASE_CTRL_ComponentPanel extends OW_ActionController
         OW::getEventManager()->trigger($event);
         $status = $event->getData();
 
+        $headingSuffix = "";
+        
+        if ( !BOL_UserService::getInstance()->isApproved($userDto->id) )
+        {
+            $headingSuffix = ' <span class="ow_remark ow_small">(' . OW::getLanguage()->text("base", "pending_approval") . ')</span>';
+        }
+        
         if ( $status !== null )
         {
             $heading = OW::getLanguage()->text('base', 'user_page_heading_status', array('status' => $status, 'username' => $displayName));
-            $this->setPageHeading($heading);
+            $this->setPageHeading($heading . $headingSuffix);
         }
         else
         {
-            $this->setPageHeading(OW::getLanguage()->text('base', 'profile_view_heading', array('username' => $displayName)));
+            $this->setPageHeading(OW::getLanguage()->text('base', 'profile_view_heading', array('username' => $displayName)) . $headingSuffix);
         }
 
         $this->setPageHeadingIconClass('ow_ic_user');

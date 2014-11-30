@@ -98,24 +98,26 @@ final class OW_PluginManager
         }
     }
 
-    public function initPlugin( OW_Plugin $plugin )
+    public function initPlugin( OW_Plugin $pluginObject )
     {
-        $this->addPackagePointers($plugin->getDto());
+        $this->addPackagePointers($pluginObject->getDto());
 
-        $initDirPath = $plugin->getRootDir();
+        $initDirPath = $pluginObject->getRootDir();
 
         if ( OW::getApplication()->getContext() == OW::CONTEXT_MOBILE )
         {
-            $initDirPath = $plugin->getMobileDir();
+            $initDirPath = $pluginObject->getMobileDir();
         }
         else if ( OW::getApplication()->getContext() == OW::CONTEXT_API )
         {
-            $initDirPath = $plugin->getApiDir();
+            $initDirPath = $pluginObject->getApiDir();
         }
 
         if ( file_exists($initDirPath . 'init.php') )
         {
+            OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "plugin_init.start", "pluginKey" => $pluginObject->getKey())));
             include $initDirPath . 'init.php';
+            OW::getEventManager()->trigger(new OW_Event("core.performance_test", array("key" => "plugin_init.end", "pluginKey" => $pluginObject->getKey())));
         }
     }
 

@@ -20,6 +20,18 @@ class BASE_MCMP_ProfileHeader extends OW_MobileComponent
         parent::onBeforeRender();
         
         $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($this->user->id));
+        $avatarDto = BOL_AvatarService::getInstance()->findByUserId($this->user->id);
+        
+        $owner = false;
+        
+        if ( OW::getUser()->getId() == $this->user->getId() )
+        {
+            $owner = true;
+        }
+        
+        $isModerator = (OW::getUser()->isAuthorized('base') || OW::getUser()->isAdmin());
+                
+        $avatarData[$this->user->id]['src'] = BOL_AvatarService::getInstance()->getAvatarUrl( $this->user->getId(), 1, null, true, !($owner || $isModerator) );
         
         $user = array();
         $user["avatar"] = $avatarData[$this->user->id];
@@ -50,6 +62,10 @@ class BASE_MCMP_ProfileHeader extends OW_MobileComponent
         }
         
         $this->assign("isOnline", $isOnline);
+        $this->assign("avatarDto", $avatarDto);
         $this->assign("activityStamp", $activityStamp);
+        
+        $this->assign('owner', $owner);
+        $this->assign('isModerator', $isModerator);
     }
 }

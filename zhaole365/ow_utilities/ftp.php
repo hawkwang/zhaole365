@@ -109,6 +109,29 @@ class UTIL_Ftp
         }
 
         $this->chdir('/');
+
+        $dirname = "temp" . rand(1, 1000000);
+        if ( ftp_mkdir($this->stream, $dirname) )
+        {
+            // hotfix, doesn't work with win servers
+            $rootPath = "";
+
+            $dirRootPathArr = array_filter(explode(DS, OW_DIR_ROOT));
+			array_unshift($dirRootPathArr, "");
+			
+            foreach ( $dirRootPathArr as $pathItem )
+            {
+				$rootPath .= $pathItem . DS;
+
+                if ( file_exists($rootPath . $dirname) )
+                {
+                    $this->ftpRootDir = $rootPath;
+                    
+                    ftp_rmdir($this->stream, $dirname);
+                    return;
+                }
+            }
+        }
     }
 
     /**

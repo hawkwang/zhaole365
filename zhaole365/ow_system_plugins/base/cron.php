@@ -45,6 +45,7 @@ class BASE_Cron extends OW_Cron
         $this->addJob('deleteExpiredPasswordResetCodes', 10);
         $this->addJob('resetCronFlag', 1);
         $this->addJob('rmTempAttachments', 60 * 24);
+        $this->addJob('rmTempAvatars', 60 * 24);
         $this->addJob('deleteExpiredCache', 60 * 24);
         $this->addJob('dropLogFile', 60 * 24);
 
@@ -106,6 +107,11 @@ class BASE_Cron extends OW_Cron
     public function rmTempAttachments()
     {
         BOL_AttachmentService::getInstance()->deleteExpiredTempImages();
+    }
+
+    public function rmTempAvatars()
+    {
+        BOL_AvatarService::getInstance()->deleteTempAvatars();
     }
 
     public function deleteExpiredCache()

@@ -55,7 +55,7 @@ final class BOL_CommentService
     /**
      * Singleton instance.
      *
-     * @var BOL_CommentDao
+     * @var BOL_CommentService
      */
     private static $classInstance;
 
@@ -174,6 +174,11 @@ final class BOL_CommentService
     {
         return $this->commentDao->findById($id);
     }
+    
+    public function findCommentListByIds( array $commentIds )
+    {
+        return $this->commentDao->findByIdList($commentIds);
+    }
 
     /**
      * @param integer $id
@@ -242,6 +247,11 @@ final class BOL_CommentService
     public function deleteComment( $id )
     {
         $this->commentDao->deleteById($id);
+    }
+    
+    public function deleteCommentListByIds( $idList )
+    {
+        $this->commentDao->deleteByIdList($idList);
     }
 
     public function deleteCommentEntity( $id )

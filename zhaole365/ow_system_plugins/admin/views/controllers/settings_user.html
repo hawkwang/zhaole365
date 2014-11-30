@@ -87,8 +87,14 @@
         <td class="ow_label">{label name='bigAvatarSize'}</td>
         <td class="ow_value">{input name='bigAvatarSize' class='ow_settings_input'} px<br />{error name='bigAvatarSize'}</td>
         <td class="ow_desc ow_small">{text key='admin+user_settings_big_avatar_size_desc'}</td>
+    </tr>        
+        <tr class="ow_alt1">
+            <td class="ow_label">{label name='avatar_max_upload_size'}</td>
+            <td class="ow_value">{input name='avatar_max_upload_size' style="width:30px;"} MB  <span class="ow_small">{text key='base+max_upload_filesize' value=$maxUploadMaxFilesize}</span><br />{error name='avatar_max_upload_size'}</td>
+            <td class="ow_desc"></td>
+        </tr>
     </tr>
-    <tr class="ow_alt1 ow_tr_last">
+    <tr class="ow_alt2 ow_tr_last">
         <td class="ow_label">{text key='admin+user_settings_avatar_image'}</td>
         <td class="ow_value">
             <div class="ow_smallmargin">

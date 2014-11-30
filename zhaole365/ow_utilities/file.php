@@ -317,4 +317,57 @@ class UTIL_File
 
         return $fileName;
     }
+    
+    /**
+     *
+     * @param int $uploadErrorCode
+     * @return string
+     */
+    public static function getErrorMessage( $uploadErrorCode )
+    {
+        if ( !isset($uploadErrorCode) )
+        {
+            return false;
+        }
+
+        $message = '';
+        
+        if ( $uploadErrorCode != UPLOAD_ERR_OK )
+        {
+            switch ( $uploadErrorCode )
+            {
+                case UPLOAD_ERR_INI_SIZE:
+                    $error = $language->text('base', 'upload_file_max_upload_filesize_error');
+                    break;
+
+                case UPLOAD_ERR_PARTIAL:
+                    $error = $language->text('base', 'upload_file_file_partially_uploaded_error');
+                    break;
+
+                case UPLOAD_ERR_NO_FILE:
+                    $error = $language->text('base', 'upload_file_no_file_error');
+                    break;
+
+                case UPLOAD_ERR_NO_TMP_DIR:
+                    $error = $language->text('base', 'upload_file_no_tmp_dir_error');
+                    break;
+
+                case UPLOAD_ERR_CANT_WRITE:
+                    $error = $language->text('base', 'upload_file_cant_write_file_error');
+                    break;
+
+                case UPLOAD_ERR_EXTENSION:
+                    $error = $language->text('base', 'upload_file_invalid_extention_error');
+                    break;
+
+                default:
+                    $error = $language->text('base', 'upload_file_fail');
+            }
+
+            OW::getFeedback()->error($error);
+            $this->redirect();
+        }
+
+        return $fileName;
+    }
 }

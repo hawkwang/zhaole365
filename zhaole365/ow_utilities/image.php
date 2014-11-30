@@ -21,31 +21,31 @@
  * Display of Attribution Information is required in Larger Works which are defined in the CPAL as a work
  * which combines Covered Code or portions thereof with code not governed by the terms of the CPAL.
  */
-
 /**
  * @author Egor Bulgakov <egor.bulgakov@gmail.com>
  * @package ow_utilities
  * @since 1.0
  */
-
 require_once(OW_DIR_LIB . 'wideimage' . DS . 'WideImage.php');
 
 class UTIL_Image
 {
+    const IMAGE_QUALITY = 80;
+
     /**
      * We'll store image here
      *
      * @var WideImage_Image
      */
     protected $image;
-    
+
     /**
      * Path to source image file
      *
      * @var string
      */
     protected $sourcePath;
-    
+
     /**
      * @var boolean
      */
@@ -59,11 +59,11 @@ class UTIL_Image
      */
     public function __construct( $sourcePath, $format = 'JPEG' )
     {
-    	$this->sourcePath = $sourcePath;
-    	
-    	$this->image = WideImage::load($sourcePath, $format);
+        $this->sourcePath = $sourcePath;
+
+        $this->image = WideImage::load($sourcePath, $format);
     }
-    
+
     /**
      * Copies image
      *
@@ -73,11 +73,11 @@ class UTIL_Image
      */
     public function copyImage( $destPath )
     {
-        $this->image->saveToFile($destPath);
+        $this->image->saveToFile($destPath, self::IMAGE_QUALITY);
 
         return $this;
     }
-    
+
     /**
      * Resizes image
      *
@@ -91,18 +91,18 @@ class UTIL_Image
     {
         $iWidth = $this->image->getWidth();
         $iHeight = $this->image->getHeight();
-        
+
         $this->imageResized = ($width <= $iWidth) || (isset($height) && $height <= $iHeight) ? true : false;
-        
+
         if ( $width == null )
         {
             $width = $iWidth;
         }
-        else 
+        else
         {
             $width = $width > $iWidth ? $iWidth : $width;
         }
-        
+
         if ( $height == null )
         {
             $height = $iHeight;
@@ -110,25 +110,25 @@ class UTIL_Image
         else
         {
             $height = $height > $iHeight ? $iHeight : $height;
-        }         
-    	
+        }
+
         if ( $crop )
         {
-        	$wHalf = ceil($width / 2);
-        	$hHalf = ceil($height / 2);
+            $wHalf = ceil($width / 2);
+            $hHalf = ceil($height / 2);
 
             $this->image = $this->image
-        	   ->resize($width, $height, 'outside')
-        	   ->crop('50%-' . $wHalf, '50%-' . $hHalf, $width, $height);
+                ->resize($width, $height, 'outside')
+                ->crop('50%-' . $wHalf, '50%-' . $hHalf, $width, $height);
         }
-        else 
+        else
         {
-        	$this->image = $this->image->resize($width, $height);
+            $this->image = $this->image->resize($width, $height);
         }
 
         return $this;
     }
-    
+
     /**
      * Crops image
      *
@@ -160,43 +160,43 @@ class UTIL_Image
     public function applyWatermark( $wmPath, $opacity = 100, $horPos = 'right', $vertPos = 'bottom', $margin = 5 )
     {
         $wmImage = WideImage::load($wmPath);
-        
+
         $wmWidth = $wmImage->getWidth();
         $wmHeight = $wmImage->getHeight();
 
         switch ( $horPos )
         {
-        	case 'right':
-        		$horCoord = '100%-' . ($wmWidth + $margin);
-        		break; 
-        		
-        	case 'left':
-                $horCoord = '0%+' . $margin;
-        		break;
+            case 'right':
+                $horCoord = '100%-' . ($wmWidth + $margin);
+                break;
 
-        	default:
-        		$horCoord = '100%-' . ($wmWidth + $margin);
+            case 'left':
+                $horCoord = '0%+' . $margin;
+                break;
+
+            default:
+                $horCoord = '100%-' . ($wmWidth + $margin);
         }
-        
+
         switch ( $vertPos )
         {
             case 'bottom':
                 $vertCoord = '100%-' . ($wmHeight + $margin);
                 break;
-                        
+
             case 'top':
                 $vertCoord = '0%+' . $margin;
                 break;
-                
+
             default:
-            	$vertCoord = '100%-' . ($wmHeight + $margin);
+                $vertCoord = '100%-' . ($wmHeight + $margin);
         }
-        
+
         $this->image = $this->image->merge($wmImage, $horCoord, $vertCoord, $opacity);
-        
+
         return $this;
     }
-    
+
     /**
      * Copies image
      *
@@ -206,16 +206,16 @@ class UTIL_Image
      */
     public function saveImage( $destPath = null )
     {
-    	if ( !isset($destPath) )
-    	{
-    	   $this->image->saveToFile($this->sourcePath);
-    	}
-    	else 
-    	{  
-            $this->image->saveToFile($destPath);
-    	}
-    	
-    	return $this;
+        if ( !isset($destPath) )
+        {
+            $this->image->saveToFile($this->sourcePath, self::IMAGE_QUALITY);
+        }
+        else
+        {
+            $this->image->saveToFile($destPath, self::IMAGE_QUALITY);
+        }
+
+        return $this;
     }
 
     public function orientateImage()
@@ -226,7 +226,7 @@ class UTIL_Image
         }
 
         $exif = @exif_read_data($this->sourcePath);
-        
+
         if ( !empty($exif['Orientation']) )
         {
             switch ( $exif['Orientation'] )
@@ -267,32 +267,32 @@ class UTIL_Image
     {
         return $this->image->getHeight();
     }
-    
-    public function imageResized( )
+
+    public function imageResized()
     {
         return $this->imageResized;
     }
-    
+
     /**
      * Release memory allocated for image
      */
     public function __destruct()
     {
-    	$this->destroy();
+        $this->destroy();
     }
-    
+
     public function destroy()
     {
         $this->image->destroy();
     }
-    
+
     public function rotate( $angle, $bgColor = null, $ignoreTransparent = true )
     {
-        if ( (int)$angle !== 0 )
+        if ( (int) $angle !== 0 )
         {
             $this->image = $this->image->rotate($angle, $bgColor, $ignoreTransparent);
         }
-        
+
         return $this;
     }
 }

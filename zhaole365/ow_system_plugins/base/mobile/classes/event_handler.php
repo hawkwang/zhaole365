@@ -46,6 +46,40 @@ class BASE_MCLASS_EventHandler extends BASE_CLASS_EventHandler
         $eventManager->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'onPluginsInitCheckUserStatus'));
         $eventManager->bind('mobile.notifications.on_item_render', array($this, 'onNotificationRender'));
         $eventManager->bind(BASE_MCMP_ConnectButtonList::HOOK_REMOTE_AUTH_BUTTON_LIST, array($this, "onCollectButtonList"));
+        $eventManager->bind('class.get_instance', array($this, "onGetClassInstance"));
+    }
+    
+    public function onGetClassInstance( OW_Event $event )
+    {
+        $params = $event->getParams();
+        
+        if ( !empty($params['className']) && $params['className'] == 'BASE_CLASS_JoinUploadPhotoField' )
+        {
+            $rClass = new ReflectionClass('FileField');
+            
+            $arguments = array();
+            
+            if ( !empty($params['arguments']) )
+            {
+                $arguments = $params['arguments'];
+            }
+            
+            $event->setData($rClass->newInstanceArgs($arguments));
+        }
+        
+        if ( !empty($params['className']) && $params['className'] == 'BASE_CLASS_AvatarFieldValidator' )
+        {
+            $rClass = new ReflectionClass('BASE_MCLASS_JoinAvatarFieldValidator');
+            
+            $arguments = array();
+            
+            if ( !empty($params['arguments']) )
+            {
+                $arguments = $params['arguments'];
+            }
+            
+            $event->setData($rClass->newInstanceArgs($arguments));
+        }
     }
     
     public function onCollectButtonList( BASE_CLASS_EventCollector $e )
@@ -510,8 +544,7 @@ class BASE_MCLASS_EventHandler extends BASE_CLASS_EventHandler
                 {
                     OW::getRequestHandler()->setCatchAllRequestsAttributes('base.suspended_user', array('controller' => 'BASE_MCTRL_SuspendedUser', 'action' => 'index'));
                     OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', $signOutDispatchAttrs['controller'], $signOutDispatchAttrs['action']);
-                    OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', 'BASE_MCTRL_AjaxLoader', 'component');
-                    OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', 'BASE_MCTRL_AjaxLoader', 'component');
+                    OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', 'BASE_MCTRL_AjaxLoader');
                     OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', 'BASE_MCTRL_Invitations', 'command');
                     OW::getRequestHandler()->addCatchAllRequestsExclude('base.suspended_user', 'BASE_MCTRL_Ping', 'index');
                 }

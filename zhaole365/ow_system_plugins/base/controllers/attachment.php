@@ -120,7 +120,7 @@ class BASE_CTRL_Attachment extends OW_ActionController
             }
         }
 
-        exit("<script>parent.window.owPhotoAttachment['" . $bundle . "'].updateItem(" . json_encode($resultArr) . ");</script>");
+        exit("<script>if(parent.window.owPhotoAttachment['" . $bundle . "']){parent.window.owPhotoAttachment['" . $bundle . "'].updateItem(" . json_encode($resultArr) . ");}</script>");
     }
 
     public function addFile()
@@ -176,7 +176,7 @@ class BASE_CTRL_Attachment extends OW_ActionController
             $respondArr = array('result' => false, 'message' => 'General error', 'noData' => true);
         }
 
-        exit("<script>parent.window.owFileAttachments['" . $bundle . "'].updateItems(" . json_encode($respondArr) . ");</script>");
+        exit("<script>if(parent.window.owFileAttachments['" . $bundle . "']){parent.window.owFileAttachments['" . $bundle . "'].updateItems(" . json_encode($respondArr) . ");}</script>");
     }
 
     public function deleteFile()

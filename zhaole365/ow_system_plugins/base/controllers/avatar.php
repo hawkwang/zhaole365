@@ -43,97 +43,7 @@ class BASE_CTRL_Avatar extends OW_ActionController
     {
         parent::__construct();
 
-        if ( !OW::getUser()->isAuthenticated() )
-        {
-            throw new AuthenticateException();
-        }
-
         $this->avatarService = BOL_AvatarService::getInstance();
-        $this->ajaxResponder = OW::getRouter()->urlFor('BASE_CTRL_Avatar', 'ajaxResponder');
-
-        $avatarUploadForm = new avatarUploadForm();
-        $this->addForm($avatarUploadForm);
-
-        $language = OW::getLanguage();
-
-        if ( OW::getRequest()->isPost() && !OW::getRequest()->isAjax() )
-        {
-            $res = $avatarUploadForm->process();
-            if ( $res['result'] )
-            {
-                $this->redirect();
-            }
-            else
-            {
-                if ( isset($res['error']) && $res['error'] == -1 )
-                {
-                    OW::getFeedback()->warning($language->text('base', 'not_valid_image'));
-                }
-                else
-                {
-                    OW::getFeedback()->warning($language->text('base', 'avatar_select_image'));
-                }
-            }
-        }
-
-        if ( !OW::getRequest()->isAjax() )
-        {
-            OW::getDocument()->setHeading($language->text('base', 'avatar_change_avatar'));
-            OW::getDocument()->setHeadingIconClass('ow_ic_picture');
-        }
-    }
-
-    /**
-     * Action cropping avatar
-     */
-    public function crop()
-    {
-        $language = OW::getLanguage();
-        $avatarService = BOL_AvatarService::getInstance();
-        $userService = BOL_UserService::getInstance();
-
-        $userId = OW_Auth::getInstance()->getUserId();
-        $hasAvatar = $avatarService->userHasAvatar($userId);
-        $this->assign('hasAvatar', $hasAvatar);
-
-        if ( $hasAvatar )
-        {
-            $this->assign('avatar', $avatarService->getAvatarUrl($userId, 2));
-            $this->assign('original', $avatarService->getAvatarUrl($userId, 3));
-        }
-        else
-        {
-            $this->assign('default', $avatarService->getDefaultAvatarUrl(2));
-        }
-
-        $staticJsUrl = OW::getPluginManager()->getPlugin('base')->getStaticJsUrl();
-        $staticCssUrl = OW::getPluginManager()->getPlugin('base')->getStaticCssUrl();
-
-        OW::getDocument()->addScript($staticJsUrl . 'jquery.Jcrop.js');
-        OW::getDocument()->addStyleSheet($staticCssUrl . 'jquery.Jcrop.css');
-
-        OW::getDocument()->addScript($staticJsUrl . 'crop_avatar.js');
-
-        $objParams = array(
-            'ajaxResponder' => $this->ajaxResponder,
-            'previewSize' => 100
-        );
-
-        $script =
-            "$(document).ready(function(){
-                var crop = new cropAvatar( " . json_encode($objParams) . ");
-                crop.initCrop();
-            }); ";
-
-        OW::getDocument()->addOnloadScript($script);
-
-        $profileUrl = OW::getRouter()->urlForRoute('base_member_profile');
-
-        $js = new UTIL_JsGenerator();
-        $js->newVariable('profileUrl', $profileUrl);
-        $js->jQueryEvent('#button-profile-view', 'click', 'window.location.href=profileUrl;');
-
-        OW::getDocument()->addOnloadScript($js);
     }
 
     /**
@@ -143,7 +53,7 @@ class BASE_CTRL_Avatar extends OW_ActionController
      */
     public function ajaxResponder()
     {
-        $request = json_decode($_POST['request'], true);
+        $request = $_POST;
 
         if ( isset($request['ajaxFunc']) && OW::getRequest()->isAjax() )
         {
@@ -153,149 +63,230 @@ class BASE_CTRL_Avatar extends OW_ActionController
         }
         else
         {
-            return;
+            exit();
         }
 
         exit(json_encode($result));
     }
 
-    public function ajaxCropPhoto( $params )
+    public function ajaxUploadImage( $params )
     {
-        if ( isset($params['coords']) && isset($params['view_size']) )
+        if ( isset($_FILES['file']) )
         {
-            $coords = $params['coords'];
-            $viewSize = $params['view_size'];
+            $file = $_FILES['file'];
+            $lang = OW::getLanguage();
 
-            $userId = OW_Auth::getInstance()->getUserId();
+            if ( !UTIL_File::validateImage($file['name']) )
+            {
+                return array('result' => false, 'error' => $lang->text('base', 'not_valid_image'));
+            }
+            
+            $message = BOL_FileService::getInstance()->getUploadErrorMessage($_FILES['file']['error']);
+            
+            if ( !empty($message) )
+            {
+                return array('result' => false, 'error' => $message);
+            }
+            
+            $filesize = OW::getConfig()->getValue('base', 'avatar_max_upload_size');
+            
+            if ( $filesize*1024*1024 < $_FILES['file']['size'] )
+            {
+                $message = OW::getLanguage()->text('base', 'upload_file_max_upload_filesize_error');
+                return array('result' => false, 'error' => $message);
+            }
 
             $avatarService = BOL_AvatarService::getInstance();
 
+            $key = $avatarService->getAvatarChangeSessionKey();
+            $uploaded = $avatarService->uploadUserTempAvatar($key, $file['tmp_name']);
+
+            if ( !$uploaded )
+            {
+                return array('result' => false, 'error' => $lang->text('base', 'upload_avatar_faild'));
+            }
+
+            $url = $avatarService->getTempAvatarUrl($key, 3);
+
+            return array('result' => true, 'url' => $url);
+        }
+
+        return array('result' => false);
+    }
+
+    public function ajaxDeleteImage( $params )
+    {
+        $avatarService = BOL_AvatarService::getInstance();
+
+        $key = $avatarService->getAvatarChangeSessionKey();
+        $avatarService->deleteUserTempAvatar($key);
+
+        return array('result' => true);
+    }
+
+    public function ajaxLoadMore( $params )
+    {
+        if ( isset($params['entityType']) && isset($params['entityId']) && isset($params['offset']) )
+        {
+            $entityType = $params['entityType'];
+            $entityId = $params['entityId'];
+            $offset = $params['offset'];
+
+            $section = BOL_AvatarService::getInstance()->getAvatarChangeSection($entityType, $entityId, $offset);
+
+            if ( $section )
+            {
+                $cmp = new BASE_CMP_AvatarLibrarySection($section['list'], $offset, $section['count']);
+                $markup = $cmp->render();
+
+                return array('result' => true, 'markup' => $markup, 'count' => $section['count']);
+            }
+        }
+
+        return array('result' => false);
+    }
+
+    public function ajaxCropPhoto( $params )
+    {
+        if ( !isset($params['coords']) || !isset($params['view_size']) )
+        {
+            return array('result' => false, 'case' => 0);
+        }
+
+        $coords = $params['coords'];
+        $viewSize = $params['view_size'];
+        $path = null;
+        
+        $localFile = false;
+
+        $avatarService = BOL_AvatarService::getInstance();
+
+        if ( !empty($params['entityType']) && !empty($params['id']) )
+        {
+            $item = $avatarService->getAvatarChangeGalleryItem($params['entityType'], $params['entityId'], $params['id']);
+            
+            if ( !$item || empty($item['path']) || !OW::getStorage()->fileExists($item['path']) )
+            {
+                return array('result' => false, 'case' => 1);
+            }
+
+            $path = $item['path'];
+        }
+        else if ( isset($params['url']) ) 
+        {
+            $path = UTIL_Url::getLocalPath($params['url']);
+            
+            if ( !OW::getStorage()->fileExists($path)  )
+            {
+                if ( !file_exists($path) )
+                {
+                    return array('result' => false, 'case' => 2);
+                }
+                
+                $localFile = true;
+            }
+        }
+
+        $userId = OW_Auth::getInstance()->getUserId();
+        if ( $userId )
+        {
             $avatar = $avatarService->findByUserId($userId);
-            $oldHash = $avatar->hash;
-            $hash = time();
 
             try
             {
                 $event = new OW_Event('base.before_avatar_change', array(
                     'userId' => $userId,
-                    'avatarId' => $avatar->id,
+                    'avatarId' => $avatar ? $avatar->id : null,
                     'upload' => false,
                     'crop' => true
                 ));
                 OW::getEventManager()->trigger($event);
 
-                $avatarService->cropAvatar($userId, $coords, $viewSize, $hash);
-
-                // remove old avatar
-                $oldAvatarPath = $avatarService->getAvatarPath($userId, 1, $oldHash);
-                $avatarService->removeAvatarImage($oldAvatarPath);
-
-                // update hash
-                $avatar->hash = $hash;
-                $avatarService->updateAvatar($avatar);
-
-                // rename original
-                $avatarService->renameAvatarOriginal($userId, $oldHash, $avatar->hash);
-
-                $oldBigAvatarPath = $avatarService->getAvatarPath($userId, 2, $oldHash);
-                $avatarService->removeAvatarImage($oldBigAvatarPath);
+                if ( !$avatarService->cropAvatar($userId, $path, $coords, $viewSize, array('isLocalFile' => $localFile )) )
+                {
+                    return array(
+                        'result' => false,
+                        'case' => 6
+                    );
+                }
+                
+                $avatar = $avatarService->findByUserId($userId, false);
 
                 $event = new OW_Event('base.after_avatar_change', array(
                     'userId' => $userId,
-                    'avatarId' => $avatar->id,
+                    'avatarId' => $avatar ? $avatar->id : null,
                     'upload' => false,
                     'crop' => true
                 ));
                 OW::getEventManager()->trigger($event);
 
-                $avatarService->trackAvatarChangeActivity($userId, $avatar->id);
-
-                return array('result' => true, 'location' => OW_Router::getInstance()->urlForRoute('base_avatar_crop'));
+                return array(
+                    'result' => true,
+                    'modearationStatus' => $avatar->status,
+                    'url' => $avatarService->getAvatarUrl($userId, 1, null, false, false),
+                    'bigUrl' => $avatarService->getAvatarUrl($userId, 2, null, false, false)
+                );
             }
             catch ( Exception $e )
             {
-                return array('result' => false);
+                return array('result' => false, 'case' => 4);
             }
         }
         else
         {
-            return array('result' => false);
+            $key = $avatarService->getAvatarChangeSessionKey();
+            $path = $avatarService->getTempAvatarPath($key, 3);
+            
+            if ( !file_exists($path) )
+            {
+                return array('result' => false, 'case' => 5);
+            }
+            
+            $avatarService->cropTempAvatar($key, $coords, $viewSize);
+
+            return array(
+                'result' => true,
+                'url' => $avatarService->getTempAvatarUrl($key, 1),
+                'bigUrl' => $avatarService->getTempAvatarUrl($key, 2)
+            );
         }
     }
-}
-
-/**
- * Avatar upload form class
- */
-class avatarUploadForm extends Form
-{
-
-    /**
-     * Class constructor
-     *
-     */
-    public function __construct()
+    
+    public function ajaxAvatarApprove( $params )
     {
-        parent::__construct('avatarUploadForm');
-
-        $language = OW::getLanguage();
-
-        $this->setEnctype('multipart/form-data');
-
-        $fileField = new FileField('avatar');
-        $this->addElement($fileField);
-
-        $submit = new Submit('upload');
-        $submit->setValue($language->text('base', 'avatar_btn_upload'));
-        $this->addElement($submit);
-    }
-
-    /**
-     * Uploads avatar
-     *
-     * @return boolean
-     */
-    public function process()
-    {
-        $values = $this->getValues();
-
-        $avatarService = BOL_AvatarService::getInstance();
-        $userId = OW::getUser()->getId();
-
-        if ( strlen($_FILES['avatar']['tmp_name']) )
+        if ( isset($params['avatarId']) && OW::getUser()->isAuthorized('base') )
         {
-            if ( !UTIL_File::validateImage($_FILES['avatar']['name']) )
-            {
-                return array('result' => false, 'error' => -1);
-            }
+            $entityId = $params['avatarId'];
+            $entityType = BASE_CLASS_ContentProvider::ENTITY_TYPE_AVATAR;
 
-            $event = new OW_Event('base.before_avatar_change', array(
-                'userId' => $userId,
-                'upload' => true,
-                'crop' => false
+            $backUrl = OW::getRouter()->urlForRoute("event.view", array(
+                "eventId" => $entityId
             ));
+
+            $event = new OW_Event("moderation.approve", array(
+                "entityType" => $entityType,
+                "entityId" => $entityId
+            ));
+
             OW::getEventManager()->trigger($event);
 
-            $avatarSet = $avatarService->setUserAvatar($userId, $_FILES['avatar']['tmp_name']);
-
-            $event = new OW_Event('base.after_avatar_change', array(
-                'userId' => $userId,
-                'upload' => true,
-                'crop' => false
-            ));
-            OW::getEventManager()->trigger($event);
-
-            $avatar = $avatarService->findByUserId($userId);
-            if ( $avatar )
+            $data = $event->getData();
+            
+            if ( empty($data) )
             {
-                $avatarService->trackAvatarChangeActivity($userId, $avatar->id);
+                return array('result' => true);
             }
+            
+            if ( !empty($data["message"]) )
+            {
+                return array('result' => true, 'message' => $data["message"]);
+            }
+            else
+            {
+                return array('result' => false, 'error' => $data["error"]);
+            }
+        }
 
-            return array('result' => $avatarSet);
-        }
-        else
-        {
-            return array('result' => false);
-        }
+        return array('result' => false);
     }
 }

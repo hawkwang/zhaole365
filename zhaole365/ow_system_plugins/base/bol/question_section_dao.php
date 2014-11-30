@@ -110,29 +110,49 @@ class BOL_QuestionSectionDao extends OW_BaseDao
         return $this->findListByExample($example);
     }
 
-    public function findNextSection( $order )
+    
+    public function findVisibleNotDeletableSection()
     {
-        if ( $order === null )
+        $example = new OW_Example();
+        $example->andFieldEqual('isHidden', 0);
+        $example->andFieldEqual('isDeletable', 0);
+        $example->andFieldNotEqual('name', 'about_my_match');
+        $example->setOrder(' sortOrder ASC ');
+        $example->setLimitClause(0, 1);
+
+        return $this->findObjectByExample($example);
+    }
+    
+    
+    public function findPreviousSection( BOL_QuestionSection $section )
+    {
+        if ( $section === null )
         {
             return null;
         }
 
         $example = new OW_Example();
-        $example->andFieldLessThan('sortOrder', (int) $order);
+        $example->andFieldLessOrEqual('sortOrder', (int) $section->sortOrder);
+        $example->andFieldEqual('isHidden', 0);
+        $example->andFieldNotEqual('name', 'about_my_match');
+        $example->andFieldNotEqual('name', $section->name);
         $example->setOrder(' sortOrder desc ');
 
         return $this->findObjectByExample($example);
     }
 
-    public function findPreviousSection( $order )
+    public function findNextSection( BOL_QuestionSection $section )
     {
-        if ( $order === null )
+        if ( $section === null )
         {
             return null;
         }
 
         $example = new OW_Example();
-        $example->andFieldGreaterThan('sortOrder', (int) $order);
+        $example->andFieldGreaterThenOrEqual('sortOrder', $section->sortOrder);
+        $example->andFieldEqual('isHidden', 0);
+        $example->andFieldNotEqual('name', 'about_my_match');
+        $example->andFieldNotEqual('name', $section->name);
         $example->setOrder(' sortOrder ');
 
         return $this->findObjectByExample($example);

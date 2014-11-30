@@ -114,6 +114,17 @@ class BOL_UserBlockDao extends OW_BaseDao
 
         $this->deleteByExample($example);
     }
+    
+    public function deleteByUserId( $userId )
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual(self::USER_ID, (int) $userId);
+        $this->deleteByExample($example);
+        
+        $example = new OW_Example();
+        $example->andFieldEqual(self::BLOCKED_USER_ID, (int) $userId);
+        $this->deleteByExample($example);
+    }
 
     protected function clearCache()
     {

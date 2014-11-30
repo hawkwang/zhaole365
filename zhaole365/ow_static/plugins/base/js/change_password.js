@@ -5,9 +5,7 @@ var OW_ChangePassword = function($params)
 	this.responderUrl = $params.responderUrl;
         this.formName = $params['formName'];
         this.floatBox = undefined;
-
-
-        this.errors = [];
+        this.errors = {};
 
         var password = $("#" + this.formName + " input[name='oldPassword']");
 
@@ -26,15 +24,17 @@ var OW_ChangePassword = function($params)
             var result = {};
 
             $.ajax( {
-                                url: self.responderUrl,
-                                type: 'POST',
-                                data: { command: 'validatePassword', value: password.val() },
-                                async: false,
-                                success: function(data)
-                                {
-                                    result = data;
-                                }
-                            } );
+                        url: self.responderUrl,
+                        type: 'POST',
+                        data: { command: 'validatePassword', value: password.val() },
+                        async: false,
+                        dataType: 'json'
+                    } ).done(
+                        function(data)
+                        {
+                            result = data;
+
+                        } );
 
            //var data = $.httpData( xhr, 'json');
 
@@ -42,7 +42,8 @@ var OW_ChangePassword = function($params)
 
             if( result.result == false )
             {
-                 self.errors['password']['error'] = OW.getLanguageText('base', 'join_error_password_not_valid');
+                 var text = OW.getLanguageText('base', 'join_error_password_not_valid');
+                 self.errors.password = {error:text};
                  return false;
             }
 
@@ -64,7 +65,7 @@ var OW_ChangePassword = function($params)
 //            } );
             if( self.floatBox != undefined )
             {
-                self.floatBox.close();
+                //self.floatBox.close();
             }
             
             return true;

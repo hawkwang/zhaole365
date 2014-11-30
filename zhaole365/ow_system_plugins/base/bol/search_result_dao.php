@@ -130,12 +130,17 @@ class BOL_SearchResultDao extends OW_BaseDao
      * @param int $count
      * return array
      */
-    public function getUserIdList( $listId, $first, $count )
+    public function getUserIdList( $listId, $first, $count, $excludeList = array() )
     {
         $example = new OW_Example();
         $example->andFieldEqual('searchId', (int) $listId);
         $example->setOrder(' sortOrder ');
         $example->setLimitClause($first, $count);
+        
+        if ( !empty($excludeList) )
+        {
+            $example->andFieldNotInArray('userId', $excludeList);
+        }
 
         $results = $this->findListByExample($example);
 
@@ -148,6 +153,7 @@ class BOL_SearchResultDao extends OW_BaseDao
 
         return $userIdList;
     }
+
 
     /**
      * Return search result item count

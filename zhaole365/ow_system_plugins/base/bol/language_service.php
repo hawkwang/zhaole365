@@ -268,6 +268,8 @@ class BOL_LanguageService
 
     public function getText( $languageId, $prefix, $key )
     {
+        OW::getEventManager()->trigger( new OW_Event('servicelangtools.lang_used_log', array( 'prefix' => $prefix, 'key' => $key)) );
+        
         return ( isset($this->language[$languageId][$prefix . '+' . $key]) ) ? $this->language[$languageId][$prefix . '+' . $key] : null;
     }
 
@@ -446,7 +448,7 @@ class BOL_LanguageService
         return $XML;
     }
 
-    public function importPrefix( $xml, $refreshCache=false )
+    public function importPrefix( $xml, $refreshCache=false, $importOnlyActivePluginPrefix = false )
     {
         if ( false === ( $prefixesXml = $xml->xpath("/prefix") ) )
         {
@@ -457,6 +459,16 @@ class BOL_LanguageService
 
         $languageTag = (string) $prefixesXml[0]->attributes()->language_tag;
 
+        if ( $importOnlyActivePluginPrefix )
+        {
+            $plugin = BOL_PluginService::getInstance()->findPluginByKey((string)$prefixesXml[0]->attributes()->name);
+
+            if ( empty($plugin) )
+            {
+                return false;
+            }
+        }
+        
         if ( null === ( $language = $service->findByTag($languageTag) ) )
         {
             $language = new BOL_Language();
@@ -481,19 +493,19 @@ class BOL_LanguageService
         }
 
         $keysXml = $prefixesXml[0]->xpath('child::key');
+
         foreach ( $keysXml as $keyXml )
         {
+
             if ( null === ($key = $service->findKey((string) $prefixesXml[0]->attributes()->name, (string) $keyXml->attributes()->name)) )
             {
                 $key = new BOL_LanguageKey();
                 $key->setKey((string) $keyXml->attributes()->name)->
                     setPrefixId($prefix->getId());
                 $service->saveKey($key);
-        		OW::getFeedback()->info($key);
             }
 
-            $value = $service->findValue($language->getId(), $key->getId());
-            if ( null === ( $value ) )
+            if ( null === ( $value = $service->findValue($language->getId(), $key->getId()) ) )
             {
                 $value = new BOL_LanguageValue();
                 $value->setLanguageId($language->getId())->
@@ -502,16 +514,9 @@ class BOL_LanguageService
 
                 $service->saveValue($value, false);
             }
-            else 
-            {
-            	$value->setLanguageId($language->getId())->setKeyId($key->getId())->setValue((string) $keyXml->value);
-            	
-            	$service->saveValue($value, true);
-            }
             
             if ( $refreshCache )
             {
-            	OW::getFeedback()->info($refreshCache);
                 $this->generateCache($language->getId());
             }
         }
@@ -573,10 +578,20 @@ class BOL_LanguageService
 
             setcookie('base_language_id', (string) $languageDto->getId(), time() + 60 * 60 * 24 * 30, "/");
 
-            self::$currentLanguage = $languageDto;
+            $this->setCurrentLanguage($languageDto, false);
         }
         //printVar(self::$currentLanguage);
         return self::$currentLanguage;
+    }
+    
+    public function setCurrentLanguage( BOL_Language $language, $loadFromCache = true )
+    {
+        self::$currentLanguage = $language;
+        
+        if ( $loadFromCache )
+        {
+            $this->loadFromCahce();
+        }
     }
 
     public function resetCurrentLanguage()
@@ -610,6 +625,11 @@ class BOL_LanguageService
         return $this->keyDao->findKeyId($prefixId, $key) === null;
     }
 
+    /**
+     * 
+     * @param string $tag
+     * @return BOL_Language
+     */
     public function findByTag( $tag )
     {
         return $this->languageDao->findByTag($tag);
@@ -877,10 +897,10 @@ class BOL_LanguageService
 
         foreach ( $langsToImport as $langToImport )
         {
-            /* if ( !$this->findByTag($langToImport['tag']) )
+            if ( !$this->findByTag($langToImport['tag']) )
             {
-                //continue;
-            } */
+                continue;
+            }
 
             foreach ( $prefixesToImport as $prefixToImport )
             {

@@ -17,6 +17,7 @@ class BASE_CTRL_MediaPanel extends OW_ActionController
         }
 
         OW::getDocument()->getMasterPage()->setTemplate(OW::getThemeManager()->getMasterPageTemplate(OW_MasterPage::TEMPLATE_BLANK));
+        OW::getDocument()->addStyleDeclaration(".ow_footer{display:none;}");
     }
 
     public function index( $params )
@@ -35,7 +36,7 @@ class BASE_CTRL_MediaPanel extends OW_ActionController
         }
 
         $this->assign('maxSize', OW::getConfig()->getValue('base', 'tf_max_pic_size'));
-
+        
         $this->addForm($form);
     }
 

@@ -35,7 +35,7 @@ class BOL_UserSuspend extends OW_Entity
      * 
      * @var int
      */
-    public $userId, $timestamp;
+    public $userId, $timestamp, $message = '';
 
     public function getUserId()
     {
@@ -63,6 +63,13 @@ class BOL_UserSuspend extends OW_Entity
     public function setTimestamp( $timestamp )
     {
         $this->timestamp = $timestamp;
+
+        return $this;
+    }
+    
+    public function setMessage( $message )
+    {
+        $this->message = $message;
 
         return $this;
     }

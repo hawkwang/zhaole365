@@ -557,7 +557,7 @@ class editEmailValidator extends OW_Validator
         	getErrorMessage : function(){
                     if( window.edit.errors['email']['error'] !== undefined ){ return window.edit.errors['email']['error']; }
                     else{ return " . json_encode($this->getError()) . " }
-                 }
+                }
         }";
     }
 }

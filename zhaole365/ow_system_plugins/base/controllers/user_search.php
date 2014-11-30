@@ -54,7 +54,7 @@ class BASE_CTRL_UserSearch extends OW_ActionController
             return;
         }
 
-        $mainSearchForm = new MainSearchForm($this);
+        $mainSearchForm = OW::getClassInstance('MainSearchForm', $this);
         $mainSearchForm->process($_POST);
         $this->addForm($mainSearchForm);
 

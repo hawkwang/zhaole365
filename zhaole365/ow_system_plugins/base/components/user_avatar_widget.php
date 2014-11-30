@@ -31,10 +31,6 @@
  */
 class BASE_CMP_UserAvatarWidget extends BASE_CLASS_Widget
 {
-
-    /**
-     * @return Constructor.
-     */
     public function __construct( BASE_CLASS_WidgetParameter $paramObj )
     {
         parent::__construct();
@@ -45,17 +41,112 @@ class BASE_CMP_UserAvatarWidget extends BASE_CLASS_Widget
 
         $userId = $paramObj->additionalParamList['entityId'];
 
+        $owner = false;
+        
         if ( $viewerId == $userId )
         {
-            $this->assign('owner', true);
-            $this->assign('changeAvatarUrl', OW::getRouter()->urlForRoute('base_avatar_crop'));
-        }
-        else
-        {
-            $this->assign('owner', false);
-        }
+            $owner = true;
+            
 
-        $avatar = $avatarService->getAvatarUrl($userId, 2);
+            $label = OW::getLanguage()->text('base', 'avatar_change');
+
+            $script =
+            '$("#avatar-change").click(function(){
+                document.avatarFloatBox = OW.ajaxFloatBox(
+                    "BASE_CMP_AvatarChange",
+                    { params : { step : 1 } },
+                    { width : 749, title: ' . json_encode($label) . '}
+                );
+            });
+
+            OW.bind("base.avatar_cropped", function(data){
+                if ( data.bigUrl != undefined ) {
+                    $("#avatar_console_image").css({ "background-image" : "url(" + data.bigUrl + ")" });
+                }
+
+                if ( data.modearationStatus )
+                {
+                    if ( data.modearationStatus != "active" )
+                    {
+                        $(".ow_avatar_pending_approval").show();
+                    }
+                    else 
+                    {
+                        $(".ow_avatar_pending_approval").hide();
+                    }
+                }
+            });
+            ';
+
+            OW::getDocument()->addOnloadScript($script);
+        }
+        
+        $isModerator = (OW::getUser()->isAuthorized('base') || OW::getUser()->isAdmin());
+        
+        $this->assign('owner', $owner);
+        $this->assign('isModerator', $isModerator);
+        
+        $avatarDto = $avatarService->findByUserId($userId);
+        
+        $this->assign('hasAvatar', !empty($avatarDto));
+        $moderation = false;
+
+        // approve button
+        if ( $isModerator && !empty($avatarDto) && $avatarDto->status == BOL_ContentService::STATUS_APPROVAL )
+        {
+            $moderation = true;
+            
+            $script = ' window.avartar_arrove_request = false;
+            $("#avatar-approve").click(function(){
+            
+                if ( window.avartar_arrove_request == true )
+                {
+                    return;
+                }
+                
+                window.avartar_arrove_request = true;
+                
+                $.ajax({
+                    "type": "POST",
+                    "url": '.json_encode(OW::getRouter()->urlFor('BASE_CTRL_Avatar', 'ajaxResponder')).',
+                    "data": {
+                        \'ajaxFunc\' : \'ajaxAvatarApprove\',
+                        \'avatarId\' : '.((int)$avatarDto->id).'
+                    },
+                    "success": function(data){
+                        if ( data.result == true )
+                        {
+                            if ( data.message )
+                            {
+                                OW.info(data.message);
+                            }
+                            else
+                            {
+                                OW.info('.json_encode(OW::getLanguage()->text('base', 'avatar_has_been_approved')).');
+                            }
+                            
+                            $("#avatar-approve").remove();
+                            $(".ow_avatar_pending_approval").hide();
+                        }
+                        else
+                        {
+                            if ( data.error )
+                            {
+                                OW.info(data.error);
+                            }
+                        }
+                    },
+                    "complete": function(){
+                        window.avartar_arrove_request = false;
+                    },
+                    "dataType": "json"
+                });
+            }); ';
+
+            OW::getDocument()->addOnloadScript($script);
+        }
+        
+        $avatar = $avatarService->getAvatarUrl($userId, 2, null, false, !($moderation || $owner));
         $this->assign('avatar', $avatar ? $avatar : $avatarService->getDefaultAvatarUrl(2));
         $roles = BOL_AuthorizationService::getInstance()->getRoleListOfUsers(array($userId));
         $this->assign('role', !empty($roles[$userId]) ? $roles[$userId] : null);
@@ -79,10 +170,14 @@ class BASE_CMP_UserAvatarWidget extends BASE_CLASS_Widget
         }
 
         $this->assign('isUserOnline', ($userService->findOnlineUserById($userId) && $showPresence));
-
         $this->assign('userId', $userId);
 
         $this->assign('avatarSize', OW::getConfig()->getValue('base', 'avatar_big_size'));
+        
+        $this->assign('moderation', $moderation);
+        $this->assign('avatarDto', $avatarDto);
+        
+        OW::getLanguage()->addKeyForJs('base', 'avatar_has_been_approved');
     }
 
     public static function getAccess()

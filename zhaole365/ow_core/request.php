@@ -38,6 +38,7 @@ final class OW_Request
      */
     private $uri;
     private $uriParams;
+
     /**
      * Singleton instance.
      *
@@ -65,7 +66,7 @@ final class OW_Request
      */
     private function __construct()
     {
-        if ( get_magic_quotes_gpc ( ) )
+        if ( get_magic_quotes_gpc() )
         {
             $_GET = $this->stripSlashesRecursive($_GET);
             $_POST = $this->stripSlashesRecursive($_POST);
@@ -122,7 +123,6 @@ final class OW_Request
     {
         return mb_strtoupper(isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'GET');
     }
-
 //    public function getContentType()
 //    {
 //        return $_SERVER[''];
@@ -211,8 +211,8 @@ final class OW_Request
 
         $currentParams = array_merge($currentParams, $paramsToUpdate);
 
-        return $requestUrlArray['scheme'] . '://' . $requestUrlArray['host'] . ( empty($requestUrlArray['path']) ? '' : $requestUrlArray['path'] ) .
-        ( empty($requestUrlArray['port']) ? '' : ':' . (int) $requestUrlArray['port'] ) . '?' . http_build_query($currentParams) . ( $anchor === null ? '' : '#' . trim($anchor) );
+        return (empty($requestUrlArray['scheme']) ? "" : $requestUrlArray['scheme'] ) . '://' . $requestUrlArray['host'] . ( empty($requestUrlArray['path']) ? '' : $requestUrlArray['path'] ) .
+            ( empty($requestUrlArray['port']) ? '' : ':' . (int) $requestUrlArray['port'] ) . '?' . http_build_query($currentParams) . ( $anchor === null ? '' : '#' . trim($anchor) );
     }
 
     /**
@@ -223,5 +223,25 @@ final class OW_Request
     {
         $value = is_array($value) ? array_map(array($this, 'stripSlashesRecursive'), $value) : stripslashes($value);
         return $value;
+    }
+
+    public function isSsl()
+    {
+        $isHttps = null;
+
+        if ( array_key_exists("HTTPS", $_SERVER) )
+        {
+            $isHttps = ($_SERVER["HTTPS"] == "on");
+        }
+        else if ( array_key_exists("REQUEST_SCHEME", $_SERVER) )
+        {
+            $isHttps = (strtolower($_SERVER["REQUEST_SCHEME"]) == "https");
+        }
+        else if ( array_key_exists("SERVER_PORT", $_SERVER) )
+        {
+            $isHttps = ($_SERVER["SERVER_PORT"] == "443");
+        }
+
+        return $isHttps;
     }
 }

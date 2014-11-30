@@ -145,6 +145,7 @@ class ADMIN_CTRL_Users extends ADMIN_CTRL_Abstract
         }
 
         $language->addKeyForJs('admin', 'invite_members_cap_label');
+        $language->addKeyForJs('admin', 'admin_suspend_floatbox_title');
 
         $menu = $this->getMenu();
         $this->addComponent('menu', $menu);
@@ -161,9 +162,11 @@ class ADMIN_CTRL_Users extends ADMIN_CTRL_Abstract
         }
         
         $buttons['suspend'] = array('name' => 'suspend', 'id' => 'suspend_user_btn', 'label' => $language->text('base', 'suspend_user_btn'), 'class' => 'ow_mild_red');
-        $buttons['suspend']['js'] = '$("#suspend_user_btn").click(function(){ 
-            return confirm('.json_encode($language->text('admin', 'confirm_suspend_users')).'); 
-        });';
+        $buttons['suspend']['js'] = ' $("#suspend_user_btn").click(function(e){ 
+            e.preventDefault();
+            OW.ajaxFloatBox("ADMIN_CMP_SetSuspendMessage", [],{width: 520, title: OW.getLanguageText(\'admin\', \'admin_suspend_floatbox_title\')}); 
+            return false;
+        }); ';
         
         $buttons['unverify'] = array('name' => 'email_unverify', 'id' => 'email_unverify_user_btn', 'label' => $language->text('base', 'mark_email_unverified_btn'), 'class' => 'ow_mild_red');
         $buttons['unsuspend'] = array('name' => 'reactivate', 'id' => 'unsuspend_user_btn', 'label' => $language->text('base', 'unsuspend_user_btn'), 'class' => 'ow_mild_green');

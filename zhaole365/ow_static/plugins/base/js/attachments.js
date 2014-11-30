@@ -3,10 +3,10 @@ var OWFileAttachment = function(params) {
     this.$context = $('#' + this.uid);
     this.$previewCont = $('.ow_file_attachment_preview', this.$context);
     this.inputCont = this.selector ? $(this.selector) : $('a.attach', this.$context);
-    
+
     var self = this;
     var items = {};
-    var itemId = 1;
+    var itemId = 1;    
 
     var refreshClasses = function() {
         var itemIndex = 1;
@@ -32,7 +32,7 @@ var OWFileAttachment = function(params) {
     };
 
     this.initInput = function() {
-        var $input = $('<input class="mlt_file_input" type="file"' + ( this.multiple ? ' multiple=""' : '' ) + ' name="ow_file_attachment[]" />');
+        var $input = $('<input class="mlt_file_input" type="file"' + (this.multiple ? ' multiple=""' : '') + ' name="ow_file_attachment[]" />');
         this.inputCont.append($input);
 
         $input.change(
@@ -86,7 +86,7 @@ var OWFileAttachment = function(params) {
             nameObj[item.name] = item.id;
         });
 
-        $form = $('<form method="post" action="' + self.submitUrl + '?flUid='+ self.uid + '" enctype="multipart/form-data" target="form_' + index + '"><input type="hidden" name="flData" value="' +
+        $form = $('<form method="post" action="' + self.submitUrl + '?flUid=' + self.uid + '" enctype="multipart/form-data" target="form_' + index + '"><input type="hidden" name="flData" value="' +
                 encodeURIComponent(JSON.stringify(nameObj)) + '" /><input type="hidden" name="flUid" value="' + self.uid + '"><input type="hidden" name="pluginKey" value="' + self.pluginKey + '">' +
                 '</form>')
                 .append($('input[type=file]', self.inputCont));
@@ -100,19 +100,23 @@ var OWFileAttachment = function(params) {
     };
 
     this.updateItems = function(data) {
-        
-        if( !data.result && data.noData ){
+
+        if (!data.result && data.noData) {
             OW.error(data.message);
             return;
         }
-        var indexList = [];        
+        var indexList = [];
 
-        if( data.items ){  
+        if (data.items) {
             $.each(data.items, function(index, item) {
                 indexList.push(index);
 
                 if (item.result) {
                     items[index]['dbId'] = item['dbId'];
+                    if( items[index]['cancelled'] ){
+                        self.deleteItem(index);
+                        return;
+                    }
                     if (self.showPreview) {
                         $('.ow_file_attachment_preload', items[index]['html']).hide();
                     }
@@ -123,7 +127,7 @@ var OWFileAttachment = function(params) {
                     }
                 }
             });
-            
+
             OW.trigger('base.update_attachment', {'pluginKey': self.pluginKey, 'uid': self.uid, 'items': data.items});
         }
 
@@ -134,7 +138,12 @@ var OWFileAttachment = function(params) {
         if (self.showPreview) {
             items[id]['html'].remove();
         }
-        
+
+        if( !items[id]['dbId'] ){
+            items[id]['cancelled'] = true;
+            return;
+        }
+
         $.ajax({url: self.deleteUrl, data: {id: items[id]['dbId']}});
 
         delete items[id];
@@ -191,10 +200,10 @@ window.owFileAttachments = {};
 var OWPhotoAttachment = function(params) {
     $.extend(this, params);
     var self = this, $previewCont = $('#' + this.previewId),
-            $buttonCont = $('#' + this.buttonId), 
-            $form, 
-            $iframe = null, 
-            $item = $('.ow_photo_attachment_pic', $previewCont), 
+            $buttonCont = $('#' + this.buttonId),
+            $form,
+            $iframe = null,
+            $item = $('.ow_photo_attachment_pic', $previewCont),
             canceled = false;
 
     this.eventParams = {uid: self.uid, pluginKey: self.pluginKey};
@@ -209,7 +218,7 @@ var OWPhotoAttachment = function(params) {
         $('div', $item).unbind('click').click(function() {
             canceled = true;
             $previewCont.hide();
-            self.initInput();   
+            self.initInput();
             OW.trigger('base.attachment_deleted', self.eventParams);
         });
 
@@ -226,7 +235,7 @@ var OWPhotoAttachment = function(params) {
                     $buttonCont.hide();
                     OW.trigger('base.attachment_hide_button_cont', self.eventParams);
                     $previewCont.show();
-                    $form = $('<form method="post" action="' + self.addPhotoUrl + '?flUid='+ self.uid + '" enctype="multipart/form-data" target="form_' + self.uid + '">' +
+                    $form = $('<form method="post" action="' + self.addPhotoUrl + '?flUid=' + self.uid + '" enctype="multipart/form-data" target="form_' + self.uid + '">' +
                             '<input type="hidden" name="flUid" value="' + self.uid + '"><input type="hidden" name="pluginKey" value="' + self.pluginKey + '"></form>')
                             .append($('input[type=file]', $buttonCont));
                     $iframe = $('<div style="display:none" id="hd_' + self.uid + '"><div>').appendTo($('body'))
@@ -239,17 +248,17 @@ var OWPhotoAttachment = function(params) {
     };
 
     this.updateItem = function(data) {
-        if( canceled ){
+        if (canceled) {
             canceled = false;
             return;
         }
-        
+
         var self = this, eventParams = {uid: self.uid, pluginKey: self.pluginKey, url: data.url};
         if (data.result) {
             var previewImg = new Image();
-            previewImg.onload = function(){
+            previewImg.onload = function() {
                 $item.removeClass('loading').css({backgroundImage: 'url(' + data.url + ')'}).click(function() {
-                OW.showImageInFloatBox(data.url)
+                    OW.showImageInFloatBox(data.url)
                 });
                 $('div', $item).unbind('click').click(function(e) {
                     e.stopPropagation();
@@ -268,8 +277,8 @@ var OWPhotoAttachment = function(params) {
             self.initInput();
         }
     };
-    
-    this.resetUid = function(data){
+
+    this.resetUid = function(data) {
         this.uid = data;
         this.eventParams.uid = this.uid;
         self.initInput();

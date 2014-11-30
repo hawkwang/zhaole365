@@ -454,7 +454,7 @@ componentDragAndDrop.prototype = {
 	},
 
 	complete: function(successFunction) {
-        this.trigger('complete', [successFunction]);
+            this.trigger('complete', [successFunction]);
 	},
 
     showSettings: function($component)
@@ -527,34 +527,35 @@ componentDragAndDrop.prototype = {
         OW.inProgressNode(submitControl);
         $(form).find('.setting_error').empty();
         var error = function(message, fieldName) {
-        	if (fieldName) {
-        		$('#error_' + fieldName ).html(message);
-        	} else {
-        		OW.error(message);
-        	}
-        }
+            if (fieldName) {
+                $('#error_' + fieldName ).html(message);
+            } else {
+                OW.error(message);
+            }
+        };
 
         this.trigger('saveSettings', [cmpId, formState, function( result, sharedData ) {
+            if ( result.error ) {
+                error(result.error.message, result.error.field);
+                sharedData.stop = true;
 
-        	if ( result.error ) {
-        		error(result.error.message, result.error.field);
-        		sharedData.stop = true;
-        		return;
-        	}
-        	self.applyComponentSettings(cmpId, result.settingList);
+                return;
+            }
+            self.applyComponentSettings(cmpId, result.settingList);
         }]);
 
         this.trigger('reload', [cmpId, renderComponent, function( markup, sharedData ){
-        	if (markup && !sharedData.stop) {
+            if (markup && !sharedData.stop) {
                 self.drawComponent(cmpId, markup);
             }
         }]);
 
         this.complete(function(r, sharedData) {
-        	OW.activateNode(submitControl);
-        	if ( !sharedData.stop ) {
-        		self.settingBox.close();
-        	}
+            OW.activateNode(submitControl);
+            
+            if ( !sharedData.stop ) {
+                self.settingBox.close();
+            }
         });
     },
 
@@ -622,8 +623,8 @@ componentDragAndDrop.prototype = {
         var $section = $component.parents('.place_section:eq(0)');
 
         if (settings.freeze > 0) {
-        	$component.addClass('ow_dnd_freezed');
-        	this.arrangeFreezed($section);
+            $component.addClass('ow_dnd_freezed');
+            this.arrangeFreezed($section);
         }
     },
 
