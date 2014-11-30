@@ -131,7 +131,6 @@ class GROUPS_CLASS_EventHandler
         )));
     }
     
-    
     public function onUserUnregister( OW_Event $event )
     {
         $params = $event->getParams();
