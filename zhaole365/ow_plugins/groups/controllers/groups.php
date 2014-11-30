@@ -85,7 +85,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         {
             throw new Redirect404Exception();
         }
-
+        
         OW::getDocument()->addMetaInfo('og:title', htmlspecialchars($groupDto->title), 'property');
         OW::getDocument()->addMetaInfo('og:description', htmlspecialchars($groupDto->description), 'property');
         OW::getDocument()->addMetaInfo('og:url', OW_URL_HOME . OW::getRequest()->getRequestUri(), 'property');
@@ -93,9 +93,15 @@ class GROUPS_CTRL_Groups extends OW_ActionController
 
         $language = OW::getLanguage();
 
-        if ( !$this->service->isCurrentUserCanView($groupDto->userId) )
+        if ( !$this->service->isCurrentUserCanView($groupDto) )
         {
+            if ( $groupDto->status != GROUPS_BOL_Group::STATUS_ACTIVE )
+            {
+                throw new Redirect403Exception();
+            }
+            
             $this->assign('permissionMessage', $language->text('groups', 'view_no_permission'));
+            
             return;
         }
 
@@ -395,7 +401,7 @@ class GROUPS_CTRL_Groups extends OW_ActionController
             throw new Redirect404Exception();
         }
         
-        if ( !$this->service->isCurrentUserCanView($groupDto->userId) )
+        if ( !$this->service->isCurrentUserCanView($groupDto) )
         {
             throw new Redirect403Exception();
         }
@@ -1054,6 +1060,40 @@ class GROUPS_CTRL_Groups extends OW_ActionController
         $this->assign('userUrl', $userUrl);
         $this->assign('creator', $language->text('groups', 'creator'));
     }
+    
+    public function approve( $params )
+    {
+        $entityId = $params["groupId"];
+        $entityType = GROUPS_CLASS_ContentProvider::ENTITY_TYPE;
+        
+        $backUrl = OW::getRouter()->urlForRoute("groups-view", array(
+            "groupId" => $entityId
+        ));
+        
+        $event = new OW_Event("moderation.approve", array(
+            "entityType" => $entityType,
+            "entityId" => $entityId
+        ));
+        
+        OW::getEventManager()->trigger($event);
+        
+        $data = $event->getData();
+        if ( empty($data) )
+        {
+            $this->redirect($backUrl);
+        }
+        
+        if ( $data["message"] )
+        {
+            OW::getFeedback()->info($data["message"]);
+        }
+        else
+        {
+            OW::getFeedback()->error($data["error"]);
+        }
+        
+        $this->redirect($backUrl);
+    }
 }
 
 // Additional calsses
@@ -1258,13 +1298,14 @@ class GROUPS_GroupForm extends Form
         }
 
         $group->title = strip_tags($values['title']);
+        
         $values['description'] = UTIL_HtmlTag::stripJs($values['description']);
         $values['description'] = UTIL_HtmlTag::stripTags($values['description'], array('frame'), array(), true);
-
+        
         $group->description = $values['description'];
         $group->whoCanInvite = $values['whoCanInvite'];
         $group->whoCanView = $values['whoCanView'];
-
+        
         $service->saveGroup($group);
 
         if ( !empty($values['image']) )

@@ -210,6 +210,11 @@ class GROUPS_BOL_Service
     {
         return $this->groupDao->findById((int) $groupId);
     }
+    
+    public function findGroupListByIds( $groupIds )
+    {
+        return $this->groupDao->findByIdList($groupIds);
+    }
 
     public function findGroupList( $listType, $first=null, $count=null )
     {
@@ -402,9 +407,19 @@ class GROUPS_BOL_Service
         return OW::getUser()->isAuthorized('groups', 'create');
     }
 
-    public function isCurrentUserCanView( $ownerId )
+    public function isCurrentUserCanView( GROUPS_BOL_Group $group )
     {
-        return $ownerId == OW::getUser()->getId() || OW::getUser()->isAuthorized('groups', 'view');
+        if ( $group->userId == OW::getUser()->getId() )
+        {
+            return true;
+        }
+        
+        if ( OW::getUser()->isAuthorized('groups') )
+        {
+            return true;
+        }
+        
+        return $group->status == GROUPS_BOL_Group::STATUS_ACTIVE && OW::getUser()->isAuthorized('groups', 'view');
     }
 
     public function isCurrentUserCanViewList()
@@ -423,6 +438,11 @@ class GROUPS_BOL_Service
 
         $group = $this->findGroupById($groupId);
 
+        if ( $group->status != GROUPS_BOL_Group::STATUS_ACTIVE )
+        {
+            return false;
+        }
+        
         if ( $group->whoCanInvite == self::WCI_CREATOR )
         {
             return $group->userId == $userId;

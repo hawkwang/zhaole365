@@ -123,7 +123,7 @@ class GROUPS_CLASS_EventHandler
         BOL_ComponentEntityService::getInstance()->onEntityDelete(GROUPS_BOL_Service::WIDGET_PANEL_NAME, $groupId);
         BOL_CommentService::getInstance()->deleteEntityComments(GROUPS_BOL_Service::ENTITY_TYPE_WAL, $groupId);
 
-        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(GROUPS_BOL_Service::ENTITY_TYPE_GROUP, $groupId);
+        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(GROUPS_CLASS_ContentProvider::ENTITY_TYPE, $groupId);
 
         OW::getEventManager()->trigger(new OW_Event('feed.delete_item', array(
             'entityType' => GROUPS_BOL_Service::FEED_ENTITY_TYPE,
@@ -486,9 +486,10 @@ class GROUPS_CLASS_EventHandler
         $groupId = (int) $params['feedId'];
         $userId = OW::getUser()->getId();
 
+        $group = GROUPS_BOL_Service::getInstance()->findGroupById($groupId);
         $userDto = GROUPS_BOL_Service::getInstance()->findUser($groupId, $userId);
 
-        $data['statusForm'] = $userDto !== null;
+        $data['statusForm'] = $userDto !== null && $group->status == GROUPS_BOL_Group::STATUS_ACTIVE;
 
         $e->setData($data);
     }
@@ -663,7 +664,7 @@ class GROUPS_CLASS_EventHandler
                     'label' => OW::getLanguage()->text('groups', 'delete_feed_item_label'),
                     'class' => 'newsfeed_remove_btn',
                     'attributes' => array(
-                        'rel' => OW::getLanguage()->text('groups', 'delete_feed_item_confirmation')
+                        'data-confirm-msg' => OW::getLanguage()->text('groups', 'delete_feed_item_confirmation')
                     )
                 ));
             }
@@ -937,7 +938,7 @@ class GROUPS_CLASS_EventHandler
             'groupId' => $group->id
         ));
 
-        $canView = GROUPS_BOL_Service::getInstance()->isCurrentUserCanView($group->userId);
+        $canView = GROUPS_BOL_Service::getInstance()->isCurrentUserCanView($group);
 
         if ( $group->whoCanView != GROUPS_BOL_Service::WCV_INVITE )
         {

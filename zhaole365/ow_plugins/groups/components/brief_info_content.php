@@ -55,7 +55,8 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
             'time' => $groupDto->timeStamp,
             'imgUrl' => empty($groupDto->imageHash) ? false : $service->getGroupImageUrl($groupDto),
             'url' => OW::getRouter()->urlForRoute('groups-view', array('groupId' => $groupDto->id)),
-            "id" => $groupDto->id
+            "id" => $groupDto->id,
+            "status" => $groupDto->status
         );
 
         $imageUrl = empty($groupDto->imageHash) ? '' : $service->getGroupImageUrl($groupDto);
@@ -67,13 +68,10 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
         $adminUrl = BOL_UserService::getInstance()->getUserUrl($groupDto->userId);
 
         $js = UTIL_JsGenerator::newInstance()
-                ->jQueryEvent('#groups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "groups+flags", {$ownerId});',
+                ->jQueryEvent('#groups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entityType}, {$entityId});',
                         array(
-                            'entity' => GROUPS_BOL_Service::WIDGET_PANEL_NAME,
-                            'id' => $groupDto->id,
-                            'title' => $group['title'],
-                            'href' => $group['url'],
-                            'ownerId' => $groupDto->userId
+                            'entityType' => GROUPS_BOL_Service::FEED_ENTITY_TYPE,
+                            'entityId' => $groupDto->id
                         )));
 
         OW::getDocument()->addOnloadScript($js, 1001);
@@ -94,7 +92,9 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
             );
         }
 
-        if ( OW::getUser()->isAuthenticated() && OW::getUser()->getId() != $groupDto->userId )
+        if ( $groupDto->status == GROUPS_BOL_Group::STATUS_ACTIVE 
+                && OW::getUser()->isAuthenticated() 
+                && OW::getUser()->getId() != $groupDto->userId )
         {
             $toolbar[] = array(
                 'label' => OW::getLanguage()->text('base', 'flag'),
@@ -111,6 +111,17 @@ class GROUPS_CMP_BriefInfoContent extends OW_Component
             $toolbar[] = $item;
         }
 
+        if ( $groupDto->status == GROUPS_BOL_Group::STATUS_APPROVAL && OW::getUser()->isAuthorized("groups") )
+        {
+            $toolbar[] = array(
+                'label' => OW::getLanguage()->text('base', 'approve'),
+                'href' => OW::getRouter()->urlFor("GROUPS_CTRL_Groups", "approve", array(
+                    "groupId" => $groupId
+                )),
+                'class' => "ow_green"
+            );
+        }
+        
         $this->assign('toolbar', $toolbar);
 
         $this->assign('group', $group);

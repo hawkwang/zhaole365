@@ -39,7 +39,7 @@
     {/if}
 
         <h3 class="title">
-            <a href="{$group.url}">{$group.title}</a>
+            <a href="{$group.url}">{$group.title}</a>{if $group.status == "approval"} <span class="ow_small ow_remark">({text key="base+pending_approval"})</span>{/if}
         </h3>
 
         <div class="body ow_smallmargin">

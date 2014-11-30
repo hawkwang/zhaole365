@@ -76,3 +76,4 @@ OW::getEventManager()->bind('admin.add_admin_notification', array($eventHandler,
 OW::getEventManager()->bind(BASE_CMP_QuickLinksWidget::EVENT_NAME, array($eventHandler, 'onCollectQuickLinks'));
 
 GROUPS_CLASS_ConsoleBridge::getInstance()->init();
+GROUPS_CLASS_ContentProvider::getInstance()->init();

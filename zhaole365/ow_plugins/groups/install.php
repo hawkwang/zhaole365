@@ -32,9 +32,8 @@ $plugin = OW::getPluginManager()->getPlugin('groups');
 
 $dbPrefix = OW_DB_PREFIX;
 
-$sql =
-    <<<EOT
-CREATE TABLE IF NOT EXISTS `{$dbPrefix}groups_group` (
+$sql = array();
+$sql[] = "CREATE TABLE IF NOT EXISTS `{$dbPrefix}groups_group` (
   `id` int(11) NOT NULL auto_increment,
   `title` varchar(255) NOT NULL,
   `description` longtext NOT NULL,
@@ -48,9 +47,11 @@ CREATE TABLE IF NOT EXISTS `{$dbPrefix}groups_group` (
   KEY `timeStamp` (`timeStamp`),
   KEY `userId` (`userId`),
   KEY `whoCanView` (`whoCanView`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
 
-CREATE TABLE `{$dbPrefix}groups_group_user` (
+$sql[] = "ALTER TABLE  `{$dbPrefix}groups_group` ADD  `status` VARCHAR( 100 ) NOT NULL DEFAULT  'active';";
+
+$sql[] = "CREATE TABLE `{$dbPrefix}groups_group_user` (
   `id` int(11) NOT NULL auto_increment,
   `groupId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
@@ -59,10 +60,10 @@ CREATE TABLE `{$dbPrefix}groups_group_user` (
   PRIMARY KEY  (`id`),
   UNIQUE KEY `groupId` (`groupId`,`userId`),
   KEY `timeStamp` (`timeStamp`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
 
 
-CREATE TABLE `{$dbPrefix}groups_invite` (
+$sql[] = "CREATE TABLE `{$dbPrefix}groups_invite` (
   `id` int(11) NOT NULL auto_increment,
   `groupId` int(11) NOT NULL,
   `userId` int(11) NOT NULL,
@@ -75,12 +76,19 @@ CREATE TABLE `{$dbPrefix}groups_invite` (
   KEY `userId` (`userId`),
   KEY `groupId` (`groupId`),
   KEY `viewed` (`viewed`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
 
-INSERT INTO `{$dbPrefix}base_place` (`id`, `name`, `editableByUser`) VALUES (4, 'group', 1);
-EOT;
+$sql[] = "INSERT INTO `{$dbPrefix}base_place` (`id`, `name`, `editableByUser`) VALUES (4, 'group', 1);";
 
-OW::getDbo()->query($sql);
+foreach ( $sql as $q )
+{
+    try {
+        OW::getDbo()->query($q);
+    } catch (Exception $ex) {
+        // Log
+    }
+}
+
 
 OW::getPluginManager()->addPluginSettingsRouteName('groups', 'groups-admin-widget-panel');
 OW::getPluginManager()->addUninstallRouteName('groups', 'groups-admin-uninstall');

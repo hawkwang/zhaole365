@@ -87,6 +87,7 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
     public function findOrderedList( $first, $count )
     {
         $example = new OW_Example();
+        
         $example->setOrder('`timeStamp` DESC');
         $example->setLimitClause($first, $count);
 
@@ -94,6 +95,8 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
         {
             $example->andFieldEqual('whoCanView', GROUPS_BOL_Service::WCV_ANYONE);
         }
+        
+        $example->andFieldEqual("status", GROUPS_BOL_Group::STATUS_ACTIVE);
 
         return $this->findListByExample($example, self::LIST_CACHE_LIFETIME, array( self::LIST_CACHE_TAG, self::LIST_CACHE_TAG_LATEST ));
     }
@@ -110,21 +113,22 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
     {
         $groupUserTable = GROUPS_BOL_GroupUserDao::getInstance()->getTableName();
 
-        $where = '';
+        $where = 'WHERE';
 
         if ( !OW::getUser()->isAuthorized('groups') ) //TODO TEMP Hack - checking if current user is moderator
         {
-            $where = 'WHERE g.whoCanView="' . GROUPS_BOL_Service::WCV_ANYONE . '"';
+            $where .= ' g.whoCanView="' . GROUPS_BOL_Service::WCV_ANYONE . '" AND';
         }
-
+        
         $query = "SELECT `g`.* FROM `" . $this->getTableName() . "` AS `g`
             LEFT JOIN `" . $groupUserTable . "` AS `gu` ON `g`.`id` = `gu`.`groupId`
-            $where
+            $where g.status=:s
             GROUP BY `g`.`id` ORDER BY COUNT(`gu`.`id`) DESC LIMIT :f, :c";
 
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array(
             'f' => $first,
-            'c' => $count
+            'c' => $count,
+            's' => GROUPS_BOL_Group::STATUS_ACTIVE
         ), self::LIST_CACHE_LIFETIME, array( self::LIST_CACHE_TAG, self::LIST_CACHE_TAG_POPULAR ));
     }
 
@@ -136,6 +140,8 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
         {
             $example->andFieldEqual('whoCanView', GROUPS_BOL_Service::WCV_ANYONE);
         }
+        
+        $example->andFieldEqual("status", GROUPS_BOL_Group::STATUS_ACTIVE);
 
         return $this->countByExample($example);
     }
@@ -175,10 +181,11 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
 
         $query = "SELECT g.* FROM " . $this->getTableName() . " g
             INNER JOIN " . $groupUserDao->getTableName() . " u ON g.id = u.groupId
-            WHERE u.userId=:u AND $wcvWhere " . $limit;
+            WHERE u.userId=:u AND g.status=:s AND $wcvWhere " . $limit;
 
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array(
-            'u' => $userId
+            'u' => $userId,
+            's' => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
@@ -195,10 +202,11 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
 
         $query = "SELECT COUNT(g.id) FROM " . $this->getTableName() . " g
             INNER JOIN " . $groupUserDao->getTableName() . " u ON g.id = u.groupId
-            WHERE u.userId=:u AND $wcvWhere ";
+            WHERE u.userId=:u AND g.status=:s AND $wcvWhere ";
 
         return (int) $this->dbo->queryForColumn($query, array(
-            'u' => $userId
+            'u' => $userId,
+            's' => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
@@ -214,23 +222,25 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
 
         $query = "SELECT g.* FROM " . $this->getTableName() . " g
             INNER JOIN " . $groupUserDao->getTableName() . " u ON g.id = u.groupId
-            WHERE u.userId=:u " . $limit;
+            WHERE u.userId=:u AND g.status=:s " . $limit;
 
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array(
-            'u' => $userId
+            'u' => $userId,
+            's' => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
     public function findMyGroupsCount( $userId )
     {
         $groupUserDao = GROUPS_BOL_GroupUserDao::getInstance();
-
+        
         $query = "SELECT COUNT(g.id) FROM " . $this->getTableName() . " g
             INNER JOIN " . $groupUserDao->getTableName() . " u ON g.id = u.groupId
-            WHERE u.userId=:u";
+            WHERE u.userId=:u AND g.status=:s";
 
         return (int) $this->dbo->queryForColumn($query, array(
-            'u' => $userId
+            'u' => $userId,
+            's' => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
@@ -253,13 +263,14 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
     {
         $query = "SELECT DISTINCT `g`.* FROM `" . $this->getTableName() . "` AS `g`
             INNER JOIN `" . GROUPS_BOL_InviteDao::getInstance()->getTableName() . "` AS `i` ON ( `g`.`id` = `i`.`groupId` )
-            WHERE `i`.`userId` = :u
+            WHERE `i`.`userId` = :u AND g.`status`=:status
             ORDER BY `i`.`timeStamp` DESC LIMIT :f, :c";
 
         return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array(
             'u' => (int) $userId,
             'f' => (int) $first,
-            'c' => (int) $count
+            'c' => (int) $count,
+            "status" => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
@@ -273,10 +284,11 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
 
         $query = "SELECT COUNT(DISTINCT g.id) AS `count` FROM `" . $this->getTableName() . "` AS `g`
             INNER JOIN `" . GROUPS_BOL_InviteDao::getInstance()->getTableName() . "` AS `i` ON ( `g`.`id` = `i`.`groupId` )
-            WHERE `i`.`userId` = :u AND " . $addWhere;
+            WHERE `i`.`userId` = :u AND g.status=:status AND " . $addWhere;
 
         return $this->dbo->queryForColumn($query, array(
-            'u' => (int) $userId
+            'u' => (int) $userId,
+            'status' => GROUPS_BOL_Group::STATUS_ACTIVE
         ));
     }
 
@@ -293,5 +305,4 @@ class GROUPS_BOL_GroupDao extends OW_BaseDao
 
         return $this->findListByExample($example);
     }
-
 }

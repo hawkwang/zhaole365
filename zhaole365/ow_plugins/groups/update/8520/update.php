@@ -29,63 +29,12 @@
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/**
- * Data Transfer Object for `groups_group` table.
- *
- * @author Sergey Kambalin <greyexpert@gmail.com>
- * @package ow_plugins.groups.bol
- * @since 1.0
- */
-
-class GROUPS_BOL_Group extends OW_Entity
+try
 {
-    const STATUS_ACTIVE = "active";
-    const STATUS_APPROVAL = "approval";
-    const STATUS_SUSPENDED = "suspended";
-    
-    /**
-     * @var string
-     */
-    public $title;
-
-    /**
-     * @var string
-     */
-    public $description;
-
-    /**
-     *
-     * @var string
-     */
-    public $timeStamp;
-
-    /**
-     *
-     * @var string
-     */
-    public $imageHash;
-
-    /**
-     *
-     * @var int
-     */
-    public $userId;
-
-    /**
-     *
-     * @var string
-     */
-    public $whoCanView;
-
-    /**
-     *
-     * @var string
-     */
-    public $whoCanInvite;
-    
-    /**
-     *
-     * @var string 
-     */
-    public $status = self::STATUS_ACTIVE;
+    Updater::getDbo()->query("ALTER TABLE  `". OW_DB_PREFIX ."groups_group` ADD  `status` VARCHAR( 100 ) NOT NULL DEFAULT  'active'");
+} catch (Exception $ex) {
+    // Pass
 }
+
+$updateDir = dirname(__FILE__) . DS;
+Updater::getLanguageService()->importPrefixFromZip($updateDir . 'langs.zip', 'groups');

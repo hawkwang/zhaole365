@@ -51,7 +51,10 @@ class GROUPS_CMP_WallWidget extends BASE_CLASS_Widget
         $commentParams = new BASE_CommentsParams('groups', GROUPS_BOL_Service::ENTITY_TYPE_WAL);
 
         $groupId = (int) $paramObj->additionalParamList['entityId'];
+        $group = GROUPS_BOL_Service::getInstance()->findGroupById($groupId);
+        
         $commentParams->setEntityId($groupId);
+        $commentParams->setAddComment($group->status == GROUPS_BOL_Group::STATUS_ACTIVE);
 
         if ( isset($params['comments_count']) )
         {
