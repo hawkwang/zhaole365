@@ -1,0 +1,76 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package gheader.views
+ *}
+
+{if !empty($error)}
+
+    <div class="uhcv-nocover">
+        {$error}
+    </div>
+
+{else}
+
+    {script}
+
+    $('#uhcv-cover').hover(function() {
+        $("#uhcv-cover-info").slideDown("fast");
+    }, function() {
+        $("#uhcv-cover-info").slideUp("fast");
+    });
+
+    {/script}
+
+    <div class="uh-cover-view">
+        <div class="uhcv-cover ow_smallmargin" id="uhcv-cover" style="width: {$dimensions.width}px;">
+
+            <img src="{$src}" style="margin-top: {$top}px;" />
+
+            <div class="uhcv-hover-info" id="uhcv-cover-info">
+                <a href="{$src}" target="_blank" class="uhcv-hover-zoom"></a>
+            </div>
+        </div>
+        <div class="clearfix uhcv-bottom">
+            <div class="uhcv-bottom-left">
+                 {$comments}
+            </div>
+            
+            <div class="uhcv-bottom-right">
+                {block_decorator name="box"}
+                 <div class="clearfix">
+                     <div class="ow_left">
+                         <img src="{$group.thumbnail}" class="uhcv-thumb" />
+                     </div>
+                    <div class="uhcv-avatar-username-wrap">
+                        <div class="uhcv-info-line uhcv-info-line1">
+                            <a href="{$group.url}" class="uhcv-avatar-username"><span>{$group.title}</span></a>
+                        </div>
+                        
+                        {if $group.admin}
+                        <div class="uhcv-info-line uhcv-info-line2 ow_small">
+                            <span class="uhcv-info-line-field ow_remark">{text key="gheader+info_admin_label"}</span>
+                            <a href="{$group.admin.url}" class="uhcv-info-line-value">{$group.admin.name}</a>
+                        </div>
+                        {/if}
+                        
+                        <div class="uhcv-info-line uhcv-info-line3 ow_small">
+                            <span class="uhcv-info-line-field ow_remark">{text key="gheader+info_created_label"}</span>
+                            <span class="uhcv-info-line-value">{$group.time}</span>
+                        </div>
+                    </div>
+                </div>
+                {/block_decorator}
+            </div>
+        </div>
+    </div>
+
+{/if}

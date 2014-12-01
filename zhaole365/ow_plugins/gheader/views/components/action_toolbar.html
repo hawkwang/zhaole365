@@ -1,0 +1,50 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package gheader.views
+ *}
+
+<div>
+    <ul class="ow_bl clearfix ow_small">
+
+        {if !empty($tooltipItems)}
+            <li class="uh-at-more-wrap">
+                <div class="ow_context_action uh-at-more ow_border">
+                    <span class="ow_context_more"></span>
+                </div>
+                <div class="uh-at-more-body">
+
+                    {block_decorator name="tooltip" addClass="ow_tooltip_top_right"}
+
+                        {foreach from=$tooltipItems item='link'}
+                            <a href="{$link.href}"{if isset($link.linkClass)} class="{$link.linkClass}"{/if}{if isset($link.id)} id="{$link.id}"{/if} {if isset($link.extra)}{$link.extra}{/if} >
+                                {$link.label}
+                            </a>
+                        {/foreach}
+
+                    {/block_decorator}
+
+                </div>
+            </li>
+        {/if}
+
+        {foreach from=$visibleItems item='link'}
+        <li>
+            <a href="{$link.href}"{if isset($link.linkClass)} class="{$link.linkClass}"{/if}{if isset($link.id)} id="{$link.id}"{/if} {if isset($link.extra)}{$link.extra}{/if} >
+            {$link.label}
+            </a>
+        </li>
+        {/foreach}
+
+    </ul>
+</div>
+
+{$cmpsMarkup}

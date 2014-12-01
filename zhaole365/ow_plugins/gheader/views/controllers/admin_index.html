@@ -1,0 +1,63 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package gheader.views
+ *}
+
+ {style}
+
+ .gh-screen
+ {
+    max-width: 95%;
+    border-width: 1px;
+    margin: 10px 0px;
+ }
+
+ {/style}
+
+{if $activePlugins.groups}
+
+<div class="ow_smallmargin">
+    {text key="gheader+admin_help_brief" groupsSettings=$groupsSettings}
+</div>
+
+{text key="gheader+config_steps_label"}
+
+<ul class="ow_regular ow_stdmargin">
+<li>
+    {text key="gheader+config_step1" groupsSettings=$groupsSettings}
+</li>
+
+<li>
+    {text key="gheader+config_step2"}
+    <br />
+    <img src="{$screensUrl}admin-config-page.png" class="gh-screen ow_border" />
+</li>
+
+<li>
+    {text key="gheader+config_step3"}
+    <br />
+    <img src="{$screensUrl}admin-config-widget-settings.png"  class="gh-screen ow_border" />
+
+</li>
+
+<li>
+    {text key="gheader+config_steps_end"}
+</li>
+</ul>
+
+{else}
+
+<div class="ow_anno ow_stdmargin" style="text-align: center;">
+    {text key="gheader+plugin_required_tip"}
+</div>
+
+{/if}
