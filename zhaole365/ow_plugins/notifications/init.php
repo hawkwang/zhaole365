@@ -55,3 +55,11 @@ function notifications_preference_menu_item( BASE_CLASS_EventCollector $event )
 }
 
 OW::getEventManager()->bind('base.preference_menu_items', 'notifications_preference_menu_item');
+
+    
+function notifications_add_console_item( BASE_CLASS_EventCollector $event )
+{
+    $event->add(array('label' => OW::getLanguage()->text('notifications', 'console_menu_label'), 'url' => OW_Router::getInstance()->urlForRoute('notifications-settings')));
+}
+
+OW::getEventManager()->bind('base.add_main_console_item', 'notifications_add_console_item');

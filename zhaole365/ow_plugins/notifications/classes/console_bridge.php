@@ -161,6 +161,8 @@ class NOTIFICATIONS_CLASS_ConsoleBridge
 
         foreach ( $notifications as $notification )
         {
+            $notificationData = $notification->getData();
+            
             $itemEvent = new OW_Event('notifications.on_item_render', array(
                 'key' => 'notification_' . $notification->id,
                 'entityType' => $notification->entityType,
@@ -168,8 +170,8 @@ class NOTIFICATIONS_CLASS_ConsoleBridge
                 'pluginKey' => $notification->pluginKey,
                 'userId' => $notification->userId,
                 'viewed' => (bool) $notification->viewed,
-                'data' => $notification->getData()
-            ), $notification->getData());
+                'data' => $notificationData
+            ), $notificationData);
 
             OW::getEventManager()->trigger($itemEvent);
 
@@ -179,7 +181,7 @@ class NOTIFICATIONS_CLASS_ConsoleBridge
             {
                 continue;
             }
-
+            
             $notificationIds[] = $notification->id;
 
             $event->addItem($item, $notification->id);
@@ -221,7 +223,13 @@ class NOTIFICATIONS_CLASS_ConsoleBridge
         {
             $data['contentImage'] = null;
         }
-
+        
+        if ( !empty($data["avatar"]["userId"]) )
+        {
+            $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($data["avatar"]["userId"]));
+            $data["avatar"] = $avatarData[$data["avatar"]["userId"]];
+        }
+        
         $data['contentImage'] = empty($data['contentImage']) ? array() : $data['contentImage'];
         $data['toolbar'] = empty($data['toolbar']) ? array() : $data['toolbar'];
         $data['key'] = isset($data['key']) ? $data['key'] : $params['key'];

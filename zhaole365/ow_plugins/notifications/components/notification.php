@@ -115,11 +115,11 @@ class NOTIFICATIONS_CMP_Notification extends OW_Component
         $this->unsubscribeCode = $code;
     }
 
-    private function getUnsubscribeUrl()
+    private function getUnsubscribeUrl( $all = false )
     {
         return OW::getRouter()->urlForRoute('notifications-unsubscribe', array(
             'code' => $this->unsubscribeCode,
-            'action' => $this->unsubscribeAction
+            'action' => $all ? "all" : $this->unsubscribeAction
         ));
     }
 
@@ -132,6 +132,7 @@ class NOTIFICATIONS_CMP_Notification extends OW_Component
         $this->assign('items', $items);
         $this->assign('userName', BOL_UserService::getInstance()->getDisplayName($this->userId));
         $this->assign('unsubscribeUrl', $this->getUnsubscribeUrl());
+        $this->assign('unsubscribeAllUrl', $this->getUnsubscribeUrl(true));
 
         $single = $this->unsubscribeAction != 'all';
         $this->assign('single', $single);

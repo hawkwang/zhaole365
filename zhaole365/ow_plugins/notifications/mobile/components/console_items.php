@@ -75,11 +75,19 @@ class NOTIFICATIONS_MCMP_ConsoleItems extends OW_MobileComponent
         foreach ( $notifications as $notification )
         {
             $data = json_decode($notification->data, true);
+            $avatar = empty($data['avatar']) ? array() : $data['avatar'];
+            
+            if ( !empty($data["avatar"]["userId"]) )
+            {
+                $avatarData = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($data["avatar"]["userId"]));
+                $avatar = $avatarData[$data["avatar"]["userId"]];
+            }
+            
             $avatars[$notification->id] = array(
-                'src' => isset($data['avatar']['src']) ? $data['avatar']['src'] : null,
-                'title' => isset($data['avatar']['title']) ? $data['avatar']['title'] : null,
+                'src' => isset($avatar['src']) ? $avatar['src'] : null,
+                'title' => isset($avatar['title']) ? $avatar['title'] : null,
                 'url' => isset($data['avatar']['urlInfo']['routeName']) ?
-                    $router->urlForRoute($data['avatar']['urlInfo']['routeName'], $data['avatar']['urlInfo']['vars']) : null
+                    $router->urlForRoute($avatar['urlInfo']['routeName'], $avatar['urlInfo']['vars']) : null
             );
         }
 
