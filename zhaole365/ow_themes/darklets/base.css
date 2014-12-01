@@ -1238,24 +1238,18 @@ input[type=button].ow_mild_red  {
 }
 
 /* wysiwyg styles */
-
 body.htmlarea_styles{
     font-family: "Lucida Grande", "Verdana", "Tahoma"; /** key:commonFontFamily  **/
     color: #ccc;
     font-size: 13px; /** key:commonFontSize **/
     line-height: 18px;
-
 }
-
 body.htmlarea_styles a{
-
+    color: #0A6D7F;
 }
-
 body.htmlarea_styles p{
     margin:0;
 }
-
-
 /* wysiwyg styles end */
 
 /* tag styles */
@@ -3602,21 +3596,27 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_conv_options_label {
     background-image: url(images/chat_tiny_arrow_down.png);
 }
-.ow_mailbox_convers_info {
+.ow_mailbox_convers_info,
+.ow_vertical_nav_item.selected, 
+.ow_vertical_nav_item.selected:hover {
 	background-color: #262B2F;
 }
 .ow_mailbox_convers_info:hover {
     opacity: 0.8;
 }
-.ow_mailbox_convers_info_new {
+.ow_mailbox_convers_info_new,
+.ow_vertical_nav_item {
 	background-color: #31363A;
 }
-.ow_mailbox_convers_info_selected {
+.ow_mailbox_convers_info_selected,
+.ow_vertical_nav_item:hover {
     opacity: 0.8;
 }
 .ow_mailbox_convers_info:hover,
 .ow_mailbox_convers_info_selected,
-.ow_mailbox_convers_info_selected:hover {
+.ow_mailbox_convers_info_selected:hover,
+.ow_vertical_nav_item.selected,
+.ow_vertical_nav_item:hover {
     -webkit-box-shadow: inset 1px 0px 0px 0px #666;
     -moz-box-shadow: inset 1px 0px 0px 0px #666;
     box-shadow: inset 1px 0px 0px 0px #666;
@@ -3635,7 +3635,9 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_table .ow_mailbox_left .ow_mailbox_cap,
 .ow_mailbox_table .ow_mailbox_left .ow_mailbox_search,
 .ow_mailbox_table .ow_mailbox_left .ow_mailbox_left_body,
-.ow_mailbox_right .ow_chat_message_block {
+.ow_mailbox_right .ow_chat_message_block,
+.ow_vertical_nav,
+.ow_vertical_nav_item  {
     border-color: #3B3F43;
 }
 .ow_mailbox_log .ow_dialog_item.odd .ow_dialog_in_item,
@@ -3662,6 +3664,14 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_convers_actions .ow_miniic_control.active span {
     background: url(images/miniic_gearwheel.png) -1px -22px no-repeat;
 }
+/* wysiwyg only for new message */
+.htmlarea_styles.mailbox {
+    color: #333;
+}
+.htmlarea_styles.mailbox a {
+    color: #2a80ae;
+}
+/* end of wysiwyg only for new message */
 /* ---- End of Mailbox styles ---- */
 /* ---- Blogs styles ---- */
 

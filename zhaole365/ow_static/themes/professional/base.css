@@ -1160,24 +1160,18 @@ input[type=button].ow_mild_red  {
 }
 
 /* wysiwyg styles */
-
 body.htmlarea_styles{
     font-family: "Lucida Grande", "Verdana", "Tahoma"; /** key:commonFontFamily  **/
     color: #333;
     font-size: 13px; /** key:commonFontSize **/
     line-height: 18px;
-
 }
-
 body.htmlarea_styles a{
-
+    color: #2a80ae;
 }
-
 body.htmlarea_styles p{
     margin:0;
 }
-
-
 /* wysiwyg styles end */
 
 /* tag styles */
@@ -1559,7 +1553,8 @@ body .ow_attachments a.video {
 .ow_oembed_attachment_preview,
 .ow_oembed_attachment_pic,
 .ow_comments_form_wrap,
-.ow_newsfeed_features .ow_tooltip .ow_tooltip_body {
+.ow_newsfeed_features .ow_tooltip .ow_tooltip_body,
+.ow_newsfeed_item .ow_comments_no_form .ow_comments_msg  {
     background-color: #fafafa;
     border-color: #DCDCDC;
     border-style: solid;
@@ -1596,6 +1591,8 @@ body .ow_attachments a.video {
 }
 .ow_comments_form_top .ow_comments_list .ow_comments_item:first-child {
 	border-radius: 0;
+	-moz-border-radius: 0;
+	-webkit-border-radius: 0;
 }
 .ow_comments_no_form .ow_comments_list .ow_comments_item:last-child {
      border-bottom-left-radius: 2px;
@@ -1604,7 +1601,13 @@ body .ow_attachments a.video {
      border-bottom-right-radius: 2px;
      -webkti-border-bottom-right-radius: 2px;
      -moz-border-radius-bottomright: 2px;
-     border-width: 1px;
+	border-width: 0 1px 1px 1px;
+}
+.ow_newsfeed_item .ow_comments_no_form .ow_comments_list .ow_comments_item:last-child {
+	border-width: 1px 0 0 0;
+}
+.ow_newsfeed_item .ow_comments_no_form .ow_comments_msg {
+	border-top-width: 1px;
 }
 .ow_comments_form_top.ow_comments_no_form .ow_comments_list .ow_comments_item:first-child {
      border-top-left-radius: 2px;
@@ -1737,7 +1740,7 @@ body .ow_comments_content.ow_smallmargin {
     top: 4px;
 }
 .ow_comments_msg {
-    margin-top: 4px;
+	padding-top: 4px;
     color: #666;
 }
 body .item_loaded {
@@ -3504,18 +3507,25 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_conv_options_label {
     background-image: url(images/chat_tiny_arrow_down.png);
 }
-.ow_mailbox_convers_info {
+.ow_mailbox_convers_info,
+.ow_vertical_nav_item.selected, 
+.ow_vertical_nav_item.selected:hover {
     background-color: #fff;
 }
-.ow_mailbox_convers_info_new {
+.ow_mailbox_convers_info_new,
+.ow_vertical_nav_item:hover  {
     background-color: #fafafa;
 }
-.ow_mailbox_convers_info_selected {
+.ow_mailbox_convers_info_selected,
+.ow_vertical_nav_item.selected,
+.ow_vertical_nav_item:hover {
     background-color: #ECECEC;
 }
 .ow_mailbox_convers_info:hover,
 .ow_mailbox_convers_info_selected,
-.ow_mailbox_convers_info_selected:hover {
+.ow_mailbox_convers_info_selected:hover,
+.ow_vertical_nav_item.selected,
+.ow_vertical_nav_item:hover  {
     -webkit-box-shadow: inset 1px 0px 0px 0px rgba(172,172,172,1);
     -moz-box-shadow: inset 1px 0px 0px 0px rgba(172,172,172,1);
     box-shadow: inset 1px 0px 0px 0px rgba(172,172,172,1);
@@ -3523,7 +3533,8 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_convers_info .ow_mailbox_convers_info_date:hover {
     color: #999;
 }
-.ow_mailbox_convers_info .ow_mailbox_convers_info_string a {
+.ow_mailbox_convers_info .ow_mailbox_convers_info_string a,
+a.ow_vertical_nav_item {
     color: #444;
 }
 .ow_mailbox_convers_info span.ic_reply {
@@ -3533,6 +3544,7 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_table .ow_mailbox_convers_info, 
 .ow_mailbox_table .ow_mailbox_cap, 
 .ow_mailbox_table .ow_mailbox_date_cap,
+.ow_mailbox_table .ow_mailbox_conv_options,
 .ow_mailbox_table .ow_mailbox_subject_block,
 .ow_mailbox_table .ow_mailbox_log,
 .ow_mailbox_table .ow_mailbox_log_date,
@@ -3540,7 +3552,8 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_table .ow_mailbox_left .ow_mailbox_search,
 .ow_mailbox_table .ow_mailbox_left .ow_mailbox_left_body,
 .ow_mailbox_right .ow_chat_message_block,
-.ow_mailbox_table .ow_mailbox_conv_options {
+.ow_vertical_nav,
+.ow_vertical_nav_item {
     border-color: #ececec;
 }
 .ow_mailbox_log .ow_dialog_item.odd .ow_dialog_in_item,
@@ -3564,6 +3577,14 @@ body .ow_mailbox_right.ow_mailbox_right_loading div.ow_mailbox_right_preloading 
 .ow_mailbox_convers_actions .ow_miniic_control.active span {
 	background: url(images/miniic_gearwheel.png) -1px -22px no-repeat;
 }
+/* wysiwyg only for new message */
+.htmlarea_styles.mailbox {
+    color: #333;
+}
+.htmlarea_styles.mailbox a {
+    color: #2a80ae;
+}
+/* end of wysiwyg only for new message */
 /* ---- End of Mailbox styles ---- */
 /* ---- Blogs styles ---- */
 
