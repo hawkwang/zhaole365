@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<theme>
+    <name>找乐365</name>
+    <key>zhaole365</key>
+    <version>1.0</version>
+    <compatibility>1.7 and higher</compatibility>
+    <description>找乐365主题</description>
+    <author>汪浩</author>
+    <authorEmail>zhaole365@yahoo.com</authorEmail>
+    <authorUrl>http://www.zhaole365.com</authorUrl>
+    <developerKey>723eba8b203379988e1b0d8058e608d7</developerKey>
+    <build>8520</build>
+    <copyright>(C) 2014 找乐365. All rights reserved.</copyright>
+    <license>The BSD License</license>
+    <licenseUrl>http://www.opensource.org/licenses/bsd-license.php</licenseUrl>
+</theme>

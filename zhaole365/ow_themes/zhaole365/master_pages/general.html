@@ -1,0 +1,81 @@
+
+<div class="ow_page_wrap">
+	<div class="ow_page_padding">
+		<div id="zl_ow_site_panel" class="ow_site_panel" style="border-bottom-width: 1px; border-bottom-color: rgb(187,187,187);">
+			<div class="ow_logo_wrap" style="position:absolute;width:100%; text-align:center;">
+						<a href="{$siteUrl}"><img src="{$themeImagesUrl}/logo.png" style="margin-top: -12px;"></a>
+			</div>
+			
+			{component class='BASE_CMP_Console'}
+
+			<div class="ow_logo_wrap" style="position:relative;">
+				<div style="">
+					<div style="float:left;">
+						<ul class="zl-nav zl-navbar-nav">
+							<li><a 
+								href="{$siteUrl}search?action=group"> <span id="find_group" title="乐群" 
+									 data-toggle="tooltip">寻</span>
+							</a></li>
+							<li><a 
+								href="{$siteUrl}search?action=event"> <span id="find_lele" title="乐子"
+									data-placement="top" data-toggle="tooltip">找</span>
+							</a></li>
+							<li><a style="padding-left: 5px; padding-right: 5px; font-size: 20px;"
+								href="{$siteUrl}zlgroups/create"> <span id="create_group" title="乐群"
+									data-placement="right" data-toggle="tooltip">创</span>
+							</a></li>
+							<li><a style="padding-left: 5px; padding-right: 5px; font-size: 20px;"
+								href="{$siteUrl}zlevent/add"> <span id="create_lele" title="乐子"
+									>造</span>
+							</a></li>
+						</ul>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="ow_header">
+		{*print_var var=$imageControlValues*}
+			{if isset($imageControlValues.headerImage.src)}
+				<div style="background: url({$imageControlValues.headerImage.src}) no-repeat; height: {$imageControlValues.headerImage.height}px;"></div>
+			{else}
+				<div class="ow_header_pic"></div>
+			{/if}
+			<div id="ow_menu_wrap" class="ow_menu_wrap" style="display:none;">{$main_menu}</div>
+		</div>
+		<div class="ow_page_container">
+			<div class="ow_canvas">
+				<div class="ow_page ow_bg_color clearfix">
+					<h1 class="ow_stdmargin {$heading_icon_class}">{$heading}</h1>
+					<div class="ow_content">
+						{add_content key='base.add_page_top_content'}
+						{$content}
+						{add_content key='base.add_page_bottom_content'}
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="ow_footer">
+	<div class="ow_canvas">
+		<div class="ow_page clearfix">
+			{$bottom_menu}
+			<div class="ow_footer_menu" style="padding-top: 0px;">
+				<span>2014 版权所有</span>
+				|
+				<span>京公网安备11010802016451号</span>
+				|
+				<span>京ICP备14050069号</span>
+				|
+				<span>百度统计</span>
+			</div>			
+			<div class="ow_copyright" style="display:none;">
+				{text key='base+copyright'}
+			</div>
+			<div style="float:right;padding-bottom: 30px;">
+				
+			</div>
+		</div>
+	</div>
+</div>    
+{decorator name='floatbox'}
