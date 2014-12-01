@@ -23,7 +23,7 @@
 		<input class="offset" type="hidden" value="{$offset_latestEvents}">
 		<input class="limit" type="hidden" value="{$limit_latestEvents}">
 		<div id="latest_content">
-	      {if !empty($no_latestEvents) }
+	      {if !$total_latestEvents }
 	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
 	      {else}
 	          {foreach from=$latestEvents key='key' item='event'}
@@ -47,7 +47,7 @@
 		<input class="offset" type="hidden" value="{$offset_historyEvents}">
 		<input class="limit" type="hidden" value="{$limit_historyEvents}">
 		<div id="history_content">
-	      {if !empty($no_historyEvents) }
+	      {if !$total_historyEvents }
 	        <div class="ow_nocontent">{text key="zlevent+no_events_label"}</div>
 	      {else}
 	          {foreach from=$historyEvents key='key' item='event'}
