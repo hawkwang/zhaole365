@@ -105,7 +105,9 @@ p {
 	margin-bottom: 4px;
 }
 h1, h2, h3, h4, h5 {
-	color: #666; 
+	/* color: #666; */ 
+	/* color: #a71931; */
+	color: black;
 	margin: 0;
 	padding: 0;
 	font-weight: bold;
@@ -124,7 +126,7 @@ h2 {
 	font-size: 18px;
 }
 h3 {
-	font-size: 13px;
+	font-size: 15px;
 }
 h4 {
     font-size: 13px;
@@ -1732,7 +1734,8 @@ body textarea.ow_newsfeed_status_input.invitation {
 .ow_box_cap_empty {
 	background: #ededed url('images/box_cap.gif') repeat-x left top;
 	border: 1px solid #e8e8e8;
-    border-radius: 6px 6px 0px 0px;
+    /* border-radius: 6px 6px 0px 0px; */
+    border-radius: none;
 	margin-bottom: 8px;
 }
 
@@ -1761,7 +1764,8 @@ body textarea.ow_newsfeed_status_input.invitation {
 .ow_box_cap {
 	background: #ededed url('images/box_cap.gif') repeat-x left top;
 	border: 1px solid #e8e8e8;
-    border-radius: 6px 6px 0px 0px;
+    /* border-radius: 6px 6px 0px 0px; */
+	border-radius: none;
 }
 
 .ow_box_cap .ow_box_cap_body {
@@ -1773,8 +1777,8 @@ body textarea.ow_newsfeed_status_input.invitation {
     margin-bottom: 8px;
     padding: 8px 8px 8px 8px;
     position: relative;
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
+/*     border-bottom-left-radius: 6px;
+    border-bottom-right-radius: 6px; */
 }
 
 .ow_box_empty{
@@ -1788,8 +1792,8 @@ body textarea.ow_newsfeed_status_input.invitation {
     text-align: right;
 }
 .ow_box.ow_no_cap {
-    border-top-left-radius: 6px;
-    border-top-right-radius: 6px;
+/*     border-top-left-radius: 6px;
+    border-top-right-radius: 6px; */
 }
 
 .ow_sidebar .ow_box_bottom_shadow,
