@@ -27,16 +27,5 @@
  * AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
  * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-$plugin = OW::getPluginManager()->getPlugin('blogs');
 
-OW::getAutoloader()->addClass('Post', $plugin->getBolDir() . 'dto' . DS . 'post.php');
-OW::getAutoloader()->addClass('PostDao', $plugin->getBolDir() . 'dao' . DS . 'post_dao.php');
-OW::getAutoloader()->addClass('PostService', $plugin->getBolDir() . 'service' . DS . 'post_service.php');
-
-$eventHandler = BLOGS_CLASS_EventHandler::getInstance();
-$eventHandler->genericInit();
-
-$mobileEventHandler = BLOGS_MCLASS_EventHandler::getInstance();
-$mobileEventHandler->init();
-
-BLOGS_CLASS_ContentProvider::getInstance()->init();
+Updater::getLanguageService()->importPrefixFromZip(dirname(dirname(dirname(__FILE__))) . DS . 'langs.zip', 'blogs');

@@ -40,6 +40,7 @@ OW::getRouter()->addRoute(new OW_Route('post-save-new', 'blogs/post/new', "BLOGS
 OW::getRouter()->addRoute(new OW_Route('post-save-edit', 'blogs/post/edit/:id', "BLOGS_CTRL_Save", 'index'));
 
 OW::getRouter()->addRoute(new OW_Route('post', 'blogs/post/:id', "BLOGS_CTRL_View", 'index'));
+OW::getRouter()->addRoute(new OW_Route('post-approve', 'blogs/post/approve/:id', "BLOGS_CTRL_View", 'approve'));
 
 OW::getRouter()->addRoute(new OW_Route('post-part', 'blogs/post/:id/:part', "BLOGS_CTRL_View", 'index'));
 
@@ -58,6 +59,7 @@ OW::getRouter()->addRoute(new OW_Route('blogs-admin', 'admin/blogs', "BLOGS_CTRL
 
 $eventHandler = BLOGS_CLASS_EventHandler::getInstance();
 $eventHandler->genericInit();
+BLOGS_CLASS_ContentProvider::getInstance()->init();
 
 OW::getEventManager()->bind(BASE_CMP_AddNewContent::EVENT_NAME,     array($eventHandler, 'onCollectAddNewContentItem'));
 OW::getEventManager()->bind(BASE_CMP_QuickLinksWidget::EVENT_NAME,  array($eventHandler, 'onCollectQuickLinks'));

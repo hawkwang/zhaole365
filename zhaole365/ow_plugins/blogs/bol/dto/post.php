@@ -78,6 +78,11 @@ class Post extends OW_Entity
 
     public function isDraft()
     {
+        return $this->isDraft == 1 || $this->isDraft == 2;
+    }
+
+    public function getStatus()
+    {
         return $this->isDraft;
     }
 

@@ -188,6 +188,7 @@ class PostDao extends OW_BaseDao
         $ex = new OW_Example();
         $ex->andFieldEqual('authorId', $userId);
         $ex->andFieldNotEqual('isDraft', 0);
+        $ex->andFieldNotEqual('isDraft', 3);
 
         $cacheLifeTime = self::CACHE_LIFE_TIME;
         $tags = array( self::CACHE_TAG_POST_COUNT );

@@ -147,7 +147,13 @@ class BLOGS_CTRL_Save extends OW_ActionController
         {
             if ($dto->authorId == OW::getUser()->getId() || OW::getUser()->isAuthorized('blogs'))
             {
+                OW::getEventManager()->trigger(new OW_Event(PostService::EVENT_BEFORE_DELETE, array(
+                    'postId' => $id
+                )));
                 $service->delete($dto);
+                OW::getEventManager()->trigger(new OW_Event(PostService::EVENT_AFTER_DELETE, array(
+                    'postId' => $id
+                )));
             }
         }
 
@@ -270,7 +276,7 @@ class SaveForm extends Form
 
         $data['title'] = UTIL_HtmlTag::stripJs($data['title']);
 
-        $postIsNotPublished = $this->post->isDraft() == 2;
+        $postIsNotPublished = $this->post->getStatus() == 2;
 
         $text = UTIL_HtmlTag::sanitize($data['post']);
 
@@ -349,10 +355,17 @@ class SaveForm extends Form
             if ($isCreate)
             {
                 OW::getFeedback()->info(OW::getLanguage()->text('blogs', 'create_success_msg'));
+
+                OW::getEventManager()->trigger(new OW_Event(PostService::EVENT_AFTER_ADD, array(
+                    'postId' => $this->post->getId()
+                )));
             }
             else
             {
                 OW::getFeedback()->info(OW::getLanguage()->text('blogs', 'edit_success_msg'));
+                OW::getEventManager()->trigger(new OW_Event(PostService::EVENT_AFTER_EDIT, array(
+                    'postId' => $this->post->getId()
+                )));
             }
 
             $ctrl->redirect(OW::getRouter()->urlForRoute('post', array('id' => $this->post->getId())));

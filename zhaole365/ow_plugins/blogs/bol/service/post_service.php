@@ -36,8 +36,19 @@
  */
 class PostService
 {
+    const FEED_ENTITY_TYPE = 'blog-post';
     const PRIVACY_ACTION_VIEW_BLOG_POSTS = 'blogs_view_blog_posts';
     const PRIVACY_ACTION_COMMENT_BLOG_POSTS = 'blogs_comment_blog_posts';
+
+    const POST_STATUS_PUBLISHED = 0;
+    const POST_STATUS_DRAFT = 1;
+    const POST_STATUS_DRAFT_WAS_NOT_PUBLISHED = 2;
+    const POST_STATUS_APPROVAL = 3;
+
+    const EVENT_AFTER_DELETE = 'blogs.after_delete';
+    const EVENT_BEFORE_DELETE = 'blogs.before_delete';
+    const EVENT_AFTER_EDIT = 'blogs.after_edit';
+    const EVENT_AFTER_ADD = 'blogs.after_add';
 
     /*
      * @var BLOG_BOL_BlogService
@@ -195,16 +206,7 @@ class PostService
 
     public function delete( Post $dto )
     {
-        BOL_CommentService::getInstance()->deleteEntityComments('blog-post', $dto->getId());
-        BOL_RateService::getInstance()->deleteEntityRates($dto->getId(), 'blog-post');
-        BOL_TagService::getInstance()->deleteEntityTags($dto->getId(), 'blog-post');
-        BOL_FlagService::getInstance()->deleteByTypeAndEntityId('blog_post', $dto->getId());
-
-        OW::getCacheManager()->clean( array( PostDao::CACHE_TAG_POST_COUNT ));
-
-        OW::getEventManager()->trigger(new OW_Event('feed.delete_item', array('entityType' => 'blog-post', 'entityId' => $dto->getId())));
-
-        $this->dao->delete($dto);
+        $this->deletePost($dto->getId());
     }
 
     //</SITE-BLOG>
@@ -263,5 +265,29 @@ class PostService
     public function findUserNewCommentCount($userId)
     {
         return $this->dao->countUserPostNewComment($userId);
+    }
+
+    public function deletePost($postId)
+    {
+        BOL_CommentService::getInstance()->deleteEntityComments('blog-post', $postId);
+        BOL_RateService::getInstance()->deleteEntityRates($postId, 'blog-post');
+        BOL_TagService::getInstance()->deleteEntityTags($postId, 'blog-post');
+        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(BLOGS_CLASS_ContentProvider::ENTITY_TYPE, $postId);
+
+        OW::getCacheManager()->clean( array( PostDao::CACHE_TAG_POST_COUNT ));
+
+        OW::getEventManager()->trigger(new OW_Event('feed.delete_item', array('entityType' => 'blog-post', 'entityId' => $postId)));
+
+        $this->dao->deleteById($postId);
+    }
+
+    public function findPostListByIds($postIds)
+    {
+        return $this->dao->findByIdList($postIds);
+    }
+
+    public function getPostUrl($post)
+    {
+        return OW::getRouter()->urlForRoute('post', array('id'=>$post->getId()));
     }
 }

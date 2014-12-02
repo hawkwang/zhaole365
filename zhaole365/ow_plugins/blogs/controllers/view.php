@@ -129,7 +129,12 @@ class BLOGS_CTRL_View extends OW_ActionController
 
             $url = OW::getRouter()->urlForRoute('user-blog', array('user' => $username));
 
-            $this->setPageHeading(OW::getLanguage()->text('blogs', 'view_page_heading', array('url' => $url, 'name' => $displayName, 'postTitle' => htmlspecialchars($post->getTitle()))));
+            $pending_approval_text = '';
+            if ($post->getStatus() == PostService::POST_STATUS_APPROVAL)
+            {
+                $pending_approval_text = '<span class="ow_remark ow_small">('.OW::getLanguage()->text('base', 'pending_approval').')</span>';
+            }
+            $this->setPageHeading(OW::getLanguage()->text('blogs', 'view_page_heading', array('url' => $url, 'name' => $displayName, 'postTitle' => htmlspecialchars($post->getTitle()))) .' '. $pending_approval_text );
             $this->setPageHeadingIconClass('ow_ic_write');
 
             OW::getDocument()->setTitle(OW::getLanguage()->text('blogs', 'blog_post_title', array('post_title' => htmlspecialchars($post->getTitle()), 'display_name' => $displayName)));
@@ -201,11 +206,24 @@ class BLOGS_CTRL_View extends OW_ActionController
             array_push($tb, $toolbarItem);
         }
 
+        if ($post->getStatus() == PostService::POST_STATUS_APPROVAL && OW::getUser()->isAuthorized('blogs'))
+        {
+            $tb[] = array(
+                'label' => OW::getLanguage()->text('base', 'approve'),
+                'href' => OW::getRouter()->urlForRoute('post-approve', array('id'=>$post->getId())),
+                'id' => 'blog_post_toolbar_approve',
+                'class'=>'ow_mild_green'
+            );
+        }
+
         if ( OW::getUser()->isAuthenticated() && ( $post->getAuthorId() != OW::getUser()->getId() ) )
         {
             $js = UTIL_JsGenerator::newInstance()
-                ->jQueryEvent('#blog_post_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "blogs+flags");',
-                            array('entity' => 'blog_post', 'id' => $post->getId(), 'title' => htmlspecialchars(json_encode($post->getTitle())), 'href' => OW::getRouter()->urlForRoute('user-post', array('id' => $post->getId()) )  )));
+                ->jQueryEvent('#blog_post_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entityType}, {$entityId});',
+                            array(
+                        'entityType' => PostService::FEED_ENTITY_TYPE,
+                        'entityId' => $post->getId()
+            )));
 
             OW::getDocument()->addOnloadScript($js, 1001);
 
@@ -215,7 +233,7 @@ class BLOGS_CTRL_View extends OW_ActionController
                 'id' => 'blog_post_toolbar_flag'
             );
         }
-        if ( OW::getUser()->isAuthenticated() && ( OW::getUser()->getId() == $post->getAuthorId() || BOL_AuthorizationService::getInstance()->isModerator(OW::getUser()->getId())) )
+        if ( OW::getUser()->isAuthenticated() && ( OW::getUser()->getId() == $post->getAuthorId() || OW::getUser()->isAuthorized('blogs') ) )
         {
             $tb[] = array(
                 'href' => OW::getRouter()->urlForRoute('post-save-edit', array('id' => $post->getId())),
@@ -265,26 +283,38 @@ class BLOGS_CTRL_View extends OW_ActionController
             $this->assign('userBlogUrl', OW::getRouter()->urlForRoute('user-blog', array('user' => $author->getUsername())));
         }
 
+        $rateInfo = new BASE_CMP_Rate('blogs', 'blog-post', $post->getId(), $post->getAuthorId());
+
         /* Check comments privacy permissions */
         $allow_comments = true;
-        if ( $post->authorId != OW::getUser()->getId() && !OW::getUser()->isAuthorized('blogs') )
+        if ($post->getStatus() == PostService::POST_STATUS_APPROVAL)
         {
-            $eventParams = array(
-                'action' => 'blogs_comment_blog_posts',
-                'ownerId' => $post->authorId,
-                'viewerId' => OW::getUser()->getId()
-            );
+            $allow_comments = false;
+            $rateInfo->setVisible(false);
+        }
+        else
+        {
+            if ( $post->authorId != OW::getUser()->getId() && !OW::getUser()->isAuthorized('blogs') )
+            {
+                $eventParams = array(
+                    'action' => 'blogs_comment_blog_posts',
+                    'ownerId' => $post->authorId,
+                    'viewerId' => OW::getUser()->getId()
+                );
 
-            try
-            {
-                OW::getEventManager()->getInstance()->call('privacy_check_permission', $eventParams);
-            }
-            catch ( RedirectException $ex )
-            {
-                $allow_comments = false;
+                try
+                {
+                    OW::getEventManager()->getInstance()->call('privacy_check_permission', $eventParams);
+                }
+                catch ( RedirectException $ex )
+                {
+                    $allow_comments = false;
+                }
             }
         }
         /* */
+
+        $this->addComponent('rate', $rateInfo);
 
         // additional components
         $cmpParams = new BASE_CommentsParams('blogs', 'blog-post');
@@ -301,11 +331,54 @@ class BLOGS_CTRL_View extends OW_ActionController
 
         $tagCloud->setEntityId($post->getId());
 
-        $rateInfo = new BASE_CMP_Rate('blogs', 'blog-post', $post->getId(), $post->getAuthorId());
-
-        $this->addComponent('rate', $rateInfo);
-
         $this->addComponent('tagCloud', $tagCloud);
         //~ additional components
+    }
+
+    public function approve($params)
+    {
+        if (!OW::getUser()->isAuthenticated())
+        {
+            throw new AuthenticateException();
+        }
+
+        if (!OW::getUser()->isAuthorized('blogs'))
+        {
+            throw new Redirect403Exception();
+        }
+
+        //TODO trigger event for content moderation;
+        $postId = $params['id'];
+        $postDto = PostService::getInstance()->findById($postId);
+        if (!$postDto)
+        {
+            throw new Redirect404Exception();
+        }
+
+        $backUrl = OW::getRouter()->urlForRoute('post', array('id'=>$postId));
+
+        $event = new OW_Event("moderation.approve", array(
+            "entityType" => PostService::FEED_ENTITY_TYPE,
+            "entityId" => $postId
+        ));
+
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+        if ( empty($data) )
+        {
+            $this->redirect($backUrl);
+        }
+
+        if ( $data["message"] )
+        {
+            OW::getFeedback()->info($data["message"]);
+        }
+        else
+        {
+            OW::getFeedback()->error($data["error"]);
+        }
+
+        $this->redirect($backUrl);
     }
 }

@@ -358,6 +358,7 @@ class BLOGS_CLASS_EventHandler
         $data = array(
             'time' => (int) $post->timestamp,
             'ownerId' => $post->authorId,
+            'string'=>array("key" => "blogs+feed_add_item_label"),
             'content' => array(
                 'format' => 'content',
                 'vars' => array(
@@ -396,6 +397,7 @@ class BLOGS_CLASS_EventHandler
         $data = array(
             'time' => (int) $post->timestamp,
             'ownerId' => $post->authorId,
+            'string'=>array("key" => "blogs+feed_add_item_label"),
             'content' => array(
                 'format' => 'content',
                 'vars' => array(
