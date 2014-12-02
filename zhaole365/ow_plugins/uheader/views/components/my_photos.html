@@ -1,0 +1,30 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+<div class="uh-photo-selector">
+    <div class="uhps-list" id="uhps-list">
+        <div id="uhps-list-content">
+            {if empty($photoList)}
+                <div class="uhps-no-photos">
+                    {text key="uheader+no_photos_label"}
+                </div>
+            {else}
+                {$photoList}
+            {/if}
+        </div>
+        <div class="uhps-preloader ow_preloader" id="uhps-preloader"></div>
+    </div>
+</div>
+
+

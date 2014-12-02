@@ -1,0 +1,148 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+{style}
+    #{$uniqId} .uh-avatar-console {
+        height: {$config.avatarSize}px;
+        width: {$config.avatarSize}px;
+    }
+
+    #{$uniqId} .uh-avatar
+    {
+        margin-top: -{math equation="x - 30" x=$config.avatarSize}px;
+    }
+    
+    #{$uniqId} .uh-head-text 
+    {
+        margin-left: {math equation="x + 20 + x * 0.15" x=$config.avatarSize}px;
+    }
+    
+    #{$uniqId} div.uh-head {
+        margin-left: {math equation="x * 0.15" x=$config.avatarSize}px;
+    }
+
+    #{$uniqId} .uh-cover
+    {
+        height: {$config.coverHeight}px;
+    }
+    
+    {if !empty($current)}
+        #{$uniqId} div.uh-cover
+        {
+            height: {$current.canvas.height}px;
+        }
+    {/if}
+    
+    #{$uniqId} div.uh-template-list {
+        width: {$config.previewWidth}px;
+    }
+    
+    #{$uniqId} div.uh-template-view {
+        width: {$config.coverWidth}px;
+    }
+    
+    #{$uniqId} .uhg-avatar-image {
+        width: 100%;
+        height: 100%;
+    }
+    
+{/style}
+
+<div id="{$uniqId}" class="clearfix">
+   
+    <div class="uh-template-view">
+        <div class="uh-header uh-mode-view ow_smallmargin" id="uh-header">
+            <div class="uh-cover-wrap ow_border {if empty($current)}uh-cover-no-cover{else}uh-cover-has-cover{/if} uh-cover-mode-view" id="uh-cover-wrap">
+                <div class="uh-cover" id="uh-cover">
+                    {if !empty($current)}
+                        <img class="uh-cover-image" id="uh-cover-image" src="{$current.src}" style="{$current.cssStr}" />
+                    {else}
+                        <img class="uh-cover-image" id="uh-cover-image" />
+                    {/if}
+                    <div class="uh-head-text-wrap">
+                        <div class="uh-head-text">
+                            <div class="uh-display-name">
+                                {$user.displayName}
+                            </div>
+
+                            {if !empty($infoLines.line1)}
+                            <div class="uh-info-line uh-info-line1" data-line="line1">
+                                {$infoLines.line1}
+                            </div>
+                            {/if}
+
+                            {if !empty($infoLines.line2)}
+                            <div class="uh-info-line uh-info-line2" data-line="line2">
+                                {$infoLines.line2}
+                            </div>
+                            {/if}
+                        </div>
+                    </div>
+                    <div class="uh-template-flags">
+                        <div class="uh-template-flag uh-template-flag-default ow_ic_ok" {if !$current.default}style="display: none;"{/if} title="{text key="uheader+template_default_flag_desc"}"></div>
+                    </div>
+                    
+                    <div class="uh-cover-preloader ow_floatbox_preloader">&nbsp;</div>
+                    <div class="uh-cover-overlay uh-cursor-drag" id="uh-cover-overlay"></div>
+                </div>
+            </div>
+            <div class="uh-cont ow_border">
+                <div class="uh-head clearfix">
+                    <div class="uh-avatar">
+                        <div class="ow_avatar_console ow_border uh-avatar-console ow_bg_color">
+                            <div class="uhg-avatar-image">
+                                <img src="{$user.avatar}" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        {*<div class="uh-template-info">
+            <b>{text key="uheader+template_info_label"}</b> 
+            <span class="uh-template-info-saving ow_remark" style="display: none;">{text key="uheader+saving_process_label"}</span>
+            
+            <table class="ow_table_3 uh-template-info-table">
+                <tbody>
+                    <tr>
+                        <td class="ow_label">{text key="uheader+template_info_users_label"}</td>
+                        <td class="ow_value">
+                            <span class="ow_txt_value uh-template-info-users">{$current.users}</span>
+                        </td>
+                        <td class="ow_desc ow_remark ow_small">
+                            {text key="uheader+template_info_users_desc"}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>*}
+    </div>
+    
+    <div class="uh-template-list" style="height: {$dimensions.height}px;">
+        {foreach from=$list item="item"}
+            <a class="uh-template" href="javascript://" data-id="{$item.id}" style="height: {$item.previewCanvas.height}px">
+                <img src="{$item.src}" style="{$item.previewCssStr}" />
+                <div class="uh-template-border ow_border"></div>
+                <div class="uh-template-selector ow_border ow_bg_color"></div>
+                <div class="uh-template-preview-flags">
+                    <div class="uh-template-flag uh-template-flag-default ow_ic_ok" {if !$item.default}style="display: none;"{/if} title="{text key="uheader+template_default_flag_desc"}"></div>
+                </div>
+            </a>
+        {/foreach}
+        <div class="ow_nocontent uh-template-nocovers" {if !empty($list)}style="display: none;"{/if}>
+            No covers
+        </div>
+    </div>
+</div>

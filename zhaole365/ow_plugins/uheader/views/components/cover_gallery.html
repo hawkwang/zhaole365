@@ -1,0 +1,30 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+<div class="uhg-tpl-list" id="uhg-tpl-list">
+    <div class="uhg-line-wrap clearfix">
+    {foreach from=$templates item="tpl" name="cg"}
+    <a href="javascript://" class="uhg-tpl-item-wrap ow_border ow_bg_color" data-id="{$tpl.id}">
+        <div class="uhg-tpl-item" style="height: {$tpl.canvas.height}px;">
+            <img src="{$tpl.src}" class="uhg-tpl-item-img" style="{$tpl.css}" />
+        </div>
+    </a>
+    
+    {if $smarty.foreach.cg.iteration % 3 == 0}
+        </div>
+        <div class="uhg-line-wrap clearfix">
+    {/if}
+    {/foreach}
+    </div>
+</div>

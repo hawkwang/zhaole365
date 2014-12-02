@@ -1,0 +1,52 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+<div class="uh-gallery" id="{$uniqId}">
+    <div class="uhg-head">
+        <div class="uhg-tabs ow_border clearfix">
+            {foreach from=$tabs item="tab"}
+                <a href="javascript://" class="uhg-tab uhg-gallery {if $tab.active}uhg-active-tab ow_remark{/if}" data-key="{$tab.key}">
+                    <div class="uhg-tab-label">{$tab.label}</div>
+                    <div class="uhg-tab-selector ow_border ow_bg_color"></div>
+                </a>
+            {/foreach}
+            
+            <div class="uhg-mode-switcher clearfix">
+                <a href="javascript://" class="uhg-switch-view-mode uhg-view-mode-list ow_border" data-mode="list">
+                    <div class="uhg-view-mode-icon"></div>
+                </a>
+                <a href="javascript://" class="uhg-switch-view-mode uhg-view-mode-preview ow_border" data-mode="preview">
+                    <div class="uhg-view-mode-icon"></div>
+                </a>
+            </div>
+            
+        </div>
+    </div>
+    
+    <div class="uhg-body" style="height: {$dimensions.height}px;">
+        {foreach from=$tabs item="tab"}
+            <div class="uhg-tab-content {if $tab.active}uhg-active-tab-content{/if}" data-key="{$tab.key}">
+                {$tab.content}
+            </div>
+        {/foreach}
+    </div>
+    
+    <div class="uhg-bottom ow_border">
+        <span class="uhg-control uhg-control-save" data-control="save">{decorator name="button" langLabel="uheader+gallery_save_btn"}</span>
+        <span class="uhg-control uhg-control-close" data-control="close">{decorator class="ow_ic_delete" name="button" langLabel="uheader+gallery_close_btn"}</span>
+    </div>
+    
+    
+    
+</div>

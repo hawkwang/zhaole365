@@ -1,0 +1,88 @@
+Profile Cover 2000, 2014-11-26:
+
+Enhancements:
+- Oxwall 1.7.2 support
+- New "change avatar" feature implementation
+- Several minor enhancements
+
+Bug Fixes:
+- Minor fixes
+
+
+Profile Cover 1690, 2014-08-25:
+
+Enhancements:
+- Oxwall 1.7.1 support
+- Several minor enhancements
+
+Bug Fixes:
+- Minor fixes
+
+
+
+Profile Cover 1660, 2014-7-9:
+
+Enhancements:
+- Oxwall 1.7 support
+- Several minor enhancements
+
+Bug Fixes:
+- No "Delete user" if the user is not approved
+- Minor fixes
+
+
+
+Profile Cover 816, 2014-01-10:
+
+New Features:
+- Mobile Support
+
+Enhancements:
+- Oxwall 1.6 support
+- Several minor enhancements
+
+Bug Fixes:
+- Empty photo thumbnail
+- Minor fixes
+
+
+
+Profile Cover 575, 2013-10-25:
+
+New Features:
+- Cover Gallery
+- Default Covers
+- Information Lines
+
+Enhancements:
+- Several minor enhancements
+
+Bug Fixes:
+- Minor fixes
+
+
+
+Profile Cover 501, 2013-07-24:
+
+Bug Fixes:
+- rare 500 internal error on Dashboard
+
+
+
+Profile Cover 472, 2013-05-30:
+
+Bug Fixes:
+- "Send Private Message" button is displaying incorrectly.
+
+
+
+Profile Cover 471, 2013-05-29:
+
+Enhancements:
+- New appearance: more professional and clean
+- Cloud Storage support
+- Avatar Click: redirect to photos when user clicks on avatar
+- Lots of minor enhancements
+
+Bug Fixes:
+- Minor fixes

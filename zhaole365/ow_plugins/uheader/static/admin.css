@@ -1,0 +1,116 @@
+/* File: /Users/grey/Documents/work/web/ws/oxwall/ow_plugins/uheader/static/css/admin.css */
+
+/**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ */
+
+/**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.static
+ */
+
+.uh-hidden-file {
+    position: absolute;
+    top: -2000px;
+}
+
+.uh-template-info-saving, .uh-template-lines-saving {
+    display: inline-block;
+    margin: 0px 10px;
+}
+
+.uh-header .uh-cover-no-cover .uh-teplate-edit-wrap {
+    display: none;
+}
+
+.uh-cover-has-cover div.uh-template-nocover-tip {
+    display: none;
+}
+
+.uh-cover-no-cover div.uh-template-nocover-tip {
+    font-size: 24px;
+    top: 15%;
+    display: block;
+}
+
+.uh-template-empty .uh-template-info {
+    display: none;
+}
+
+.uh-template-setting-delim {
+    height: 1px;
+    margin-bottom: 10px;
+    
+    background: -webkit-gradient(radial, center center, 0, center center, 460, from(#ccc), to(#fff));
+    background: -webkit-radial-gradient(circle, #ccc, #fff);
+    background: -moz-radial-gradient(circle, #ccc, #fff);
+    background: -ms-radial-gradient(circle, #ccc, #fff);
+}
+
+.uh-cover-no-cover .uh-cover {
+    background: #FAFAFA;
+}
+
+.uh-template-info-table.ow_table_3 td.ow_label,
+.uh-template-gsettings-table.ow_table_3 td.ow_label {
+    width: 100px;
+}
+
+.uh-template-info-table.ow_table_3 td.ow_value,
+.uh-template-gsettings-table.ow_table_3 td.ow_value {
+    width: 280px;
+}
+
+.uh-template-gsettings-table select {
+    max-width: 138px;
+}
+
+.uh-template-view .uh-header {
+    padding-top: 25px;
+}
+
+.uh-config-vm-icon {
+    background-image: url("img/gallery-mode.png");
+    background-repeat: no-repeat;
+    width: 17px;
+    height: 11px;
+    display: inline-block;
+}
+
+.uh-config-vm-icon.list {
+    background-position: 0 0;
+}
+
+.uh-config-vm-icon.preview {
+    background-position: -34px 0;
+}
+
+.uh-config-tpl-view-mode
+{
+    vertical-align: middle;
+}
+
+div.uh-template-list {
+     height: 580px;
+     margin-top: 25px;
+}
+
+.uh-fake-file.uh-admin-gallery {
+    height: 32px;
+    position: relative;
+    width: auto;
+}
+
+.uh-fake-file.uh-admin-gallery input[type="file"] {
+    height: 32px;
+    position: absolute;
+    right: 0px;
+    top: 0px;
+    margin: 0px;
+}
+

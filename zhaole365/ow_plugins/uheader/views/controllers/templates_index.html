@@ -1,0 +1,296 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+{script}
+    $("#templates-upload-input").change(function() {
+        $("#upload-form").append(this).submit();
+    });
+{/script}
+
+{style}
+    .uh-header {
+        height: {$config.coverHeight}px;
+        overflow: hidden;
+    }
+
+    {if !empty($current)}
+        div.uh-header {
+            height: {$current.canvas.height}px;
+        }
+    {/if}
+    
+    {if $config.coverHeight - $config.avatarSize < 30}
+        div.uh-cover-no-cover div.uh-template-nocover-tip {
+            margin-left: 100px;
+        }
+    {/if}
+
+    .uh-avatar-console {
+        height: {$config.avatarSize}px;
+        width: {$config.avatarSize}px;
+    }
+
+    .uh-avatar
+    {
+        margin-top: -{math equation="x - 30" x=$config.avatarSize}px;
+    }
+    
+    .uh-head-text 
+    {
+        margin-left: {math equation="x + 20 + x * 0.15" x=$config.avatarSize}px;
+    }
+    
+    div.uh-head {
+        margin-left: {math equation="x * 0.15" x=$config.avatarSize}px;
+    }
+
+    .uh-cover
+    {
+        height: {$config.coverHeight}px;
+    }
+    
+    {if !empty($current)}
+        div.uh-cover
+        {
+            height: {$current.canvas.height}px;
+        }
+    {/if}
+    
+    div.uh-template-list {
+        width: {$previewWidth}px;
+    }
+    
+    .h-leave-review {
+        background-repeat: no-repeat;
+        background-position: left center;
+        padding-left: 20px;
+    }
+{/style}
+
+{$menu}
+
+<div class="uh-hidden-file">
+    <form method="post" enctype="multipart/form-data" action="{$uploader}" id="upload-form">
+        <input type="hidden" name="roleId" value="{$currentRoleId}" />
+        <input id="upload-form-submitter" type="submit" value="Submit" />
+    </form>
+</div>
+<div class="uh-gallery-cap ow_smallmargin ow_txtcenter ow_anno clearfix">
+    {capture name="gallerySwitcher"}
+        <select onchange="window.location.assign(this.value);">
+            <option value="{$allListUrl}">{text key="uheader+setting_gallery_role_all"}</option>
+            {foreach from=$roleList item="role"}
+                <option value="{$role.url}" {if $role.selected}selected="selected"{/if}>{$role.label}</option>
+            {/foreach}
+        </select>
+    {/capture}
+    
+    {text key="uheader+template_gallery_switcher" select=$smarty.capture.gallerySwitcher}
+    
+    <div class="ow_right">
+        <div class="uh-fake-file uh-admin-gallery">
+            <div class="uh-fake-file-btn">
+                {decorator name="button" langLabel="uheader+add_covers_btn_label" id="templates-upload-btn"}
+            </div>
+            <input type="file" id="templates-upload-input" multiple="multiple" name="templates[]"/>
+        </div>
+    </div>
+</div>
+
+<div id="{$uniqId}" class="clearfix">
+   
+    <div class="uh-template-view">
+        <div class="uh-header uh-mode-view ow_stdmargin" id="uh-header">
+            <div class="uh-cover-wrap ow_border {if empty($current)}uh-cover-no-cover{else}uh-cover-has-cover{/if} uh-cover-mode-view" id="uh-cover-wrap">
+                <div class="uh-cover" id="uh-cover">
+                    
+                    {if !empty($current)}
+                        <img class="uh-cover-image" id="uh-cover-image" src="{$current.src}" style="{$current.cssStr}" />
+                    {else}
+                        <img class="uh-cover-image" id="uh-cover-image" />
+                    {/if}
+                    <div class="uh-head-text-wrap">
+                        <div class="uh-head-text">
+                            <div class="uh-display-name">
+                                Sara Smith
+                            </div>
+
+                            <div class="uh-info-line uh-info-line1" data-line="line1" {if !$infoLines.line1.preview}style="display: none;"{/if}>
+                                {$infoLines.line1.preview}
+                            </div>
+
+                            <div class="uh-info-line uh-info-line2" data-line="line2" {if !$infoLines.line2.preview}style="display: none;"{/if}>
+                                {$infoLines.line2.preview}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uh-template-flags">
+                        <div class="uh-template-flag uh-template-flag-default ow_ic_ok" {if !$current.default}style="display: none;"{/if} title="{text key="uheader+template_default_flag_desc"}"></div>
+                    </div>
+                    
+                    <div class="uh-cover-center-tip uh-template-nocover-tip ow_remark">
+                        {text key="uheader+admin_gallery_no_covers_long"}
+                    </div>
+                    
+                    <div class="uh-cover-center-tip" id="uh-cover-center-tip">
+                        <div class="uh-cover-drag-instruction">
+                            {text key="uheader+cover_reposition_tip"}
+                        </div>
+                    </div>
+                    <div class="uh-cover-preloader ow_floatbox_preloader">&nbsp;</div>
+                    <div class="uh-cover-overlay uh-cursor-drag" id="uh-cover-overlay"></div>
+                </div>
+                <div class="uh-cover-controls" id="uhc-controls" >
+
+                    <div class="uh-cover-reposition-controls ow_bg_controls">
+                        {decorator name="button_list_item" langLabel="uheader+cancel_changes_label" id="uh-reposition-cancel" class="uh-btn-cancel"}
+                        {decorator name="button_list_item" langLabel="uheader+save_changes_label" id="uh-reposition-save" class="uh-btn-save ow_green"}
+                    </div>
+
+
+                    <div class="uh-cover-add-btn-wrap uh-teplate-edit-wrap">
+                        {$contextToolbar}
+                    </div>
+
+                </div>
+            </div>
+            <div class="uh-cont ow_border">
+                <div class="uh-head clearfix">
+                    <div class="uh-avatar">
+                        <div class="ow_avatar_console ow_border uh-avatar-console ow_bg_color">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {if !empty($current)}
+        <div class="uh-template-info">
+            <b>{text key="uheader+template_info_label"}</b> 
+            <span class="uh-template-info-saving ow_remark" style="display: none;">{text key="uheader+saving_process_label"}</span>
+            
+            <table class="ow_table_3 uh-template-info-table">
+                <tbody>
+                    <tr class="ow_tr_first">
+                        <td class="ow_label">{text key="uheader+template_info_roles_label"}</td>
+                        <td class="ow_value">
+                            {foreach from=$roleList item="role"}
+                                <input type="checkbox" value="{$role.id}" class="uh-template-info-role" name="templateRoleIds[]" {if in_array($role.id, $current.roles)}checked="checked"{/if} />
+                                <span style="vertical-align: top;">{$role.label}</span>
+                            {/foreach}
+                        </td>
+                        <td class="ow_desc ow_remark ow_small">
+                            {text key="uheader+template_info_roles_desc"}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="ow_label">{text key="uheader+template_info_default_label"}</td>
+                        <td class="ow_value"><input type="checkbox" name="default" value="1" class="uh-template-info-default" {if $current.default}checked="checked"{/if} /></td>
+                        <td class="ow_desc ow_remark ow_small">
+                            {text key="uheader+template_info_default_desc"}
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <td class="ow_label">{text key="uheader+template_info_users_label"}</td>
+                        <td class="ow_value">
+                            <span class="ow_txt_value uh-template-info-users">{$current.users}</span>
+                        </td>
+                        <td class="ow_desc ow_remark ow_small">
+                            {text key="uheader+template_info_users_desc"}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="uh-template-setting-delim"></div>
+        
+        {/if}
+        
+        <div class="uh-template-gsettings">
+            <b>{text key="uheader+template_global_settings_label"}</b>
+            <span class="uh-template-lines-saving ow_remark" style="display: none;">{text key="uheader+saving_process_label"}</span>
+
+            <table class="ow_table_3 uh-template-gsettings-table">
+                <tbody>
+                    <tr class="ow_tr_first">
+                        <td class="ow_label">{text key="uheader+template_line1_label"}</td>
+                        <td class="ow_value">
+                            
+                            <select name="{$infoLines.line1.name}" id="{$infoLines.line1.id}">
+                                <option value="">{text key="base+form_element_select_field_invitation_label"}</option>
+                                {foreach from=$infoLines.line1.options item="label" key="value"}
+                                    <option value="{$value}" {if $infoLines.line1.selected == $value}selected="selected"{/if}>{$label}</option>
+                                {/foreach}
+                            </select>
+                            
+                            <span {if empty($infoLines.line1) || $infoLines.line1.selected != "base-question"}style="display: none;"{/if} class="uh-template-info-question-c">
+                                <select name="{$infoLines.line1.question.name}" id="{$infoLines.line1.question.id}">
+                                    <option value="">{text key="base+form_element_select_field_invitation_label"}</option>
+                                    {foreach from=$infoLines.line1.question.options item="label" key="value"}
+                                        <option value="{$value}" {if $infoLines.line1.question.selected == $value}selected="selected"{/if}>{$label}</option>
+                                    {/foreach}
+                                </select>
+                            </span>
+                        </td>
+                        <td class="ow_desc ow_remark ow_small" rowspan="2">
+                            {text key="uheader+template_info_lines_desc"}
+                        </td>
+                    </tr>
+                    
+                    <tr class="ow_tr_first">
+                        <td class="ow_label">{text key="uheader+template_line2_label"}</td>
+                        <td class="ow_value">
+                            <select name="{$infoLines.line2.name}" id="{$infoLines.line2.id}">
+                                <option value="">{text key="base+form_element_select_field_invitation_label"}</option>
+                                {foreach from=$infoLines.line2.options item="label" key="value"}
+                                    <option value="{$value}" {if $infoLines.line2.selected == $value}selected="selected"{/if}>{$label}</option>
+                                {/foreach}
+                            </select>
+                            
+                            <span {if empty($infoLines.line2) || $infoLines.line2.selected != "base-question"}style="display: none;"{/if} class="uh-template-info-question-c">
+                                <select name="{$infoLines.line2.question.name}" id="{$infoLines.line2.question.id}">
+                                    <option value="">{text key="base+form_element_select_field_invitation_label"}</option>
+                                    {foreach from=$infoLines.line2.question.options item="label" key="value"}
+                                        <option value="{$value}" {if $infoLines.line2.question.selected == $value}selected="selected"{/if}>{$label}</option>
+                                    {/foreach}
+                                </select>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="uh-template-list">
+        {foreach from=$list item="item"}
+            <a class="uh-template" href="{$item.url}" data-id="{$item.id}" style="height: {$item.previewCanvas.height}px">
+                <img src="{$item.src}" style="{$item.previewCssStr}" />
+                <div class="uh-template-border ow_border"></div>
+                <div class="uh-template-selector ow_border ow_bg_color"></div>
+                <div class="uh-template-preview-flags">
+                    <div class="uh-template-flag uh-template-flag-default ow_ic_ok" {if !$item.default}style="display: none;"{/if} title="{text key="uheader+template_default_flag_desc"}"></div>
+                </div>
+            </a>
+        {/foreach}
+        <div class="ow_nocontent uh-template-nocovers" {if !empty($list)}style="display: none;"{/if}>
+            {text key="uheader+admin_gallery_no_covers_short"}
+        </div>
+    </div>
+</div>
+
+{*<div class="h-leave-review ow_ic_star">
+    {text key="uheader+leave_review_suggest" pluginUrl=$pluginUrl}
+</div>*}

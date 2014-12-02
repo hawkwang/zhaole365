@@ -1,0 +1,184 @@
+{**
+ * Copyright (c) 2012, Sergey Kambalin
+ * All rights reserved.
+
+ * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
+ * and is licensed under Oxwall Store Commercial License.
+ * Full text of this license can be found at http://www.oxwall.org/store/oscl
+ *}
+
+{**
+ * @author Sergey Kambalin <greyexpert@gmail.com>
+ * @package uheader.views
+ *}
+
+{style}
+
+    html .ow_page_container .ow_page h1
+    {
+        display: none;
+    }
+
+    .uh-avatar-console div.hg-avatar-image
+    {
+        height: {$config.avatarSize}px;
+        width: {$config.avatarSize}px;
+        background: url({$user.avatar}) no-repeat center center;
+    }
+
+    .uh-avatar
+    {
+        margin-top: -{math equation="x - 30" x=$config.avatarSize}px;
+    }
+    
+    .uh-head-text 
+    {
+        margin-left: {math equation="x + 30 + 25" x=$config.avatarSize}px;
+    }
+
+    .uh-toolbox
+    {
+        margin-left: {math equation="x + 20" x=$config.avatarSize}px;
+    }
+
+    .uh-cover-no-cover .uh-cover
+    {
+        height: {math equation="x - 30" x=$config.avatarSize}px;
+    }
+
+    .uh-cover-no-cover .uh-cover-preloader
+    {
+        left: {math equation="x / 2" x=$config.avatarSize}px;
+    }
+
+    .uh_avatar_change
+    {
+        left: {math equation="x - 10" x=$config.avatarSize}px;
+    }
+    
+    .uh-scaler-img {
+        width: {$cover.scale}%;
+    }
+    
+    /*.uh-cover-has-cover .uh-cover {
+        min-height: {$config.coverHeight}px;
+    }*/
+
+{/style}
+
+<div class="uh-header uh-mode-view {if $permissions.moderation}uh-mode-moderation{/if}" id="uh-header">
+    
+    {* Oembed *}
+    <img src="{$user.avatar}" style="display: none;" />
+    
+    {if $permissions.view}
+        <img src="{$cover.src}" style="display: none" />
+    {/if}
+    
+    <div class="uh-cover-wrap {$cover.class} uh-cover-mode-view" id="uh-cover">
+
+    <div class="uh-cover">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="uh-scaler-img" />
+        
+        {if $permissions.view}
+            <div id="uh-cover-image-wrap">
+                <img class="uh-cover-image" id="uh-cover-image" {if $cover.hasCover}src="{$cover.src}" style="{$cover.css}"{else}style="display: none"{/if} />
+        {/if}
+        
+        <div class="uh-head-text-wrap">
+            <div class="uh-head-text {if !empty($info.line1) || !empty($info.line2)}uh-head-info-lines{/if}">
+                <div class="uh-display-name">
+                    {$user.displayName}
+                </div>
+                
+                {if !empty($info.line1)}
+                <div class="uh-info-line uh-info-line1">
+                    {$info.line1}
+                </div>
+                {/if}
+
+                {if !empty($info.line2)}
+                <div class="uh-info-line uh-info-line2">
+                    {$info.line2}
+                </div>
+                {/if}
+            </div>
+        </div>
+        
+        {if $permissions.view}
+            </div>
+        {/if}
+
+        {if $permissions.reposition}
+        <div class="uh-cover-center-tip" id="uh-cover-center-tip">
+            <div class="uh-cover-drag-instruction">
+                {text key="uheader+cover_reposition_tip"}
+            </div>
+        </div>
+
+        <div class="uh-cover-preloader ow_floatbox_preloader" id="uh-cover-preloader">&nbsp;</div>
+
+        <div class="uh-cover-overlay uh-cursor-drag" id="uh-cover-overlay"></div>
+        {/if}
+
+    </div>
+
+    {if $permissions.controls}
+    <div class="uh-cover-controls" id="uhc-controls" >
+
+        <div class="uh-cover-reposition-controls ow_bg_controls">
+            {decorator name="button_list_item" langLabel="uheader+cancel_changes_label" id="uh-reposition-cancel" class="uh-btn-cancel"}
+            {decorator name="button_list_item" langLabel="uheader+save_changes_label" id="uh-reposition-save" class="uh-btn-save ow_green"}
+        </div>
+
+
+        <div class="uh-cover-add-btn-wrap">
+            {$contextToolbar}
+        </div>
+
+    </div>
+    {/if}
+
+    </div>
+
+    <div class="uh-cont ow_border">
+        <div class="uh-head clearfix">
+            <div class="uh-avatar">
+                <div class="ow_avatar_console ow_border uh-avatar-console ow_bg_color">
+                    
+                    <div data-el="avatarOverlay" class="uh-avatar-overlay" {if $user.avatarApproved || !$permissions.viewAvatar}style="display: none;"{/if}>
+                        {text key='base+avatar_pending_approval'}
+                    </div>
+                    
+                    <div id="uh-avatar-image" class="hg-avatar-image ow_cursor_pointer" {if $user.photosUrl}onclick="$((arguments[0] || window.event).target).is(this) && (window.location.href='{$user.photosUrl}')"{/if}>
+                        {if isset($user.role.label)}
+                            <span class="ow_avatar_label"{if isset($user.role.custom)} style="background-color: {$user.role.custom}"{/if}>
+                                {$user.role.label}
+                            </span>
+                        {/if}
+
+                        {if $permissions.approveAvatar && !$user.avatarApproved}
+                            <div class="uh_avatar_change" >
+                                <a data-el="approveAvatar" class="ow_lbutton" href="javascript://">{text key='base+approve'}</a>
+                            </div>
+                        {elseif $permissions.changeAvatar}
+                            <div class="uh_avatar_change" >
+                                <a data-el="changeAvatar" class="ow_lbutton" href="javascript://">{text key='base+avatar_change'}</a>
+                            </div>
+                        {/if}
+
+                        <div class="user_online_wrap">{if $user.isOnline}{online_now userId=$user.id}{/if}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="uh-toolbox clearfix">
+                {*<span class="uh-display-name ow_smallmargin" style="display:block;">
+                    {$user.displayName}
+                </span>*}
+                <div class="uh-action-toolbar">
+                    {$actionToolbar}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
