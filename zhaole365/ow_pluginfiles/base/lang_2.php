@@ -2550,7 +2550,7 @@ http://class1.local/zhaole365/',
   'mailbox+label_btn_chat' => 'Chats',
   'mailbox+label_btn_mail' => 'Mails',
   'mailbox+label_btn_mailchat' => 'Mails + Chat',
-  'mailbox+label_btn_new_message' => 'New message',
+  'mailbox+label_btn_new_message' => '新消息',
   'mailbox+label_invitation_conversation_search' => '搜索',
   'mailbox+last_message_sent' => 'Last message sent',
   'mailbox+less_than_minute' => 'less than a minute',
@@ -2579,12 +2579,12 @@ http://class1.local/zhaole365/',
   'mailbox+months' => '%d 月',
   'mailbox+msg_settings_saved' => '设置已保存',
   'mailbox+new_conversation_link' => 'new',
-  'mailbox+new_message' => '*** New Message ***',
+  'mailbox+new_message' => '*** 新消息 ***',
   'mailbox+new_message_count' => '{$count} new',
-  'mailbox+new_message_count_text' => 'You have {$count} new message(s)!',
-  'mailbox+new_message_title' => 'New message',
+  'mailbox+new_message_count_text' => '你有 {$count} 新消息!',
+  'mailbox+new_message_title' => '新消息',
   'mailbox+new_message_to' => '',
-  'mailbox+notification_mail_subject' => 'New message from {$sendername}',
+  'mailbox+notification_mail_subject' => '来自 {$sendername} 的新消息',
   'mailbox+notification_mail_template_html' => 'Hello {$username},<br/>
 <br/>
 You have received a new message from {$sendername} on 找乐365.<br/>
@@ -2592,7 +2592,7 @@ You have received a new message from {$sendername} on 找乐365.<br/>
 Go to <a href="{$replyUrl}">{$replyUrl}</a> to reply to this message. <br/>
 <br/>
 Sincerely, 找乐365 administration',
-  'mailbox+notification_mail_template_text' => 'Hello {$username},
+  'mailbox+notification_mail_template_text' => '{$username}, 你好！
 
 You have received a new message from {$sendername} on 找乐365.
 
@@ -2701,6 +2701,7 @@ Sincerely, 找乐365 administration',
   'notifications+config_schedule_title' => '同时通过电子邮件发送通知',
   'notifications+config_title' => 'Schedule Settings',
   'notifications+console_item_label' => '通知',
+  'notifications+dashboard_menu_item' => '通知',
   'notifications+dashboard_menu_item_label' => '邮件通知',
   'notifications+email_html_bottom' => 'Talk soon,<br />
 找乐365, administration<br />
@@ -2728,6 +2729,8 @@ Here\'s the latest activity on 找乐365 related to you:',
   'notifications+settings_not_changed' => 'Settings not changed',
   'notifications+settings_page_heading' => '邮件通知',
   'notifications+settings_page_title' => '邮件通知',
+  'notifications+setup_page_heading' => '通知',
+  'notifications+setup_page_title' => '通知',
   'notifications+unsubscribe_all_label' => '取消订阅所有通知',
   'notifications+unsubscribe_code_expired' => 'Unsubscribe code expired',
   'notifications+unsubscribe_completed' => 'You have been successfully unsubscribed',
