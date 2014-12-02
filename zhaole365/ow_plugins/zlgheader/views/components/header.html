@@ -1,0 +1,151 @@
+
+{style}
+
+    html .ow_page_container .ow_page h1
+    {
+        display: none;
+    }
+
+    .uh-avatar-console div.hg-avatar-image
+    {
+        height: {$config.avatarSize}px;
+        width: {$config.avatarSize}px;
+        background: url({$group.image}) no-repeat center center;
+    }
+
+    .uh-avatar
+    {
+        margin-top: -{math equation="x - 25" x=$config.avatarSize}px;
+    }
+
+    .uh-head-text-wrap 
+    {
+        padding-left: {math equation="x + 30 + 25" x=$config.avatarSize}px;
+    }
+    
+    .uh-toolbox
+    {
+        margin-left: {math equation="x + 10" x=$config.avatarSize}px;
+    }
+
+    .uh-cover-no-cover .uh-cover
+    {
+        height: {math equation="x - 20" x=$config.avatarSize}px;
+    }
+
+    .uh-cover-no-cover .uh-cover-preloader
+    {
+        left: {math equation="x / 2" x=$config.avatarSize}px;
+    }
+    
+    .uh-scaler-img {
+        width: {$cover.scale}%;
+    }
+    
+    /*.uh-cover-has-cover .uh-cover {
+        min-height: {$config.coverHeight}px;
+    }*/
+
+{/style}
+
+<div class="gh-header uh-header uh-mode-view {if $group.hasImage}gh-has-image{else}gh-no-image{/if} {if $permissions.moderation}uh-mode-moderation{/if}" id="uh-header">
+
+    {* Oembed *}
+    <img src="{$group.image}" style="display: none;" />
+    
+    {if $permissions.view}
+        <img src="{$cover.src}" style="display: none" />
+    {/if}
+    
+    <div class="uh-cover-wrap {if $cover.hasCover}uh-cover-has-cover{else}uh-cover-no-cover{/if} uh-cover-mode-view" id="uh-cover">
+
+    <div class="uh-cover">
+        <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" class="uh-scaler-img" />
+        
+        
+        {if $permissions.view}
+            <div id="uh-cover-image-wrap">
+                <img class="uh-cover-image" id="uh-cover-image" {if $cover.hasCover}src="{$cover.src}" style="{$cover.css}"{else}style="display: none"{/if} />
+        {/if}
+        
+        <div class="uh-head-text-wrap clearfix">
+            <div class="uh-head-text {if !empty($info.line1) || !empty($info.line2)}uh-head-info-lines{/if}">
+                <a href="{$group.url}" class="uh-display-name">
+                    {$group.title}
+                </a>
+                
+                <div class="uh-info-line uh-info-line1">
+                    {if $group.admin}
+                        <span class="gh-info-field">{text key="zlgheader+info_admin_label"}</span>
+                        <a href="{$group.admin.url}" class="gh-info-value">{$group.admin.name}</a>
+                    {/if}
+                </div>
+                <div class="uh-info-line uh-info-line2">
+                    <span class="gh-info-field">{text key="zlgheader+info_created_label"}</span>
+                    <span class="gh-info-value">{$group.time}</span>
+                </div>
+            </div>
+            
+            <div class="uh-action-toolbar-wrap">
+                <ul class="ow_bl ow_small uh-action-toolbar">
+                    {foreach from=$toolbar item="item"}
+                        <li>
+                            <a href="{$item.href}" {if !empty($item.id)}id="{$item.id}"{/if}>{$item.label}</a>
+                        </li>
+                    {/foreach}
+                </ul>
+            </div>
+        </div>
+        
+        {if $permissions.view}
+            </div>
+        {/if}
+
+        {if $permissions.reposition}
+        <div class="uh-cover-center-tip" id="uh-cover-center-tip">
+            <div class="uh-cover-drag-instruction">
+                {text key="zlgheader+cover_reposition_tip"}
+            </div>
+        </div>
+
+        <div class="uh-cover-preloader ow_floatbox_preloader" id="uh-cover-preloader">&nbsp;</div>
+
+        <div class="uh-cover-overlay uh-cursor-drag" id="uh-cover-overlay"></div>
+        {/if}
+
+    </div>
+
+    {if $permissions.controls}
+    <div class="uh-cover-controls" id="uhc-controls" >
+
+        <div class="uh-cover-reposition-controls ow_bg_controls">
+            {decorator name="button_list_item" langLabel="zlgheader+cancel_changes_label" id="uh-reposition-cancel" class="uh-btn-cancel"}
+            {decorator name="button_list_item" langLabel="zlgheader+save_changes_label" id="uh-reposition-save" class="uh-btn-save ow_green"}
+        </div>
+
+
+        <div class="uh-cover-add-btn-wrap">
+            {$contextToolbar}
+        </div>
+
+    </div>
+    {/if}
+
+    </div>
+
+    <div class="gh-content-wrap">
+        <div class="uh-cont ow_border">
+            <div class="uh-head clearfix">
+                <div class="uh-avatar">
+                    <div class="ow_avatar_console ow_border uh-avatar-console ow_bg_color">
+                        <div class="hg-avatar-image">
+                        </div>
+                    </div>
+                </div>
+                <div class="uh-toolbox clearfix">
+                    {$tabs}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

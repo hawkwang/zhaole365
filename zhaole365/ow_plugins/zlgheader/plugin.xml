@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<plugin>
+    <name>乐群封面</name>
+    <key>zlgheader</key>
+    <description>"乐群封面" 为乐群群主提供更改乐群封面的功能</description>
+    <author>找乐365团队</author>
+    <authorEmail>zhaole365@yahoo.com</authorEmail>
+    <developerKey>723eba8b203379988e1b0d8058e608d7</developerKey>
+    <build>1</build>
+    <copyright>(C) 2014 找乐365. All rights reserved.</copyright>
+    <license>商用</license>
+    <licenseUrl>www.zhaole365.com</licenseUrl>
+</plugin>

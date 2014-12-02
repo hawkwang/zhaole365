@@ -1,32 +1,10 @@
 <?php
 
-/**
- * Copyright (c) 2012, Sergey Kambalin
- * All rights reserved.
-
- * ATTENTION: This commercial software is intended for use with Oxwall Free Community Software http://www.oxwall.org/
- * and is licensed under Oxwall Store Commercial License.
- * Full text of this license can be found at http://www.oxwall.org/store/oscl
- */
-
-/**
- * @author Sergey Kambalin <greyexpert@gmail.com>
- * @package gheader.classes
- */
-class GHEADER_CLASS_PhotoBridge
+class ZLGHEADER_CLASS_PhotoBridge
 {
-    /**
-     * Class instance
-     *
-     * @var GHEADER_CLASS_PhotoBridge
-     */
+
     private static $classInstance;
 
-    /**
-     * Returns class instance
-     *
-     * @return GHEADER_CLASS_PhotoBridge
-     */
     public static function getInstance()
     {
         if ( !isset(self::$classInstance) )
@@ -39,20 +17,16 @@ class GHEADER_CLASS_PhotoBridge
 
     private $isPluginActive = false;
 
-    /**
-     *
-     * @var OW_Plugin
-     */
     private $plugin;
 
-    private $defaultPhotoAlbumName = 'Group Cover Images';
+    private $defaultPhotoAlbumName = 'Group Cover';
 
     private $disabledEvents = array();
 
     public function __construct()
     {
         $this->isPluginActive = OW::getPluginManager()->isPluginActive('photo');
-        $this->plugin = OW::getPluginManager()->getPlugin('gheader');
+        $this->plugin = OW::getPluginManager()->getPlugin('zlgheader');
     }
 
     private function triggerEvent( OW_Event $event )
@@ -269,16 +243,16 @@ class GHEADER_CLASS_PhotoBridge
 
         $groupId  = $params['groupId'];
 
-        $saveToPhoto = GHEADER_BOL_Service::getInstance()->getConfig($groupId, 'saveToPhoto');
+        $saveToPhoto = ZLGHEADER_BOL_Service::getInstance()->getConfig($groupId, 'saveToPhoto');
 
         if ( !$saveToPhoto )
         {
             return;
         }
 
-        $albumName = GHEADER_BOL_Service::getInstance()->getConfig($groupId, 'albumName');
+        $albumName = ZLGHEADER_BOL_Service::getInstance()->getConfig($groupId, 'albumName');
 
-        $group = GROUPS_BOL_Service::getInstance()->findGroupById($groupId);
+        $group = ZLGROUPS_BOL_Service::getInstance()->findGroupById($groupId);
 
         if ( empty($group) )
         {
@@ -316,7 +290,7 @@ class GHEADER_CLASS_PhotoBridge
 
     public function init()
     {
-        OW::getEventManager()->bind(GHEADER_BOL_Service::EVENT_ADD, array($this, 'onCoverAdd'));
-        OW::getEventManager()->bind(GHEADER_BOL_Service::EVENT_CHANGE, array($this, 'onCoverAdd'));
+        OW::getEventManager()->bind(ZLGHEADER_BOL_Service::EVENT_ADD, array($this, 'onCoverAdd'));
+        OW::getEventManager()->bind(ZLGHEADER_BOL_Service::EVENT_CHANGE, array($this, 'onCoverAdd'));
     }
 }

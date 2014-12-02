@@ -1,0 +1,12 @@
+<div class="ow_content_menu_wrap h-tabs-wrap">
+    <ul class="ow_content_menu h-tabs clearfix ow_border">
+        {foreach from=$data item='item' name='hTabs'}
+            <li class="{$item.class} {if $item.active}h-tab-active{/if} {if $smarty.foreach.hTabs.first}h-tab-first{/if} {if $smarty.foreach.hTabs.last}h-tab-last{/if}">
+                <a href="{$item.url}">{$item.label}</a>
+                <div class="h-tab-cursor-wrap">
+                    <div class="ow_border h-tab-cursor ow_bg_color"></div>
+                </div>
+            </li>
+        {/foreach}
+    </ul>
+</div>

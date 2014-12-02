@@ -1,0 +1,22 @@
+
+<div class="uh-photo-selector">
+
+    <div class="uhps-list" id="uhps-list" {if $height}style="max-height: {$height}px;"{/if}>
+        <div id="uhps-list-content">
+            {if empty($photoList)}
+                <div class="uhps-no-photos">
+                    {text key="zlgheader+no_photos_label"}
+                </div>
+            {else}
+                {$photoList}
+            {/if}
+        </div>
+        <div class="uhps-preloader ow_preloader" id="uhps-preloader"></div>
+    </div>
+    <div class="uhps-controls ow_border">
+        {decorator name="button" langLabel="zlgheader+photo_select_cancel_label" id="uhps-cancel"}
+    </div>
+
+</div>
+
+
