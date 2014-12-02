@@ -4758,5 +4758,56 @@ But do not forget that users are able to overwrite this settings. To disallow th
   'uheader+usercredits_action_add_cover' => '添加封面',
   'uheader+validation_error_image_size' => '请确保选择的图片满足至少 <b>{$minWidth} 像素宽，且 {$minHeight} 像素高</b>.',
   'uheader+widget_title' => '封面',
+  'fbconnect+access_settings_api_key_label' => 'API key',
+  'fbconnect+access_settings_api_secret_label' => 'App Secret',
+  'fbconnect+access_settings_app_id_label' => 'App ID',
+  'fbconnect+additional_settings_synchronize' => 'Allow synchronization for non-Facebook profiles',
+  'fbconnect+additional_settings_synchronize_desc' => 'All users can synchronize with their Facebook accounts',
+  'fbconnect+additional_settings_title' => 'Additional Settings',
+  'fbconnect+admin_configuration_required_notification' => '<a href="{$href}">Facebook Connect</a> requires configuration',
+  'fbconnect+admin_sidebar_menu_label' => 'Facebook Connect',
+  'fbconnect+application_configuration_title' => 'Manage your Facebook Application',
+  'fbconnect+app_edit_desc' => 'Customize your Facebook App’s URLs, icon, name, and more',
+  'fbconnect+app_edit_title' => 'Edit your Facebook Application',
+  'fbconnect+app_register_title' => 'Set up Facebook Connect',
+  'fbconnect+app_remove_app_desc' => 'Start configuration from scratch',
+  'fbconnect+app_remove_app_title' => 'Remove Facebook Application',
+  'fbconnect+app_reset_desc' => 'Return your Application’s settings to default',
+  'fbconnect+app_reset_failed_msg' => 'Application reset failed. Please try again.',
+  'fbconnect+app_reset_success_msg' => 'Your Application has been reset.',
+  'fbconnect+app_reset_title' => 'Repair Facebook Application',
+  'fbconnect+configuration_fields_fbfields_label' => 'Facebook profile info',
+  'fbconnect+configuration_fields_legend' => 'When users sign in using Facebook Connect their profile information is pulled out of Facebook. Later they can also sync their profiles. Here you need to set what info you want to sync. This works for text info only.',
+  'fbconnect+configuration_fields_questions_label' => 'Profile questions',
+  'fbconnect+configuration_fields_suggest' => 'Don\'t forget to review these settings whenever you change <a href="{$questionsUrl}">profile questions</a>.',
+  'fbconnect+configuration_settings_saved' => 'Settings Updated',
+  'fbconnect+connect_btn_label' => 'Connect',
+  'fbconnect+connect_mobile_btn_label' => 'Log in with Facebook',
+  'fbconnect+feed_user_join' => 'joined our site using their Facebook account!',
+  'fbconnect+heading_configuration' => 'Facebook Connect',
+  'fbconnect+join_activity_string' => '<a href="{$userUrl}">{$user}</a> joined our site using their Facebook account!',
+  'fbconnect+join_dublicate_email_msg' => 'Sorry, looks like this email is already used',
+  'fbconnect+join_incomplete' => 'Seems there are some problems with connection to Facebook. Please, try again later.',
+  'fbconnect+join_incorrect_username' => 'Sorry, can\'t sign you in because your Facebook name contains non-latin characters ( for example $, %, ^, &, *, é, ŋ )',
+  'fbconnect+join_success_msg' => 'You have successfully logged in with your Facebook account',
+  'fbconnect+login_success_msg' => 'You have successfully logged in with your Facebook account',
+  'fbconnect+menu_item_configuration_fields' => 'Profile Questions Synchronization',
+  'fbconnect+menu_item_configuration_settings' => 'Settings',
+  'fbconnect+register_app_desc' => '<p>
+Follow these 2 simple steps to enable Facebook Connect on your site:
+</p>
+<ul class="ow_regular ow_stdmargin">
+<li>
+<b><a href="http://www.facebook.com/developers/createapp.php" target="_blank">Create application</a></b> and set a name for it. It should be your social network name so users remember that they signed up.
+</li>
+<li>You will be given <b>App ID</b> and <b>App Secret</b>. Copy them to the form below and you are all set!
+</li>
+</ul>
+After that Facebook Connect will be ready to use!',
+  'fbconnect+register_app_failed' => 'Application setup failed. Please check your App ID and Application Secret.',
+  'fbconnect+register_app_success' => 'Facebook Connect has been successfully configured. Enjoy!',
+  'fbconnect+save_btn_label' => 'Save',
+  'fbconnect+synchronize_btn_label' => 'Synchronize',
+  'fbconnect+synchronize_success_msg' => 'You have successfully synchronized your profile with Facebook',
 );
 ?>
