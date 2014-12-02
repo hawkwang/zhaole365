@@ -47,5 +47,6 @@ OW::getRouter()->addRoute(new OW_Route('photo.ajax_create_photo', 'photo/ajax-cr
 OW::getRouter()->addRoute(new OW_Route('photo.ajax_update_photo', 'photo/ajax-update-album', 'PHOTO_CTRL_Photo', 'ajaxUpdateAlbum'));
 OW::getRouter()->addRoute(new OW_Route('photo.ajax_album_cover', 'photo/ajax-album-cover', 'PHOTO_CTRL_Photo', 'ajaxCropPhoto'));
 OW::getRouter()->addRoute(new OW_Route('photo.download_photo', 'photo/download-photo/:id', 'PHOTO_CTRL_Photo', 'downloadPhoto'));
+OW::getRouter()->addRoute(new OW_Route('photo.approve', 'photo/approve/:id', 'PHOTO_CTRL_Photo', 'approve'));
 
 PHOTO_CLASS_EventHandler::getInstance()->init();

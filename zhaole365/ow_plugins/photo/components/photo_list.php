@@ -181,6 +181,7 @@ class PHOTO_CMP_PhotoList extends OW_Component
             $language->addKeyForJs('photo', 'delete_album');
             $language->addKeyForJs('photo', 'album_delete_not_allowed');
             $language->addKeyForJs('photo', 'newsfeed_album');
+            $language->addKeyForJs('photo', 'are_you_sure');
         }
         
         $language->addKeyForJs('photo', 'no_items');

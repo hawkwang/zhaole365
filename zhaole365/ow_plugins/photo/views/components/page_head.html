@@ -40,70 +40,75 @@
 *}
 
 <div class="ow_btn_delimiter ow_right">
-    {if $isAuthenticated && !empty($canUpload)}
-        {decorator name="button" class="ow_ic_add" id="add-new-photo-album" langLabel="photo+create_album"}
-        {script}
-            jQuery(function()
-            {
-                var content = $(document.getElementById('add-new-photo-album-content'));
-                var albumName = new OwTextField('add-new-photo-album-name', 'add-new-photo-album-name', '{text key='photo+album_name'}');
-                var albumDesc = new OwTextArea('add-new-photo-album-desc', 'add-new-photo-album-desc', '{text key='photo+album_desc'}');
-
-                $('#add-new-photo-album').on('click', function()
+    {if $isAuthenticated}
+        {if !empty($canUpload)}
+            {decorator name="button" class="ow_ic_add" id="add-new-photo-album" langLabel="photo+create_album"}
+            {script}
+                jQuery(function()
                 {
-                    var fb = new OW_FloatBox(
-                    {
-                        $title: '{text key='photo+create_album'}',
-                        $contents: content,
-                        width: 500
-                    });
+                    var content = $(document.getElementById('add-new-photo-album-content'));
 
-                    fb.bind('show', function()
+                    var albumName = new OwTextField('add-new-photo-album-name', 'add-new-photo-album-name', OW.getLanguageText('photo', 'album_name'));
+                    var albumDesc = new OwTextArea('add-new-photo-album-desc', 'add-new-photo-album-desc', OW.getLanguageText('photo', 'album_desc'));
+
+                    $('#add-new-photo-album').on('click', function()
                     {
-                        $('input.ow_ic_submit', content).off().on('click', function()
+                        var fb = new OW_FloatBox(
                         {
-                            var value = albumName.getValue().trim();
+                            $title: OW.getLanguageText('photo', 'create_album'),
+                            $contents: content,
+                            width: 500
+                        });
 
-                            if ( value.length === 0 )
+                        fb.bind('show', function()
+                        {
+                            $('input.ow_ic_submit', content).off().on('click', function()
                             {
-                                $('span.ow_error', content).show();
-                                $(albumName.input).focus();
+                                var value = albumName.getValue().trim();
 
-                                return;
-                            }
-                            else if ( value === '{text key='photo+newsfeed_album'}' )
-                            {
-                                OW.error("{text key='photo+newsfeed_album_error_msg'}");
-                                $('span.ow_error', content).show();
-                                $(albumName.input).focus();
-
-                                return;
-                            }
-
-                            fb.close();
-
-                            var ajaxUploadPhotoFB = OW.ajaxFloatBox("PHOTO_CMP_AjaxUpload", [0, albumName.getValue(), albumDesc.getValue()], {
-                                title: "{text key='photo+upload_photos'}",
-                                width: "746px"
-                            });
-
-                            ajaxUploadPhotoFB.bind("close", function()
-                            {
-                                if ( ajaxPhotoUploader.isHasData() )
+                                if ( value.length === 0 )
                                 {
-                                    return confirm("{text key='photo+close_alert'}");
+                                    $('span.ow_error', content).show();
+                                    $(albumName.input).focus();
+
+                                    return;
                                 }
+                                else if ( value === OW.getLanguageText('photo', 'newsfeed_album') )
+                                {
+                                    OW.error(OW.getLanguageText('photo', 'newsfeed_album_error_msg'));
+                                    $('span.ow_error', content).show();
+                                    $(albumName.input).focus();
+
+                                    return;
+                                }
+
+                                fb.close();
+
+                                var ajaxUploadPhotoFB = OW.ajaxFloatBox("PHOTO_CMP_AjaxUpload", [0, albumName.getValue(), albumDesc.getValue()], {
+                                    title: OW.getLanguageText('photo', 'upload_photos'),
+                                    width: "746px"
+                                });
+
+                                ajaxUploadPhotoFB.bind("close", function()
+                                {
+                                    if ( ajaxPhotoUploader.isHasData() )
+                                    {
+                                        return confirm(OW.getLanguageText('photo', 'close_alert'));
+                                    }
+                                });
                             });
                         });
-                    });
 
-                    fb.bind('close', function()
-                    {
-                        $('span.ow_error', content).hide();
+                        fb.bind('close', function()
+                        {
+                            $('span.ow_error', content).hide();
+                        });
                     });
                 });
-            });
-        {/script}
+            {/script}
+        {else}
+            {decorator name="button" class="ow_ic_add" id="add-new-photo-album" langLabel="photo+create_album" onclick="{$url}();"}
+        {/if}
 
         {decorator name="button" class="ow_ic_add" id="btn-add-new-photo" langLabel="photo+upload_photos" onclick="{$url}();"}
     {/if}
@@ -120,7 +125,7 @@
                 <div class="ow_right">
                     <span class="ow_button">
                         <span class=" ow_ic_submit ow_positive">
-                            <input type="button" class="ow_ic_submit ow_positive" value="Add photos">
+                            <input type="button" class="ow_ic_submit ow_positive" value="{text key='photo+add_photos'}">
                         </span>
                     </span>
                 </div>

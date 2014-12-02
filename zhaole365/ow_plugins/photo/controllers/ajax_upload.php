@@ -230,7 +230,7 @@ class PHOTO_CTRL_AjaxUpload extends OW_ActionController
         
         if ( empty($photos) )
         {
-            $result["url"] = OW::getRouter()->urlForRoute('photo_user_album', array(
+            $result['url'] = OW::getRouter()->urlForRoute('photo_user_album', array(
                 'user' => BOL_UserService::getInstance()->getUserName($userId),
                 'album' => $album->id
             ));
@@ -254,12 +254,51 @@ class PHOTO_CTRL_AjaxUpload extends OW_ActionController
         $event = new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_ADD, $movedArray);
         OW::getEventManager()->trigger($event);
 
-        $result["url"] = OW::getRouter()->urlForRoute('photo_user_album', array(
-            'user' => BOL_UserService::getInstance()->getUserName($userId),
-            'album' => $album->id
-        ));
-
         $photoCount = count($photos);
+        $photoIdList = array();
+        foreach ( $photos as $photo )
+        {
+            $photoIdList[] = $photo->id;
+        };
+
+        $newPhotos = PHOTO_BOL_PhotoDao::getInstance()->findByIdList($photoIdList);
+        $approvalPhotos = array();
+
+        foreach ($newPhotos as $photo )
+        {
+            if ( $photo->status != PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+            {
+                $approvalPhotos[] = $photo;
+            }
+        };
+
+        if ( ($approvalCount = count($approvalPhotos)) === $photoCount )
+        {
+            if ( $approvalCount === 1 )
+            {
+                OW::getFeedback()->info(OW::getLanguage()->text('photo', 'photo_uploaded_pending_approval'));
+            }
+            else
+            {
+                OW::getFeedback()->info(OW::getLanguage()->text('photo', 'photos_uploaded_pending_approval', array('count' => $approvalCount)));
+            }
+
+            if ( $this->photoAlbumService->countAlbumPhotos($album->id) > 0 )
+            {
+                $result['url'] = OW::getRouter()->urlForRoute('photo_user_album', array(
+                    'user' => BOL_UserService::getInstance()->getUserName($userId),
+                    'album' => $album->id
+                ));
+            }
+            else
+            {
+                $result['url']= OW::getRouter()->urlForRoute('photo_user_albums', array(
+                    'user' => BOL_UserService::getInstance()->getUserName($userId)
+                ));
+            }
+
+            return $result;
+        }
         
         if ( $photoCount == 1 )
         {
@@ -270,6 +309,10 @@ class PHOTO_CTRL_AjaxUpload extends OW_ActionController
             $this->photoService->triggerNewsfeedEventOnMultiplePhotosAdd($album, $photos);
         }
 
+        $result['url'] = OW::getRouter()->urlForRoute('photo_user_album', array(
+            'user' => BOL_UserService::getInstance()->getUserName($userId),
+            'album' => $album->id
+        ));
         OW::getFeedback()->info(OW::getLanguage()->text('photo', 'photos_uploaded', array('count' => $photoCount)));
         
         return $result;

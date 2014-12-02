@@ -84,7 +84,7 @@ class PHOTO_BOL_SearchIndexDao extends OW_BaseDao
                 INNER JOIN `' . PHOTO_BOL_PhotoDao::getInstance()->getTableName() . '` AS `p` ON(`index`.`entityId` = `p`.`id`)
                 INNER JOIN `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() . '` AS `a` ON(`a`.`id` = `p`.`albumId`)
             ' . $condition['join'] . '
-            WHERE MATCH(`index`.`' . self::CONTENT . '`) AGAINST(:val IN BOOLEAN MODE) AND `p`.`privacy` = :everybody AND ' . $condition['where'];
+            WHERE MATCH(`index`.`' . self::CONTENT . '`) AGAINST(:val IN BOOLEAN MODE) AND `p`.`privacy` = :everybody AND `p`.`status` = :status AND ' . $condition['where'];
         
         if ( count($entityTypes) !== 0 )
         {
@@ -95,7 +95,7 @@ class PHOTO_BOL_SearchIndexDao extends OW_BaseDao
         
         $sql .= ' LIMIT :limit';
         
-        return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array_merge($condition['params'], array('val' => $searchVal, 'limit' => (int)$limit, 'everybody' => PHOTO_BOL_PhotoDao::PRIVACY_EVERYBODY)));
+        return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array_merge($condition['params'], array('val' => $searchVal, 'limit' => (int)$limit, 'everybody' => PHOTO_BOL_PhotoDao::PRIVACY_EVERYBODY, 'status' => 'approved')));
     }
     
     public function deleteIndexItem( $entityTypeId, $entityId )

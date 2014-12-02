@@ -505,6 +505,8 @@
                     {
                         return;
                     }
+                    
+                    OW.trigger('photo.onRequestComplete', [dataToSend, params, responce], _methods);
                         
                     _methods.cachePhotoComponents(responce.photos);
                         
@@ -602,7 +604,7 @@
                 },
                 complete: function( jqXHR, textStatus )
                 {
-                    
+
                 }
             });
         },
@@ -796,12 +798,16 @@
             $('.ow_user_list_data .ow_photo_album_url', content).attr('href', cmp.albumUrl).children().html(
                 OW.getLanguageText('photo', 'album') + ': ' + _methods.utils.truncate(cmp.album.name, 60)
             );
-            $('.ow_photoview_description span', content).html(_methods.utils.descToHashtag(cmp.photo.description));
             
             if ( cmp.contextAction.length )
             {
                 $(cmp.contextAction).addClass('ow_photo_context_action').insertAfter($('.ow_photoview_bottom_menu_wrap', content)).show();
             }
+
+            $('.ow_photo_share', content).empty().html(function()
+            {
+                return cmp.share || '';
+            });
             
             if ( !_methods.fullscreen.enabled() )
             {
@@ -821,21 +827,43 @@
 
                             if ( data && data.result )
                             {
-                                OW.info(data.msg);
-                                
-                                cmp.albumUrl = data.albumUrl;
-                                cmp.album.name = data.albumName;
-                                cmp.photo.description = data.description;
-                                
-                                $('.ow_user_list_data .ow_photo_album_url', content).attr('href', data.albumUrl).children().html(
-                                    OW.getLanguageText('photo', 'album') + ': ' + _methods.utils.truncate(data.albumName, 60)
-                                );
-                                $('.ow_photoview_description span', content).html(_methods.utils.descToHashtag(cmp.photo.description));
-
-                                if ( window.hasOwnProperty('browsePhoto') )
+                                if ( data.photo.status !== 'approved' )
                                 {
-                                    browsePhoto.updateSlot('photo-item-' + data.id, data);
-                                    browsePhoto.reorder();
+                                    OW.info(data.msgApproval);
+
+                                    if ( _elements.photoFB )
+                                    {
+                                        _elements.photoFB.close();
+                                    }
+
+                                    $('#photo-description').html(OW.getLanguageText('photo', 'pending_approval'));
+
+                                    if ( window.hasOwnProperty('browsePhoto') )
+                                    {
+                                        browsePhoto.removePhotoItems(['photo-item-' + photoId]);
+                                    }
+                                }
+                                else
+                                {
+                                    OW.info(data.msg);
+
+                                    cmp.albumUrl = data.albumUrl;
+                                    cmp.album.name = data.albumName;
+                                    cmp.photo.description = data.description;
+
+                                    $('.ow_user_list_data .ow_photo_album_url', content).attr('href', data.albumUrl).children().html(
+                                        OW.getLanguageText('photo', 'album') + ': ' + _methods.utils.truncate(data.albumName, 60)
+                                    );
+
+                                    var event = {text: _methods.utils.descToHashtag(cmp.photo.description)};
+                                    OW.trigger('photo.onSetDescription', event);
+                                    $('.ow_photoview_description span', content).html(event.text);
+
+                                    if ( window.hasOwnProperty('browsePhoto') )
+                                    {
+                                        browsePhoto.updateSlot('photo-item-' + data.id, data);
+                                        browsePhoto.reorder();
+                                    }
                                 }
                             }
                             else if ( data.msg )
@@ -913,22 +941,44 @@
 
             $('#btn-photo-flag').off().on('click', function()
             {
-                var photo_id = $(this).attr("rel");
-                var url = $(this).attr("url");
-                var cmp = _methods.getPhotoCmp(photoId);
-                var photoDesc = cmp.photo.description;
-
-                if ( !photoDesc.length )
-                {
-                    photoDesc = photoId;
-                }
-
-                OW.flagContent("photo", photo_id, photoDesc, url, "photo+flags");
+                OW.flagContent('photo_comments', $(this).attr("rel"));
             });
-            
+
+            $('#photo-approve').off().on('click', function()
+            {
+                $.ajax({
+                    url: $(this).attr('url'),
+                    cache: false,
+                    type: 'POST',
+                    dataType: 'json',
+                    success: function( data )
+                    {
+                        // TODO show message
+                        OW.info(OW.getLanguageText('photo', 'approve_success_message'));
+                        $('#photo-approve').parent().remove();
+                    }
+                })
+            });
+
+            if ( !_methods.fullscreen.enabled() )
+            {
+                _elements.content.find('.ow_photoview_fullscreen').attr({target: '_blank', href: cmp.photo.url});
+            }
+
+            if ( cmp.photo.status !== 'approved' )
+            {
+                $('.ow_photoview_description span', content).html(OW.getLanguageText('photo', 'pending_approval'));
+
+                return;
+            }
+
+            var event = {text: _methods.utils.descToHashtag(cmp.photo.description)};
+            OW.trigger('photo.onSetDescription', event);
+            $('.ow_photoview_description span', content).html(event.text);
+
             var userScore = cmp.userScore;
             var rateInfo = cmp.rateInfo;
-            var rateItems = $('.rate_item', content);
+            var rateItems = $('.ow_rates_wrap', content).show().find('.rate_item');
             
             if ( +userScore > 0 )
             {
@@ -1029,11 +1079,6 @@
                     content.find('.active_rate_list').css('width', (rateInfo.avg_score * 20) + '%');
                 });
             });
-            
-            if ( !_methods.fullscreen.enabled() )
-            {
-                _elements.content.find('.ow_photoview_fullscreen').attr({target: '_blank', href: cmp.photo.url});
-            }
         },
         setComment: function( photoId )
         {
@@ -1230,6 +1275,20 @@
                     OW.addScript(cmp.onloadScript);
                 }
             }
+
+            if ( cmp.meta )
+            {
+                Object.keys(cmp.meta).forEach(function( item )
+                {
+                    var _meta = cmp.meta[item];
+
+                    Object.keys(_meta).forEach(function( attr )
+                    {
+                        $('meta[' + item + '="' + attr + '"]').remove();
+                        $(document.head).append('<meta ' + item + '="' + attr + '" content="' + _meta[attr] + '">');
+                    });
+                });
+            }
         },
         beforeLoadCmp: function( photoId )
         {
@@ -1266,6 +1325,7 @@
                 
                 $('.ow_feed_comments', _elements.content).empty();
                 _elements.content.find('.ow_photoview_info_wrap').height('');
+                $('.ow_rates_wrap', _elements.content).hide();
                 
                 var index;
                 
@@ -1429,9 +1489,13 @@
                         }
                         
                         content.find('.ow_photoview_stage_wrap').css(css);
-                        content.height(css.height);
                         _methods.updateComment({entityType: 'photo_comments', entityId: _vars.photoId});
-                        _elements.photoFB.fitWindow({width: dimension.maxWidth + _vars.infoBar, height: dimension.maxHeight, top: dimension.screenHeight / 2 - (dimension.maxHeight / 2)});
+
+                        if ( _vars.layout != 'page' )
+                        {
+                            content.height(css.height);
+                            _elements.photoFB.fitWindow({width: dimension.maxWidth + _vars.infoBar, height: dimension.maxHeight, top: dimension.screenHeight / 2 - (dimension.maxHeight / 2)});
+                        }
                         
                         $(window).on('resize.photo', _methods.resizeWindow);
                     }, 100);
@@ -1449,21 +1513,27 @@
         },
         utils:
         {
-            truncate: function( text, length )
+            truncate: function( value, limit )
             {
-                if ( !text )
+                if ( !value )
                 {
                     return '';
                 }
 
-                length = +length || 50;
+                var parts;
 
-                if ( text.length < length )
+                limit = +limit || 50;
+
+                if ( (parts = value.split(/\n/)).length >= 3 )
                 {
-                    return text;
+                    value = parts.slice(0, 3).join('\n') + '...';
+                }
+                else if ( value.length > limit )
+                {
+                    value = value.toString().substring(0, limit) + '...';
                 }
 
-                return text.toString().substring(0, length) + '...';
+                return value;
             },
             showPreloader: function()
             {
@@ -1483,7 +1553,7 @@
                 return description.replace(/#(?:\w|[^\u0000-\u007F])+/g, function( str )
                 {
                     return (url.replace('{$tag}', encodeURIComponent(str))).replace('{$tagLabel}', str);
-                });
+                }).replace(/\n/g, '<br>');
             },
             isNotEmptyObject: function( object )
             {
@@ -1540,7 +1610,10 @@
                         return !isNaN(item) && item > 0 && arr.indexOf(item) === i;
                     });
                     
-                if ( ['most_discussed', 'toprated'].indexOf(_vars.listType) !== -1 )
+                var event = {listType: []};
+                OW.trigger('photo.collectListType', event, _methods);
+                
+                if ( ['most_discussed', 'toprated'].concat(event.listType).indexOf(_vars.listType) !== -1 )
                 {
                     return arr;
                 }

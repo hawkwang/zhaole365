@@ -45,7 +45,7 @@
             </div>
         {else}
             <div class="ow_photoview_stage_wrap{if $layout == 'page'} ow_smallmargin{/if}">
-                <img src="javascript:void(0)" class="ow_photo_img ow_photo_view" />
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" class="ow_photo_img ow_photo_view" />
                 <div class="ow_photoview_bottom_menu_wrap">
                     <div class="ow_photoview_bottom_menu clearfix">
                         <a  href="javascript://" class="ow_photoview_albumlink">
@@ -71,7 +71,7 @@
                 <div class="ow_photo_context_action" style="display: none"></div>
                 <a class="ow_photoview_arrow_left" href="javascript://"><i></i></a>
                 <a class="ow_photoview_arrow_right" href="javascript://"><i></i></a>
-                <img src="javascript:void(0)" style="display: none" class="ow_photo_img slide" />
+                <img src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" style="display: none" class="ow_photo_img slide" />
             </div>
             <div class="ow_photoview_info_wrap">
                 <div class="ow_photoview_info{$class}">
@@ -79,7 +79,7 @@
                         <div class="ow_photoview_user ow_smallmargin clearfix">
                             <div class="ow_user_list_picture">
                                 <div class="ow_avatar">
-                                    <a href="javascript://"><img alt="" src="javascript:void(0)" style="max-width: 100%; display: none"></a>
+                                    <a href="javascript://"><img alt="" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs%3D" style="max-width: 100%; display: none"></a>
                                 </div>
                             </div>
                             <div class="ow_user_list_data">
@@ -97,7 +97,7 @@
                         
                         {add_content key="photo.content.betweenDescriptionAndRates"}
                         
-                        <div class="ow_rates_wrap ow_small">
+                        <div class="ow_rates_wrap ow_small ow_hidden">
                             <span>{text key='photo+rating'}:</span>
                             <div class="ow_rates">
                                 <div class="rates_cont clearfix">
@@ -113,6 +113,7 @@
                             </div>
                             <span style="font-style: italic;" class="rate_title"></span>
                         </div>
+                        <div class="ow_photo_share"></div>
                         
                         {add_content key="photo.content.betweenRatesAndComments"}
                         

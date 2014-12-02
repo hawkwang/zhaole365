@@ -52,6 +52,10 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
     CONST PRIVACY_EVERYBODY = 'everybody';
     CONST PRIVACY_FRIENDS_ONLY = 'friends_only';
     CONST PRIVACY_ONLY_FOR_ME = 'only_for_me';
+
+    CONST STATUS_APPROVAL = 'approval';
+    CONST STATUS_APPROVED = 'approved';
+    CONST STATUS_BLOCKED = 'blocked';
     
     private $typeToPrefix;
     
@@ -539,7 +543,7 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
             $example->andFieldNotInArray('id', $exclude);
         }
 
-        return $this->countByExample($example);
+        return (int)$this->countByExample($example);
     }
     
     public function countAlbumPhotosForList( $albumIdList )
@@ -1152,14 +1156,21 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
         ));
     }
 
-    public function findPhotoListByUploadKey( $uploadKey, $exclude )
+    public function findPhotoListByUploadKey( $uploadKey, $exclude, $status = null )
     {
         $example = new OW_Example();
         $example->andFieldEqual('uploadKey', $uploadKey);
+
+        if ( $status !== null )
+        {
+            $example->andFieldEqual('status', $status);
+        }
+
         if ( $exclude && is_array($exclude) )
         {
             $example->andFieldNotInArray('id', $exclude);
         }
+
         $example->setOrder('`id` DESC');
 
         return $this->findListByExample($example);
@@ -1254,8 +1265,7 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
             FROM `' . BOL_TagDao::getInstance()->getTableName() . '` AS `tag`
                 INNER JOIN `' . BOL_EntityTagDao::getInstance()->getTableName() . '` AS `entity` ON(`entity`.`tagId` = `tag`.`id`)
                 INNER JOIN `' . $this->getTableName() . '` AS `photo` ON(`photo`.`id` = `entity`.`entityId`)
-                INNER JOIN `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() .'` AS `album`
-                    ON(`photo`.`albumId` = `album`.`id`)
+                INNER JOIN `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() .'` AS `album` ON(`photo`.`albumId` = `album`.`id`)
                 ' . $condition['join'] . '
             WHERE `entity`.`entityType` = :entityType AND
             `tag`.`label` LIKE :label AND
@@ -1302,7 +1312,7 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
             FROM `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() . '` AS `a`
                 INNER JOIN `' . $this->getTableName() . '` AS `p` ON(`a`.`id` = `p`.`albumId`)
             ' . $condition['join'] . '
-            WHERE `a`.`userId` IN (' . implode(',', array_map('intval', array_unique($idList))) . ') AND `p`.`status` = :status AND `p`.`privacy` = :everybody AND
+            WHERE `a`.`userId` IN (' . implode(',', array_map('intval', $idList)) . ') AND `p`.`status` = :status AND `p`.`privacy` = :everybody AND
             ' . $condition['where'] . '
             GROUP BY 1
             LIMIT :limit';
@@ -1345,11 +1355,11 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
             FROM `' . $this->getTableName() . '` AS `p`
                 INNER JOIN `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() . '` AS `a` ON(`p`.`albumId` = `a`.`id`)
             ' . $condition['join'] . '
-            WHERE `p`.`description` LIKE :desc AND `p`.`privacy` = :everybody AND
+            WHERE `p`.`description` LIKE :desc AND `p`.`privacy` = :everybody AND `p`.`status` = :status AND
             ' . $condition['where'] . '
             ORDER BY `p`.`description`';
         
-        return $this->dbo->queryForColumnList($sql, array_merge($condition['params'], array('desc' => '%' . $description . '%', 'everybody' => self::PRIVACY_EVERYBODY)));
+        return $this->dbo->queryForColumnList($sql, array_merge($condition['params'], array('desc' => '%' . $description . '%', 'everybody' => self::PRIVACY_EVERYBODY, 'status' => 'approved')));
     }
     
     public function findTaggedPhotosByTagId( $tagId, $first, $limit, $checkPrivacy = NULL )
@@ -1641,5 +1651,21 @@ class PHOTO_BOL_PhotoDao extends OW_BaseDao
             WHERE `a`.`userId` IN(' . $this->dbo->mergeInClause($idList) . ') AND ' . $condition['where'];
         
         return $this->dbo->queryForColumnList($sql, $condition['params']);
+    }
+
+    // Content provider
+    public function getPhotoListByIdList( array $idList )
+    {
+        if ( empty($idList) )
+        {
+            return array();
+        }
+
+        $sql = 'SELECT `p`.*, `a`.`userId`
+            FROM `' . $this->getTableName() . '` AS `p`
+                INNER JOIN `' . PHOTO_BOL_PhotoAlbumDao::getInstance()->getTableName() . '` AS `a` ON(`p`.`albumId` = `a`.`id`)
+            WHERE `p`.`id` IN(' . $this->dbo->mergeInClause($idList) . ')';
+
+        return $this->dbo->queryForList($sql);
     }
 }

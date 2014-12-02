@@ -140,7 +140,7 @@
                         this.style.backgroundImage = 'url(' + img.src + ')';
                         $(this).removeClass('ow_photo_preview_loading').fadeIn(300);
                         
-                        OW.trigger('photo.onRenderUploadSlot', [], slot);
+                        OW.trigger('photo.onRenderUploadSlot', [_elements.descEditors[slotId]], slot);
                     });
             };
             img.src = fileUrl;
@@ -315,6 +315,7 @@
 
                     $.ajax(
                     {
+                        isPhotoUpload: true,
                         url: _vars.actionUrl,
                         data: formData,
                         cache: false,
@@ -343,7 +344,6 @@
                             if ( textStatus === 'success' && jqXHR.responseText.length === 0 )
                             {
                                 _methods.destroySlot(slotId);
-                                _methods.pushFile(file);
                             }
                         }
                     });
@@ -681,6 +681,18 @@
             {
                 _vars.files.length = 0;
                 _vars.isRuning = false;
+            });
+
+            $.ajaxPrefilter(function(options, origOPtions, jqXHR)
+            {
+                if ( _vars.isRuning && options.isPhotoUpload !== true )
+                {
+                    jqXHR.abort();
+
+                    typeof origOPtions.success == 'function' && (origOPtions.success.call(options, {}));
+                    typeof origOPtions.complete == 'function' && (origOPtions.complete.call(options, {}));
+
+                }
             });
         }},
         isHasData: {value: function()

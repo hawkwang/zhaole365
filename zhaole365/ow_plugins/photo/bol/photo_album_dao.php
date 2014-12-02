@@ -161,14 +161,16 @@ class PHOTO_BOL_PhotoAlbumDao extends OW_BaseDao
     
     public function findUserAlbumList( $userId, $first, $limit, array $exclude = array() )
     {
-        $sql = 'SELECT *
-            FROM `' . $this->getTableName() . '`
+        $sql = 'SELECT `a`.*
+            FROM `' . $this->getTableName() . '` AS `a`
+                INNER JOIN `' . PHOTO_BOL_PhotoDao::getInstance()->getTableName() . '` AS `p` ON(`p`.`albumId` = `a`.`id` AND `p`.`status` = :status)
             WHERE `' . self::USER_ID . '` = :userId ' .
-                (count($exclude) !== 0 ? ' AND `id` NOT IN (' . implode(',', array_map('intval', array_unique($exclude))) . ')' : '') . '
+                (count($exclude) !== 0 ? ' AND `id` NOT IN (' . implode(',', array_map('intval', $exclude)) . ')' : '') . '
+            GROUP BY `a`.`id`
             ORDER BY `id` DESC
             LIMIT :first, :limit';
 
-        $params = array('userId' => $userId, 'first' => (int)$first, 'limit' => (int)$limit);
+        $params = array('userId' => $userId, 'status' => PHOTO_BOL_PhotoDao::STATUS_APPROVED, 'first' => (int)$first, 'limit' => (int)$limit);
         
         return $this->dbo->queryForList($sql, $params);
     }

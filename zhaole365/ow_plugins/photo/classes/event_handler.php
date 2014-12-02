@@ -63,6 +63,7 @@ class PHOTO_CLASS_EventHandler
     const EVENT_ALBUM_PHOTOS_FIND = 'photo.album_photos_find';
     const EVENT_INIT_FLOATBOX = 'photo.init_floatbox';
     const EVENT_GET_ADDPHOTO_URL = 'photo.getAddPhotoURL';
+    const EVENT_ON_PHOTO_CONTENT_UPDATE = 'photo.onUpdateContent';
 
     const EVENT_ON_PHOTO_ADD = 'plugin.photos.add_photo';
     const EVENT_ON_PHOTO_EDIT = 'photo.after_edit';
@@ -377,6 +378,8 @@ class PHOTO_CLASS_EventHandler
         }
 
         $addToFeed = !isset($params["addToFeed"]) || $params["addToFeed"];
+        $status = empty($params["status"]) ? null : $params["status"];
+        $silent = $status !== null;
         
         $album = $this->albumService->findAlbumById($params['albumId']);
 
@@ -399,7 +402,7 @@ class PHOTO_CLASS_EventHandler
         
         if ( ($tmpId = $tmpPhotoService->addTemporaryPhoto($params['path'], $album->userId, 1)) )
         {
-            $photo = $tmpPhotoService->moveTemporaryPhoto($tmpId, $album->id, $description, $tags, $angle, $uploadKey);
+            $photo = $tmpPhotoService->moveTemporaryPhoto($tmpId, $album->id, $description, $tags, $angle, $uploadKey, $status);
             if ( $photo )
             {
                 $data['photoId'] = $photo->id;
@@ -419,7 +422,14 @@ class PHOTO_CLASS_EventHandler
                 $this->photoService->createAlbumCover($album->id, array($photo));
                 PHOTO_BOL_PhotoTemporaryService::getInstance()->deleteUserTemporaryPhotos($album->userId);
                 
-                $movedArray[] = array('addTimestamp' => time(), 'photoId' => $photo->id, 'description' => $photo->description);
+                $movedArray[] = array(
+                    'addTimestamp' => time(), 
+                    'photoId' => $photo->id, 
+                    'description' => $photo->description, 
+                    "status" => $photo->status, 
+                    "silent" => $silent
+                );
+                
                 $event = new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_ADD, $movedArray);
                 OW::getEventManager()->trigger($event);
             }
@@ -502,8 +512,8 @@ class PHOTO_CLASS_EventHandler
 
         $offset = !empty($params['offset']) ? (int) $params['offset'] : 0;
         $limit = !empty($params['limit']) ? (int) $params['limit'] : OW::getConfig()->getValue('photo', 'photos_per_page');
-        $listType = !empty($params['listType']) ? $params['listType'] : 'latest';
-        $privacy = !empty($params['privacy']) ? $params['privacy'] : 'everybody';
+        $listType = isset($params['listType']) ? $params['listType'] : 'latest';
+        $privacy = isset($params['privacy']) || $params['privacy'] === null ? $params['privacy'] : 'everybody';
 
         $photos = $this->photoService->findAlbumPhotoList($album->id, $listType, $offset, $limit, $privacy);
 
@@ -544,7 +554,7 @@ class PHOTO_CLASS_EventHandler
         $offset = !empty($params['offset']) ? (int) $params['offset'] : 0;
         $limit = !empty($params['limit']) ? (int) $params['limit'] : OW::getConfig()->getValue('photo', 'photos_per_page');
         $status = isset($params["status"]) ? $params["status"] : "approved";
-        $privacy = !empty($params['privacy']) ? $params['privacy'] : 'everybody';
+        $privacy = isset($params['privacy']) || $params['privacy'] === null ? $params['privacy'] : 'everybody';
 
         $photos = $this->photoService->findEntityPhotoList($params['entityType'], $params['entityId'], $offset, $limit, $status, $privacy);
         
@@ -680,6 +690,7 @@ class PHOTO_CLASS_EventHandler
         $language->addKeyForJs('base', 'rate_cmp_owner_cant_rate_error_message');
         $language->addKeyForJs('base', 'rate_cmp_auth_error_message');
         $language->addKeyForJs('photo', 'slideshow_interval');
+        $language->addKeyForJs('photo', 'pending_approval');
 
         $status = BOL_AuthorizationService::getInstance()->getActionStatus('photo', 'view');
         
@@ -926,8 +937,7 @@ class PHOTO_CLASS_EventHandler
             {
                 return;
             }
-            
-            $storage = OW::getStorage();
+
             $userId = OW::getUser()->getId();
             $url = $params['data']['url'];
             
@@ -966,7 +976,7 @@ class PHOTO_CLASS_EventHandler
                 BOL_AuthorizationService::getInstance()->trackAction('photo', 'upload', NULL, array('checkInterval' => FALSE));
                 
                 $this->photoService->createAlbumCover($album->id, array($photo));
-                
+
                 $albumUrl = OW::getRouter()->urlForRoute('photo_user_album', array(
                     'user' => BOL_UserService::getInstance()->getUserName($album->userId),
                     'album' => $album->id
@@ -1008,8 +1018,17 @@ class PHOTO_CLASS_EventHandler
 
                 $movedArray = array(array('addTimestamp' => time(), 'photoId' => $photo->id, 'description' => $photo->description));
                 OW::getEventManager()->trigger(new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_ADD, $movedArray));
-                
-                $e->setData(array('entityType' => 'photo_comments', 'entityId' => $photo->id));
+
+                $status = $this->photoService->findPhotoById($photo->id)->status;
+
+                if ( $status == PHOTO_BOL_PhotoDao::STATUS_APPROVAL )
+                {
+                    $e->setData(array('message' => OW::getLanguage()->text('photo', 'photo_uploaded_pending_approval')));
+                }
+                else
+                {
+                    $e->setData(array('entityType' => 'photo_comments', 'entityId' => $photo->id));
+                }
             }
             
             @unlink($tmpFile);
@@ -1476,7 +1495,7 @@ class PHOTO_CLASS_EventHandler
 
             foreach ( $list as $photo )
             {
-                if ( $photo['privacy'] == 'everybody' );
+                if ( $photo['privacy'] == 'everybody' )
                 {
                     $data['image'] = $service->getPhotoUrl($photo['id']);
                     $data['title'] = $album->name;
@@ -1765,6 +1784,137 @@ class PHOTO_CLASS_EventHandler
         OW::getDocument()->addScriptDeclaration($js);
     }
 
+    public function collectAlbumsForAvatar( BASE_CLASS_EventCollector $e )
+    {
+        if ( !OW::getUser()->isAuthenticated() )
+        {
+            return;
+        }
+
+        $params = $e->getParams();
+        $userId = OW::getUser()->getId();
+
+        $total = $this->albumService->countUserAlbums($userId);
+        $albums = $this->albumService->findUserAlbums($userId, 0, $total);
+
+        if ( !$albums )
+        {
+            return;
+        }
+
+        foreach ( $albums as $album )
+        {
+            $photoCount = $this->photoService->countAlbumPhotos($album->id, array());
+            if ( !$photoCount )
+            {
+                continue;
+            }
+
+            $photos = $this->photoService->getAlbumPhotos($album->id, 1, $params['limit']);
+
+            $list = array();
+            foreach ( $photos as $photo )
+            {
+                $list[] = array(
+                    'id' => $photo['id'],
+                    'entityId' => $album->id,
+                    'entityType' => 'photo_album',
+                    'url' => $photo['url'],
+                    'bigUrl' => $this->photoService->getPhotoUrlByType($photo['id'], PHOTO_BOL_PhotoService::TYPE_MAIN, $photo['dto']->hash, $photo['dto']->dimension)
+                );
+            }
+
+            $section = array(
+                'entityId' => $album->id,
+                'entityType' => 'photo_album',
+                'label' => $album->name,
+                'count' => $photoCount,
+                'list' => $list
+            );
+
+            $e->add($section);
+        }
+    }
+
+    public function collectAlbumPhotosForAvatar( BASE_CLASS_EventCollector $e )
+    {
+        if ( !OW::getUser()->isAuthenticated() )
+        {
+            return;
+        }
+
+        $params = $e->getParams();
+
+        if ( $params['entityType'] != 'photo_album' )
+        {
+            return;
+        }
+
+        $albumId = $params['entityId'];
+        $page = floor($params['offset'] / $params['limit']) + 1;
+
+        $photos = $this->photoService->getAlbumPhotos($albumId, $page, $params['limit']);
+
+        if ( !$photos )
+        {
+            return;
+        }
+
+        $list = array();
+        foreach ( $photos as $photo )
+        {
+            $list[] = array(
+                'id' => $photo['id'],
+                'url' => $photo['url'],
+                'bigUrl' => $this->photoService->getPhotoUrlByType($photo['id'], PHOTO_BOL_PhotoService::TYPE_MAIN, $photo['dto']->hash, $photo['dto']->dimension)
+            );
+        }
+
+        $section = array(
+            'count' => $this->photoService->countAlbumPhotos($albumId, array()),
+            'list' => $list
+        );
+
+        $e->add($section);
+    }
+
+    public function getPhotoForAvatar( OW_Event $e )
+    {
+        $params = $e->getParams();
+
+        if ( $params['entityType'] == 'photo_album' )
+        {
+            $id = $params['id'];
+            $photo = $this->photoService->findPhotoById($id);
+
+            if ( $photo )
+            {
+                $type = (bool)$photo->hasFullsize ? PHOTO_BOL_PhotoService::TYPE_ORIGINAL : PHOTO_BOL_PhotoService::TYPE_MAIN;
+
+                $data = array(
+                    'url' => $this->photoService->getPhotoUrlByType($photo->id, $type, $photo->hash, $photo->dimension),
+                    'path' => $this->photoService->getPhotoPath($photo->id, $photo->hash, $type)
+                );
+
+                $e->setData($data);
+
+                return $data;
+            }
+        }
+    }
+
+    public function onUpdateContent( OW_Event $event )
+    {
+        $params = $event->getParams();
+
+        if ( empty($params['id']) )
+        {
+            return;
+        }
+
+        $this->photoService->updateFeedEntity($params['id']);
+    }
+
     public function init()
     {
         $this->genericInit();
@@ -1777,6 +1927,9 @@ class PHOTO_CLASS_EventHandler
         $em->bind(self::EVENT_BEFORE_PHOTO_MOVE, array($this, 'onBeforePhotoMove'));
         $em->bind(self::EVENT_AFTER_PHOTO_MOVE, array($this, 'onAfterPhotoMove'));
         $em->bind(self::EVENT_GET_ADDPHOTO_URL, array($this, 'addPhotoURL'));
+        $em->bind('base.avatar_change_collect_sections', array($this, 'collectAlbumsForAvatar'));
+        $em->bind('base.avatar_change_get_section', array($this, 'collectAlbumPhotosForAvatar'));
+        $em->bind('base.avatar_change_get_item', array($this, 'getPhotoForAvatar'));
     }
 
     public function genericInit()
@@ -1831,5 +1984,8 @@ class PHOTO_CLASS_EventHandler
         $em->bind(self::EVENT_ADD_SEARCH_DATA, array($this, 'addSearchData'));
         $em->bind('feed.before_content_add', array($this, 'feedBeforeStatusUpdate'));
         $em->bind(self::EVENT_BACKGROUND_LOAD_PHOTO, array($this, 'backgroundLoadPhoto'));
+        $em->bind(self::EVENT_ON_PHOTO_CONTENT_UPDATE, array($this, 'onUpdateContent'));
+
+        PHOTO_CLASS_ContentProvider::getInstance()->init();
     }
 }

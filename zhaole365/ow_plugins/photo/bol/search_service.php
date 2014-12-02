@@ -208,12 +208,6 @@ class PHOTO_BOL_SearchService
         return TRUE;
     }
     
-    private function filterValidEntityTypes( $entityType )
-    {
-        return array_key_exists($entityType, $this->entityTypes);
-    }
-    
-    
     public function getSearchResultListByTag( $tag, $limit = self::SEARCH_LIMIT )
     {
         $result = array();

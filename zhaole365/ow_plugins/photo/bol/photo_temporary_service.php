@@ -187,7 +187,7 @@ final class PHOTO_BOL_PhotoTemporaryService
         return $tmpPhoto->id;
     }
     
-    public function moveTemporaryPhoto( $tmpId, $albumId, $desc, $tag = NULL, $angle = 0, $uploadKey = null )
+    public function moveTemporaryPhoto( $tmpId, $albumId, $desc, $tag = NULL, $angle = 0, $uploadKey = null, $status = null )
     {
         $tmp = $this->photoTemporaryDao->findById($tmpId);
         $album = PHOTO_BOL_PhotoAlbumService::getInstance()->findAlbumById($albumId);
@@ -213,7 +213,7 @@ final class PHOTO_BOL_PhotoTemporaryService
         $photo->description = htmlspecialchars(trim($desc));
         $photo->albumId = $albumId;
         $photo->addDatetime = time();
-        $photo->status = 'approved';
+        $photo->status = empty($status) ? "approved" : $status;
         $photo->hasFullsize = (int)$tmp->hasFullsize;
         $photo->privacy = !empty($privacy) ? $privacy : 'everybody';
         $photo->hash = uniqid();
@@ -330,6 +330,8 @@ final class PHOTO_BOL_PhotoTemporaryService
             {
                 BOL_TagService::getInstance()->updateEntityTags($photo->id, 'photo', explode(',', $tag));
             }
+
+            OW::getEventManager()->trigger(new OW_Event('photo.onMoveTemporaryPhoto', array('tmpId' => $tmpId, 'albumId' => $albumId, 'photoId' => $photo->id)));
         }
         catch ( Exception $e )
         {

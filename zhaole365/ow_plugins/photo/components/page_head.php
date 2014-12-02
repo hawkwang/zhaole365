@@ -41,18 +41,32 @@ class PHOTO_CMP_PageHead extends OW_Component
     public function __construct( $ownerMode, $album )
     {
         parent::__construct();
-        
+
         $language = OW::getLanguage();
-        $hadler = OW::getRequestHandler()->getHandlerAttributes();
-        
-        $this->assign('isAuthenticated', OW::getUser()->isAuthenticated());
-        $this->assign('canUpload', OW::getUser()->isAuthorized('photo', 'upload') && !OW::getRequest()->isAjax());
+        $handler = OW::getRequestHandler()->getHandlerAttributes();
+
+        $isAuthenticated = OW::getUser()->isAuthenticated();
+        $canUpload = !OW::getRequest()->isAjax() && OW::getUser()->isAuthorized('photo', 'upload');
+
+        if ( $isAuthenticated && $canUpload )
+        {
+            $language->addKeyForJs('photo', 'album_name');
+            $language->addKeyForJs('photo', 'album_desc');
+            $language->addKeyForJs('photo', 'create_album');
+            $language->addKeyForJs('photo', 'newsfeed_album');
+            $language->addKeyForJs('photo', 'newsfeed_album_error_msg');
+            $language->addKeyForJs('photo', 'upload_photos');
+            $language->addKeyForJs('photo', 'close_alert');
+        }
+
+        $this->assign('isAuthenticated', $isAuthenticated);
+        $this->assign('canUpload', $canUpload);
         $this->assign('url', OW::getEventManager()->call('photo.getAddPhotoURL', array('albumId' => (!empty($ownerMode) && !empty($album)) ? $album->id : 0)));
         
         $menu = new BASE_CMP_SortControl();
         $menu->setTemplate(OW::getPluginManager()->getPlugin('photo')->getCmpViewDir() . 'sort_control.html');
         
-        if ( in_array($hadler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')) )
+        if ( in_array($handler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')) )
         {
             $menu->addItem('latest', $language->text('photo', 'menu_latest'), OW::getRouter()->urlForRoute('view_photo_list', array('listType' => 'latest')));
 
@@ -64,9 +78,9 @@ class PHOTO_CMP_PageHead extends OW_Component
             $menu->addItem('toprated', $language->text('photo', 'menu_toprated'), OW::getRouter()->urlForRoute('view_photo_list', array('listType' => 'toprated')));
             $menu->addItem('most_discussed', $language->text('photo', 'menu_most_discussed'), OW::getRouter()->urlForRoute('view_photo_list', array('listType' => 'most_discussed')));
             
-            if ( $hadler[OW_RequestHandler::ATTRS_KEY_ACTION] != 'viewTaggedList')
+            if ( $handler[OW_RequestHandler::ATTRS_KEY_ACTION] != 'viewTaggedList')
             {
-                $menu->setActive(!empty($hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['listType']) ? $hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['listType'] : 'latest');
+                $menu->setActive(!empty($handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['listType']) ? $handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['listType'] : 'latest');
             }
             
             $menu->assign('initSearchEngine', TRUE);
@@ -75,7 +89,7 @@ class PHOTO_CMP_PageHead extends OW_Component
         {
             if ( !$ownerMode )
             {
-                $user = BOL_UserService::getInstance()->findByUsername($hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user']);
+                $user = BOL_UserService::getInstance()->findByUsername($handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user']);
                 $this->assign('user', $user);
                 $avatar = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($user->id));
                 $this->assign('avatar', $avatar[$user->id]);
@@ -83,10 +97,10 @@ class PHOTO_CMP_PageHead extends OW_Component
                 $this->assign('onlineStatus', $onlineStatus[$user->id]);
             }
             
-            $menu->addItem('userPhotos', $language->text('photo', 'menu_photos'), OW::getRouter()->urlForRoute('photo.user_photos', array('user' => $hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'])));
-            $menu->addItem('userAlbums', $language->text('photo', 'menu_albums'), OW::getRouter()->urlForRoute('photo_user_albums', array('user' => $hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'])));            
+            $menu->addItem('userPhotos', $language->text('photo', 'menu_photos'), OW::getRouter()->urlForRoute('photo.user_photos', array('user' => $handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'])));
+            $menu->addItem('userAlbums', $language->text('photo', 'menu_albums'), OW::getRouter()->urlForRoute('photo_user_albums', array('user' => $handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'])));
             
-            if ( in_array($hadler[OW_RequestHandler::ATTRS_KEY_ACTION], array('userAlbums', 'userAlbum')) )
+            if ( in_array($handler[OW_RequestHandler::ATTRS_KEY_ACTION], array('userAlbums', 'userAlbum')) )
             {
                 $menu->setActive('userAlbums');
             }
@@ -96,7 +110,7 @@ class PHOTO_CMP_PageHead extends OW_Component
             }
         }
         
-        $event = new BASE_CLASS_EventCollector(PHOTO_CLASS_EventHandler::EVENT_COLLECT_PHOTO_SUB_MENU, $hadler);
+        $event = new BASE_CLASS_EventCollector(PHOTO_CLASS_EventHandler::EVENT_COLLECT_PHOTO_SUB_MENU);
         OW::getEventManager()->trigger($event);
         
         foreach ( $event->getData() as $menuItem )
@@ -110,7 +124,7 @@ class PHOTO_CMP_PageHead extends OW_Component
         {
             $userObj = OW::getUser()->getUserObject();
             
-            if ( in_array($hadler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')) || (!empty($hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user']) && $hadler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'] == $userObj->username) )
+            if ( in_array($handler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')) || (!empty($handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user']) && $handler[OW_RequestHandler::ATTRS_KEY_VARLIST]['user'] == $userObj->username) )
             {
                 $menuItems = array();
 
@@ -120,7 +134,7 @@ class PHOTO_CMP_PageHead extends OW_Component
                 $item->setUrl(OW::getRouter()->urlForRoute('view_photo_list'));
                 $item->setIconClass('ow_ic_lens');
                 $item->setOrder(0);
-                $item->setActive(in_array($hadler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')));
+                $item->setActive(in_array($handler[OW_RequestHandler::ATTRS_KEY_ACTION], array('viewList', 'viewTaggedList')));
                 array_push($menuItems, $item);
 
                 $item = new BASE_MenuItem();

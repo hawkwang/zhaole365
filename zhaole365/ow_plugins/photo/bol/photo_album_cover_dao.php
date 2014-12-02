@@ -175,7 +175,7 @@ class PHOTO_BOL_PhotoAlbumCoverDao extends OW_BaseDao
         
         $sql = 'SELECT *
             FROM `' . $this->getTableName() . '`
-            WHERE `' . self::ALBUM_ID . '` IN (' . implode(',', array_map('intval', array_unique($albumIdList))) . ')';
+            WHERE `' . self::ALBUM_ID . '` IN (' . implode(',', array_map('intval', $albumIdList)) . ')';
         
         $list = $this->dbo->queryForObjectList($sql, $this->getDtoClassName());
         

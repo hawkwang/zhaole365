@@ -182,8 +182,7 @@
                 _methods.asyncLoadPhoto(_vars.data.photoList[i].url);
             }
             
-            //_methods.buildPhotoItem(data.photoList.shift());
-            _methods.buildPhotoItem(_vars.data.photoList.shift());
+            _methods.buildPhotoItem(data.photoList.shift());
         },
         buildPhotoItem: function( photo )
         {
@@ -246,14 +245,20 @@
                 return '';
             }
 
+            var parts;
+
             limit = +limit || 50;
-            
-            if ( value.length < limit )
+
+            if ( (parts = value.split(/\n/)).length >= 3 )
             {
-                return value;
+                value = parts.slice(0, 3).join('\n') + '...';
             }
-            
-            return value.toString().substring(0, limit) + '...';
+            else if ( value.length > limit )
+            {
+                value = value.toString().substring(0, limit) + '...';
+            }
+
+            return value;
         },
         descToHashtag: function( description )
         {
@@ -262,7 +267,7 @@
             return description.replace(/#(?:\w|[^\u0000-\u007F])+/g, function( str )
             {
                 return (url.replace('{$tag}', encodeURIComponent(str))).replace('{$tagLabel}', str);
-            });
+            }).replace(/\n/g, '<br>');
         },
         reorder: function()
         {
@@ -330,6 +335,10 @@
             {
                 description = entity.name + '&nbsp;(' + (entity.count || 0) + ')';
             }
+
+            var event = {text: description};
+            OW.trigger('photo.onSetDescription', event);
+            description = event.text;
 
             if ( description && description.length !== 0 )
             {
@@ -1010,15 +1019,13 @@
                 {
                     var top = Math.min.apply(0, _vars.photoListOrder);
                     var left = _vars.photoListOrder.indexOf(top);
-                    var img = photoItem.find('img')[0];
 
+                    photoItem.find('img')[0].src = photo.url;
                     photoItem.appendTo(_elements.content);
 
-                    img.onerror = function(){_methods.buildPhotoItem.complete(left, photoItem)};
+                    var img = new Image();
+                    img.onerror = img.onload = function(){_methods.buildPhotoItem.complete(left, photoItem)};
                     img.src = photo.url;
-                    img.naturalHeight !== 0 ? 
-                        _methods.buildPhotoItem.complete(left, photoItem) :
-                        img.onload = function(){_methods.buildPhotoItem.complete(left, photoItem)};
                 };
             }
             
@@ -1026,16 +1033,14 @@
             {
                 var top = Math.min.apply(0, _vars.photoListOrder);
                 var left = _vars.photoListOrder.indexOf(top);
-                var img = photoItem.find('img')[0];
 
+                photoItem.find('img')[0].src = photo.url;
                 photoItem.css({top: top + 'px', left: left / (_vars.level || 4) * 100 + '%'});
                 photoItem.appendTo(_elements.content);
 
-                img.onerror = function(){_methods.buildPhotoItem.complete(left, photoItem)};
+                var img = new Image();
+                img.onload = img.onerror = function(){_methods.buildPhotoItem.complete(left, photoItem)};
                 img.src = photo.url;
-                img.naturalHeight !== 0 ? 
-                    _methods.buildPhotoItem.complete(left, photoItem) :
-                    img.onload = function(){_methods.buildPhotoItem.complete(left, photoItem)};
             };
         }
     })();
@@ -1097,6 +1102,8 @@
         updateSlot: {
             value: function( slotId, data )
             {
+                OW.trigger('photo.onUpdateSlot', [slotId, data]);
+
                 var item;
 
                 if ( !_vars.isOwner || (item = document.getElementById(slotId)) === null || Object.keys(data).length === 0 )
@@ -1205,9 +1212,17 @@
                         
                         if ( data && data.result )
                         {
-                            OW.info(data.msg);
-                            
-                            browsePhoto.updateSlot('photo-item-' + data.id, data);
+                            if ( data.photo.status !== 'approved' )
+                            {
+                                OW.info(data.msgApproval);
+                                browsePhoto.removePhotoItems(['photo-item-' + photoId]);
+                            }
+                            else
+                            {
+                                OW.info(data.msg);
+                                browsePhoto.updateSlot('photo-item-' + data.id, data);
+                            }
+
                             browsePhoto.reorder();
                             
                             OW.trigger('photo.onAfterEditPhoto', [data.id]);
@@ -1222,13 +1237,11 @@
         },
         saveAsAvatar: function( photoId )
         {
-            _methods.sendRequest('setAsAvatar', photoId, function( data )
-            {
-                if ( data.result === true )
-                {
-                    document.location = data.url;
-                }
-            });
+            document.avatarFloatBox = OW.ajaxFloatBox(
+                "BASE_CMP_AvatarChange",
+                { params : { step: 2, entityType : 'photo_album', entityId : '', id : photoId } },
+                { width : 749, title : OW.getLanguageText('base', 'avatar_change') }
+            );
         },
         saveAsCover: function( photoId )
         {
@@ -1285,7 +1298,7 @@
         },
         deleteAlbum: function( albumId )
         {
-            if ( !confirm(OW.getLanguageText('photo', 'album_delete_not_allowed')) )
+            if ( !confirm(OW.getLanguageText('photo', 'are_you_sure')) )
             {
                 return;
             }

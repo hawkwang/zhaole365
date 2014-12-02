@@ -169,15 +169,38 @@ class PHOTO_MCTRL_Upload extends OW_MobileActionController
                         {
                             BOL_AuthorizationService::getInstance()->trackAction('photo', 'upload');
 
+                            $photoService->createAlbumCover($album->id, array($photo));
+                            $photoService->triggerNewsfeedEventOnSinglePhotoAdd($album, $photo);
+
                             $photoParams = array('addTimestamp' => $photo->addDatetime, 'photoId' => $photo->id, 'hash' => $photo->hash, 'description' => $photo->description);
                             $event = new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_ADD, array($photoParams));
                             OW::getEventManager()->trigger($event);
-                            
-                            $photoService->createAlbumCover($album->id, array($photo));
-                            $photoService->triggerNewsfeedEventOnSinglePhotoAdd($album, $photo);
-                            
-                            OW::getFeedback()->info($language->text('photo', 'photos_uploaded', array('count' => 1)));
-                            $this->redirect(OW::getRouter()->urlForRoute('view_photo', array('id' => $photo->id)));
+
+                            $photo = $this->photoService->findPhotoById($photo->id);
+
+                            if ( $photo->status != PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+                            {
+                                OW::getFeedback()->info(OW::getLanguage()->text('photo', 'photo_uploaded_pending_approval'));
+
+                                if ( PHOTO_BOL_PhotoAlbumService::getInstance()->countAlbumPhotos($photo->albumId) )
+                                {
+                                    $this->redirect(OW::getRouter()->urlForRoute('photo_user_album', array(
+                                        'user' => BOL_UserService::getInstance()->getUserName($userId),
+                                        'album' => $album->id
+                                    )));
+                                }
+                                else
+                                {
+                                    $this->redirect(OW::getRouter()->urlForRoute('photo_user_albums', array(
+                                        'user' => BOL_UserService::getInstance()->getUserName($userId)
+                                    )));
+                                }
+                            }
+                            else
+                            {
+                                OW::getFeedback()->info($language->text('photo', 'photos_uploaded', array('count' => 1)));
+                                $this->redirect(OW::getRouter()->urlForRoute('view_photo', array('id' => $photo->id)));
+                            }
                         }
                     }
                 }

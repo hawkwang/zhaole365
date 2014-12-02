@@ -33,13 +33,27 @@ OW::getNavigation()->addMenuItem(OW_Navigation::MOBILE_TOP, 'photo_list_index', 
 
 $widgetService = BOL_ComponentAdminService::getInstance();
 
-$widget = $widgetService->addWidget('PHOTO_CMP_PhotoListWidget', false);
-$placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_INDEX);
-$widgetService->addWidgetToPosition($placeWidget, BOL_ComponentService::SECTION_LEFT);
+try
+{
+    $widget = $widgetService->addWidget('PHOTO_CMP_PhotoListWidget', false);
+    $placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_INDEX);
+    $widgetService->addWidgetToPosition($placeWidget, BOL_ComponentService::SECTION_LEFT);
+}
+catch ( Exception $e )
+{
+    OW::getLogger()->addEntry(json_encode($e));
+}
 
-$widget = $widgetService->addWidget('PHOTO_CMP_UserPhotoAlbumsWidget', false);
-$placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_PROFILE);
-$widgetService->addWidgetToPosition($placeWidget, BOL_ComponentService::SECTION_LEFT);
+try
+{
+    $widget = $widgetService->addWidget('PHOTO_CMP_UserPhotoAlbumsWidget', false);
+    $placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_PROFILE);
+    $widgetService->addWidgetToPosition($placeWidget, BOL_ComponentService::SECTION_LEFT);
+}
+catch ( Exception $e )
+{
+    OW::getLogger()->addEntry(json_encode($e));
+}
 
 require_once dirname(__FILE__) . DS .  'classes' . DS . 'credits.php';
 $credits = new PHOTO_CLASS_Credits();

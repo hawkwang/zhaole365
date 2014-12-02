@@ -38,7 +38,7 @@
  */
 final class PHOTO_BOL_PhotoService
 {
-    CONST HASHTAG_PATTERN = '/#\w+/u';
+    CONST HASHTAG_PATTERN = '/#[^\s#]+/';
     
     CONST DIM_ORIGINAL_HEIGHT = 1080;
     CONST DIM_ORIGINAL_WIDTH = 1960;
@@ -288,6 +288,11 @@ final class PHOTO_BOL_PhotoService
     public static function sortArrayItemByCommentCount( $el1, $el2 )
     {
         return $el1['commentCount'] < $el2['commentCount'] ? 1 : -1;
+    }
+
+    public function countAlbumPhotos( $id, $exclude )
+    {
+        return $this->photoDao->countAlbumPhotos($id, $exclude);
     }
 
     /**
@@ -723,13 +728,14 @@ final class PHOTO_BOL_PhotoService
 
             $this->photoFeaturedDao->markUnfeatured($id);
 
-            BOL_FlagService::getInstance()->deleteByTypeAndEntityId('photo', $id);
+            BOL_FlagService::getInstance()->deleteByTypeAndEntityId(PHOTO_CLASS_ContentProvider::ENTITY_TYPE, $id);
             BOL_TagService::getInstance()->deleteEntityTags($id, PHOTO_BOL_PhotoDao::PHOTO_ENTITY_TYPE);
 
             $this->cleanListCache();
 
-            $event = new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_DELETE, array('id' => $id));
-            OW::getEventManager()->trigger($event);
+            OW::getEventManager()->trigger(new OW_Event(PHOTO_CLASS_EventHandler::EVENT_ON_PHOTO_DELETE, array(
+                'id' => $id
+            )));
             
             return TRUE;
         }
@@ -952,9 +958,9 @@ final class PHOTO_BOL_PhotoService
         return (int)$albumId + time();
     }
 
-    public function getPhotoListByUploadKey( $uploadKey, array $exclude = null )
+    public function getPhotoListByUploadKey( $uploadKey, array $exclude = null, $status = null )
     {
-        return $this->photoDao->findPhotoListByUploadKey($uploadKey, $exclude);
+        return $this->photoDao->findPhotoListByUploadKey($uploadKey, $exclude, $status);
     }
     
     public function findEntityPhotoList( $entityType, $entityId, $first, $count, $status = "approved", $privacy = null )
@@ -1208,14 +1214,19 @@ final class PHOTO_BOL_PhotoService
                 continue;
             }
             
-            $tmpPath = OW::getPluginManager()->getPlugin('photo')->getPluginFilesDir() . uniqid(time(), TRUE) . '.jpg';
-            $storage->copyFileToLocalFS($path, $tmpPath);
+            $tmpPathCrop = OW::getPluginManager()->getPlugin('photo')->getPluginFilesDir() . uniqid(uniqid(), TRUE) . '.jpg';
+            $tmpPathOrig = OW::getPluginManager()->getPlugin('photo')->getPluginFilesDir() . uniqid(uniqid(), TRUE) . '.jpg';
 
-            $info = getimagesize($tmpPath);
+            if ( !$storage->copyFileToLocalFS($path, $tmpPathOrig) )
+            {
+                continue;
+            }
+
+            $info = getimagesize($tmpPathOrig);
 
             if ( $info['0'] < 330 || $info['1'] < 330 )
             {
-                @unlink($tmpPath);
+                @unlink($tmpPathOrig);
                 
                 continue;
             }
@@ -1225,17 +1236,18 @@ final class PHOTO_BOL_PhotoService
             $coverDto->hash = uniqid();
             PHOTO_BOL_PhotoAlbumCoverDao::getInstance()->save($coverDto);
 
-            $image = new UTIL_Image($tmpPath);
+            $image = new UTIL_Image($tmpPathOrig);
             $left = $image->getWidth() / 2 - 165;
             $top = $image->getHeight() / 2 - 165;
             $image->cropImage($left, $top, 330, 330);
-            $image->saveImage($tmpPath);
+            $image->saveImage($tmpPathCrop);
             $image->destroy();
 
-            $storage->copyFile($tmpPath, PHOTO_BOL_PhotoAlbumCoverDao::getInstance()->getAlbumCoverPathForCoverEntity($coverDto));
-            $storage->copyFile($path, PHOTO_BOL_PhotoAlbumCoverDao::getInstance()->getAlbumCoverOrigPathForCoverEntity($coverDto));
+            $storage->copyFile($tmpPathCrop, PHOTO_BOL_PhotoAlbumCoverDao::getInstance()->getAlbumCoverPathForCoverEntity($coverDto));
+            $storage->copyFile($tmpPathOrig, PHOTO_BOL_PhotoAlbumCoverDao::getInstance()->getAlbumCoverOrigPathForCoverEntity($coverDto));
 
-            @unlink($tmpPath);
+            @unlink($tmpPathCrop);
+            @unlink($tmpPathOrig);
             
             return TRUE;
         }
@@ -1260,7 +1272,7 @@ final class PHOTO_BOL_PhotoService
             }
             else
             {
-                $privacy[$userId] = OW::getPluginManager()->isPluginActive('friends') ? (int)FRIENDS_BOL_FriendshipDao::getInstance()->count($userId, OW::getUser()->getId(), 'active') > 0 : TRUE;
+                $privacy[$userId] = ($friendDto = OW::getEventManager()->call('plugin.friends.check_friendship', array('userId' => $userId, 'friendId' => OW::getUser()->getId()))) !== null && $friendDto->status == 'active';
             }
         }
         
@@ -1303,5 +1315,45 @@ final class PHOTO_BOL_PhotoService
             'order' => $event->getOrder(),
             'params' => $event->getQueryParams()
         );
+    }
+
+    // Content Provider
+
+    // Newsfeed Update
+    public function updateFeedEntity( $photoId )
+    {
+        if ( ($photo = $this->findPhotoById($photoId)) === null || $photo->status != PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+        {
+            return;
+        }
+
+        $album = PHOTO_BOL_PhotoAlbumService::getInstance()->findAlbumById($photo->albumId);
+
+        if ( PHOTO_BOL_PhotoAlbumService::getInstance()->isNewsfeedAlbum($album) )
+        {
+            return;
+        }
+
+        $this->feedDeleteItem('multiple_photo_upload', $photo->uploadKey);
+
+        $photos = array();
+
+        foreach ( $this->getPhotoListByUploadKey($photo->uploadKey, null) as $_photo )
+        {
+            if ( $_photo->status == PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+            {
+                $this->feedDeleteItem('photo_comments', $_photo->id);
+                $photos[] = $_photo;
+            }
+        }
+
+        if ( count($photos) > 1 )
+        {
+            $this->triggerNewsfeedEventOnMultiplePhotosAdd($album, $photos, false);
+        }
+        else
+        {
+            $this->triggerNewsfeedEventOnSinglePhotoAdd($album, $photo, false);
+        }
     }
 }

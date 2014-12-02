@@ -146,7 +146,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
             OW::getEventManager()->trigger($event);
         }
         
-        if ( OW::getRequest()->isAjax() || $hadler[OW_RequestHandler::ATTRS_KEY_ACTION] == 'downloadPhoto')
+        if ( OW::getRequest()->isAjax() || in_array($hadler[OW_RequestHandler::ATTRS_KEY_ACTION], array('downloadPhoto', 'approve')) )
         {
             return;
         }
@@ -155,7 +155,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         
         if ( $hadler[OW_RequestHandler::ATTRS_KEY_ACTION] != 'view' )
         {
-            $this->addComponent('pageHead', new PHOTO_CMP_PageHead($ownerMode, !empty($album) ? $album : NULL));
+            $this->addComponent('pageHead', OW::getClassInstance('PHOTO_CMP_PageHead', $ownerMode, !empty($album) ? $album : NULL));
         }
     }
 
@@ -168,15 +168,15 @@ class PHOTO_CTRL_Photo extends OW_ActionController
      */
     public function view( array $params )
     {
-        if ( !isset($params['id']) || !($photoId = (int)$params['id']) )
+        if ( empty($params['id']) || ($photo = $this->photoService->findPhotoById((int)$params['id'])) === NULL )
         {
             throw new Redirect404Exception();
         }
 
-        if ( ($photo = $this->photoService->findPhotoById($photoId)) === NULL )
-        {
-            throw new Redirect404Exception();
-        }
+//        if ( $photo->status != PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+//        {
+//            throw new Redirect404Exception();
+//        }
 
         $album = $this->photoAlbumService->findAlbumById($photo->albumId);
         $this->assign('album', $album);
@@ -189,7 +189,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         OW::getDocument()->addMetaInfo('image', $imageUrl, 'itemprop');
         OW::getDocument()->addMetaInfo('og:image', $imageUrl, 'property');
 
-        $description = strip_tags($photo->description);
+        $description = strip_tags(str_replace(PHP_EOL, ' ', $photo->description));
         $description = mb_strlen($description) ? $description : $photo->id;
         
         OW::getDocument()->setTitle(OW::getLanguage()->text('photo', 'meta_title_photo_view', array('title' => $description)));
@@ -226,8 +226,11 @@ class PHOTO_CTRL_Photo extends OW_ActionController
     public function viewList( array $params )
     {
         $listType = isset($params['listType']) ? $params['listType'] : 'latest';
-
-        $validLists = array('featured', 'latest', 'toprated', 'tagged', 'most_discussed');
+        
+        $event = new BASE_CLASS_EventCollector('photo.collectPhotoList');
+        OW::getEventManager()->trigger($event);
+        
+        $validLists = array_merge($event->getData(), array('featured', 'latest', 'toprated', 'tagged', 'most_discussed'));
 
         if ( !in_array($listType, $validLists) )
         {
@@ -435,8 +438,19 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         {
             exit();
         }
-        
-        $path = PHOTO_BOL_PhotoService::getInstance()->getPhotoPath($photo->id, $photo->hash, 'original');
+
+        $event = new OW_Event('photo.onDownloadPhoto', array('id' => $photo->id));
+        OW::getEventManager()->trigger($event);
+        $data = $event->getData();
+
+        if ( $data !== null )
+        {
+            $path = $data;
+        }
+        else
+        {
+            $path = PHOTO_BOL_PhotoService::getInstance()->getPhotoPath($photo->id, $photo->hash, 'original');
+        }
         
         if ( ini_get('zlib.output_compression') )
         {
@@ -474,6 +488,10 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         {
             ob_end_clean();
         }
+
+        $event = new OW_Event('photo.onReadyResponse', $_POST, $result);
+        OW::getEventManager()->trigger($event);
+        $result = $event->getData();
         
         header('Content-Type: application/json');
         exit(json_encode($result));
@@ -554,9 +572,9 @@ class PHOTO_CTRL_Photo extends OW_ActionController
                 $photos = $this->photoService->findPhotoList($listType, $page, $photosPerPage);
                 break;
             default:
-                $photos = OW::getEventManager()->call('photo.getPhotosByListType',
-                    array('listType' => $listType, 'page' => $page, 'photosPerPage' => $photosPerPage)
-                );
+                $event = new OW_Event('photo.getPhotosByListType', array('listType' => $listType, 'page' => $page, 'photosPerPage' => $photosPerPage), array());
+                OW::getEventManager()->trigger($event);
+                $photos = $event->getData();
                 break;
         }
         
@@ -809,53 +827,6 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         }
     }
     
-    public function setAsAvatar( $params )
-    {
-        if ( empty($params['entityId']) || ($photo = $this->photoService->findPhotoById($params['entityId'])) === NULL )
-        {
-            throw new Redirect404Exception();
-        }
-        
-        $avatarService = BOL_AvatarService::getInstance();
-        $userId = OW::getUser()->getId();
-        
-        if ( (bool)$photo->hasFullsize )
-        {
-            $path = $this->photoService->getPhotoPath($photo->id, $photo->hash, 'original');
-        }
-        else
-        {
-            $path = $this->photoService->getPhotoPath($photo->id, $photo->hash, 'main');
-        }
-        
-        $event = new OW_Event('base.before_avatar_change', array(
-            'userId' => $userId,
-            'upload' => true,
-            'crop' => false
-        ));
-        OW::getEventManager()->trigger($event);
-
-        $avatarService->setUserAvatar($userId, $path);
-
-        $event = new OW_Event('base.after_avatar_change', array(
-            'userId' => $userId,
-            'upload' => true,
-            'crop' => false
-        ));
-        OW::getEventManager()->trigger($event);
-
-        $avatar = $avatarService->findByUserId($userId);
-        
-        if ( $avatar )
-        {
-            $avatarService->trackAvatarChangeActivity($userId, $avatar->id);
-            
-            return array('result' => TRUE, 'url' => OW::getRouter()->urlForRoute('base_avatar_crop'));
-        }
-        
-        return array('result' => FALSE);
-    }
-    
     public function getSearchResult( array $params = array() )
     {
         if ( strlen($searchVal = trim($_POST['searchVal'])) === 0 )
@@ -1043,14 +1014,18 @@ class PHOTO_CTRL_Photo extends OW_ActionController
                 );
                 PHOTO_BOL_SearchService::getInstance()->deleteSearchItem(PHOTO_BOL_SearchService::ENTITY_TYPE_PHOTO, $photo->id);
                 PHOTO_BOL_SearchService::getInstance()->addSearchIndex(PHOTO_BOL_SearchService::ENTITY_TYPE_PHOTO, $photo->id, $photo->description);
-                
+
+                $newPhoto = $this->photoService->findPhotoById($photo->id);
+
                 exit(json_encode(array(
                     'result' => true,
                     'id' => $photo->id,
                     'description' => $photo->description,
                     'albumName' => $album->name,
                     'albumUrl' => OW::getRouter()->urlForRoute('photo_user_album', array('user' => OW::getUser()->getUserObject()->getUsername(), 'album' => $album->id)),
-                    'msg' => OW::getLanguage()->text('photo', 'photo_updated')
+                    'msg' => OW::getLanguage()->text('photo', 'photo_updated'),
+                    'msgApproval' => OW::getLanguage()->text('photo', 'photo_uploaded_pending_approval'),
+                    'photo' => get_object_vars($newPhoto)
                 )));
             }
         }
@@ -1163,9 +1138,11 @@ class PHOTO_CTRL_Photo extends OW_ActionController
             return array('result' => 'error');
         }
         
+        $event = new BASE_CLASS_EventCollector('photo.collectPhotoList');
+        OW::getEventManager()->trigger($event);
         $data = array();
         $listTypes = array(
-            'list' => array('latest', 'toprated', 'albumPhotos', 'userPhotos', 'featured', 'entityPhotos', 'most_discussed'),
+            'list' => array_merge($event->getData(), array('latest', 'toprated', 'albumPhotos', 'userPhotos', 'featured', 'entityPhotos', 'most_discussed')),
             'search' => array('hash', 'user', 'desc', 'all')
         );
         
@@ -1190,7 +1167,9 @@ class PHOTO_CTRL_Photo extends OW_ActionController
                 $listService = PHOTO_BOL_SearchService::getInstance();
                 break;
             default:
-                $service = OW::getEventManager()->call('photo.getPhotoListService', array('listType' => $listType));
+                $event = new OW_Event('photo.getPhotoListService', array('listType' => $listType));
+                OW::getEventManager()->trigger($event);
+                $service = $event->getData();
                 
                 if ( !empty($service) )
                 {
@@ -1232,9 +1211,9 @@ class PHOTO_CTRL_Photo extends OW_ActionController
             
             if ( !empty($params['loadPrevPhoto']) )
             {
-                $prevId = !empty($prevIdList) ? min($prevIdList) : min($firstIdList);
+                $prevId = !empty($prevIdList) ? min($prevIdList) : (!empty($firstIdList) ? min($firstIdList) : null);
                 
-                if ( !isset($resp['photos'][$prevId]) )
+                if ( $prevId && !isset($resp['photos'][$prevId]) )
                 {
                     $resp['photos'][$prevId] = $this->prepareMarkup($prevId, $params['layout']);
                     $resp['photos'][$prevId]['ownerId'] = $this->photoService->findPhotoOwner($prevId);
@@ -1259,9 +1238,9 @@ class PHOTO_CTRL_Photo extends OW_ActionController
             
             if ( !empty($params['loadNextPhoto']) )
             {
-                $nextId = !empty($nextIdList) ? max($nextIdList) : max($lastIdList);
+                $nextId = !empty($nextIdList) ? max($nextIdList) : (!empty($lastIdList) ? max($lastIdList) : null);
                 
-                if ( !isset($resp['photos'][$nextId]) )
+                if ( $nextId && !isset($resp['photos'][$nextId]) )
                 {
                     $resp['photos'][$nextId] = $this->prepareMarkup($nextId, $params['layout']);
                     $resp['photos'][$nextId]['ownerId'] = $this->photoService->findPhotoOwner($nextId);
@@ -1309,7 +1288,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         $markup['album'] = $album;
         $markup['albumUrl'] = OW::getRouter()->urlForRoute('photo_user_album', array('user' => BOL_UserService::getInstance()->getUserName($album->userId), 'album' => $album->id));
 
-        $markup['photoCount'] = $this->photoAlbumService->countAlbumPhotos($photo->albumId);;
+        $markup['photoCount'] = $this->photoAlbumService->countAlbumPhotos($photo->albumId);
         $markup['photoIndex'] = $this->photoService->getPhotoIndex($photo->albumId, $photo->id);
 
         $avatar = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($album->userId), TRUE, TRUE, TRUE, FALSE);
@@ -1321,6 +1300,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         $cmtParams->setWrapInBox(FALSE);
         $cmtParams->setDisplayType(array_key_exists($layout, $layoutList) ? $layoutList[$layout] : BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI);
         $cmtParams->setInitialCommentsCount(6);
+        $cmtParams->setAddComment($photo->status == PHOTO_BOL_PhotoDao::STATUS_APPROVED);
         
         $customId = uniqid('photoComment');
         $cmtParams->setCustomId($customId);
@@ -1380,7 +1360,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         
         $lang = OW::getLanguage();
         
-        if ( $userId && !$ownerMode )
+        if ( $userId && !$ownerMode && $photo->status == PHOTO_BOL_PhotoDao::STATUS_APPROVED)
         {
             $action = new BASE_ContextAction();
             $action->setKey('flag');
@@ -1424,7 +1404,7 @@ class PHOTO_CTRL_Photo extends OW_ActionController
                 $action->addAttribute('photo-id', $photoId);
                 $context->addAction($action);
             }
-            else
+            elseif ( $photo->status == PHOTO_BOL_PhotoDao::STATUS_APPROVED )
             {
                 $action = new BASE_ContextAction();
                 $action->setKey('mark-featured');
@@ -1435,10 +1415,33 @@ class PHOTO_CTRL_Photo extends OW_ActionController
                 $action->addAttribute('photo-id', $photoId);
                 $context->addAction($action);
             }
+
+            if ( $photo->status != PHOTO_BOL_PhotoDao::STATUS_APPROVED )
+            {
+                $action = new BASE_ContextAction();
+                $action->setKey('mark-approved');
+                $action->setParentKey('photo-moderate');
+                $action->setLabel($lang->text('photo', 'approve_photo'));
+                $action->setUrl(OW::getRouter()->urlForRoute('photo.approve', array('id' => $photoId)));
+//                $action->setId('photo-approve');
+//                $action->addAttribute('url', OW::getRouter()->urlForRoute('photo.approve', array('id' => $photoId)));
+                $context->addAction($action);
+            }
         }
 
         $markup['contextAction'] = $context->render();
-    
+
+        $eventParams = array(
+            'url' => OW::getRouter()->urlForRoute('view_photo', array('id' => $photo->id)),
+            'image' => $photo->url,
+            'title' => $photo->description,
+            'entityType' => 'photo',
+            'entityId' => $photo->id
+        );
+        $event = new BASE_CLASS_EventCollector('socialsharing.get_sharing_buttons', $eventParams);
+        OW::getEventManager()->trigger($event);
+        $markup['share'] = @implode("\n", $event->getData());
+
         $document = OW::getDocument();
 
         $onloadScript = $document->getOnloadScript();
@@ -1468,7 +1471,53 @@ class PHOTO_CTRL_Photo extends OW_ActionController
         {
             $markup['cssFiles'] = $cssFiles;
         }
+
+        $meta = $document->getMeta();
+
+        if ( !empty($meta) )
+        {
+            $markup['meta'] = $meta;
+        }
         
         return $markup;
+    }
+
+    public function approve( $params )
+    {
+        if ( !OW::getUser()->isAuthorized('photo') )
+        {
+            exit();
+        }
+
+        $entityId = $params['id'];
+
+        $backUrl = OW::getRouter()->urlForRoute('view_photo', array(
+            'id' => $entityId
+        ));
+
+        $event = new OW_Event("moderation.approve", array(
+            "entityType" => PHOTO_CLASS_ContentProvider::ENTITY_TYPE,
+            "entityId" => $entityId
+        ));
+
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        if ( empty($data) )
+        {
+            $this->redirect($backUrl);
+        }
+
+        if ( $data["message"] )
+        {
+            OW::getFeedback()->info($data["message"]);
+        }
+        else
+        {
+            OW::getFeedback()->error($data["error"]);
+        }
+
+        $this->redirect($backUrl);
     }
 }
