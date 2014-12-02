@@ -77,4 +77,8 @@ class MAILBOX_BOL_Conversation extends OW_Entity
     public $initiatorDeletedTimestamp = 0;
 
     public $interlocutorDeletedTimestamp = 0;
+
+    public $lastMessageId = 0;
+
+    public $lastMessageTimestamp = 0;
 }

@@ -89,6 +89,7 @@ class MAILBOX_MCLASS_EventHandler
     {
         OW::getDocument()->addScript( OW::getPluginManager()->getPlugin('base')->getStaticJsUrl().'underscore-min.js', 'text/javascript', 3000 );
         OW::getDocument()->addScript( OW::getPluginManager()->getPlugin('base')->getStaticJsUrl().'backbone-min.js', 'text/javascript', 3000 );
+//        OW::getDocument()->addScript( OW::getPluginManager()->getPlugin('base')->getStaticJsUrl().'backbone.js', 'text/javascript', 3000 );
 
         OW::getDocument()->addScript( OW::getPluginManager()->getPlugin('mailbox')->getStaticJsUrl().'mobile_mailbox.js', 'text/javascript', 3000 );
 
@@ -105,6 +106,8 @@ class MAILBOX_MCLASS_EventHandler
             $avatarUrl = BOL_AvatarService::getInstance()->getDefaultAvatarUrl();
         }
         $profileUrl = BOL_UserService::getInstance()->getUserUrl($userId);
+        $lastSentMessage = MAILBOX_BOL_ConversationService::getInstance()->getLastSentMessage($userId);
+        $lastMessageTimestamp = (int)($lastSentMessage ? $lastSentMessage->timeStamp : 0);
 
         $params = array(
             'getHistoryResponderUrl' => $getHistoryResponderUrl,
@@ -113,6 +116,7 @@ class MAILBOX_MCLASS_EventHandler
             'userListUrl' => $userListUrl,
             'convListUrl' => $convListUrl,
             'pingInterval' => 5000,
+            'lastMessageTimestamp' => $lastMessageTimestamp,
             'user'=>array(
                 'userId' => $userId,
                 'displayName' => $displayName,

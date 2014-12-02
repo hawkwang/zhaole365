@@ -11,10 +11,11 @@
             </div>
         </div>
         <div class="ow_mailbox_username">
-            <span class="ow_mailbox_username_text" id="conversationOpponentDisplayname"></span>
-
-            <div class="ow_chat_status" id="conversationOpponentProfileStatus"></div>
+            <span class="ow_mailbox_username_text"><div class="ow_chat_status" id="conversationOpponentProfileStatus"></div><span id="conversationOpponentDisplayname"></span></span>
             <span class="ow_mailbox_switch_to_chat ow_small" id="conversationSwitchToChatBlock"><a class="ow_lbutton" href="javascript://" id="conversationSwitchToChatBtn">{text key="mailbox+switch_to_chat_mode"}</a></span>
+            <div class="ow_mailbox_subject_block" id="conversationSubjectBlock">
+                <span class="ow_mailbox_subject_text" id="conversationSubject"></span>
+            </div>
         </div>
         <div class="ow_mailbox_convers_actions clearfix">
             <a href="javascript://" class="ow_miniic_control" id="conversationSettingsBtn">
@@ -34,9 +35,7 @@
         </div>
     </div>
 
-    <div class="ow_mailbox_subject_block" id="conversationSubjectBlock">
-    <span class="ow_mailbox_subject_text" id="conversationSubject"></span>
-    </div>
+
     <div class="ow_mailbox_log_wrap">
         <div class="ow_mailbox_date_cap sticky ow_alt2 clearfix" id="conversationMessageGroupStickyBlock" style="display: none;">
             <span class="ow_mailbox_converstion_date ow_remark ow_small ow_left" id="conversationStickyDateCap"></span>
@@ -48,7 +47,8 @@
     <div class="ow_mailbox_form ow_alt2 ow_hidden" id="conversationMessageFormBlock">
         <div class="form_auto_click">
             <div class="ow_mailbox_message_input ow_smallmargin">
-                <textarea name="mailbox_message" id="conversationTextarea"></textarea>
+                <textarea name="fake_mailbox_message" id="fake_conversationTextarea" placeholder="{text key='mailbox+write_reply'}"></textarea>
+                {$mailbox_message}
             </div>
             {if $enableAttachments}
             {*$attachments*}

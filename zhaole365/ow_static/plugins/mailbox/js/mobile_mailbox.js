@@ -68,6 +68,8 @@ function htmlspecialchars(string, quote_style, charset, double_encode) {
 
 MAILBOX_Message = Backbone.Model.extend({
 
+    idAttribute: 'id',
+
     readMessage: function(actionParams){
 
         var that = this;
@@ -214,7 +216,10 @@ MAILBOX_MailMessageView = Backbone.View.extend({
 });
 
 MAILBOX_MessageList = Backbone.Collection.extend({
-    model: MAILBOX_Message
+    model: MAILBOX_Message,
+    comparator: function(model){
+        return model.get('timeStamp');
+    }
 });
 
 MAILBOX_UnreadMessageList = Backbone.Collection.extend({
@@ -1020,10 +1025,16 @@ MAILBOX_Conversation = Backbone.Model.extend({
                         $(data.log).each(function(){
                             self.messageList.unshift(this);
                         });
+
+                        if (self.get('logLength') > self.get('log').length)
+                        {
+                            self.set('historyLoadAllowed', true, {silent: true});
+                            //callback.apply();
+                        }
                     }
                     else
                     {
-                        self.set('historyLoadAllowed', false);
+                        self.set('historyLoadAllowed', false, {silent: true});
                     }
                 }
             },
@@ -1099,7 +1110,12 @@ MAILBOX_ConversationView = Backbone.View.extend({
         this.loadHistoryBtn.on('click', function(e){
             that.hideLoadHistoryBtn();
             that.model.loadHistory(function(){
-                that.showLoadHistoryBtn();
+                if (that.model.get('historyLoadAllowed')){
+                    that.showLoadHistoryBtn();
+                }
+                else{
+                    that.hideLoadHistoryBtn();
+                }
             });
         });
 
@@ -1223,6 +1239,9 @@ MAILBOX_ConversationView = Backbone.View.extend({
         if (this.model.get('historyLoadAllowed')){
             $('#mailboxLoadHistoryPreloader').show();
         }
+        else{
+            $('#mailboxLoadHistoryPreloader').hide();
+        }
     }
 
 });
@@ -1325,7 +1344,7 @@ MAILBOX_Mobile = Backbone.Model.extend({
         self.convList = [];
         self.userList = [];
         self.pingInterval = params.pingInterval;
-        self.lastMessageTimestamp = 0;
+        self.lastMessageTimestamp = params.lastMessageTimestamp || 0;
         self.userOnlineCount = 0;
         self.defaultMode = 'conversations';
         self.readMessageList = new MAILBOX_MessageList;

@@ -126,6 +126,7 @@ class MAILBOX_CMP_Toolbar extends OW_Component
         $jsGenerator->setVariable('OWMailbox.pingResponderUrl', OW::getRouter()->urlFor('MAILBOX_CTRL_Ajax', 'ping'));
         $jsGenerator->setVariable('OWMailbox.settingsResponderUrl', OW::getRouter()->urlFor('MAILBOX_CTRL_Ajax', 'settings'));
         $jsGenerator->setVariable('OWMailbox.userSearchResponderUrl', OW::getRouter()->urlFor('MAILBOX_CTRL_Ajax', 'rsp'));
+        $jsGenerator->setVariable('OWMailbox.bulkOptionsResponderUrl', OW::getRouter()->urlFor('MAILBOX_CTRL_Ajax', 'bulkOptions'));
 
         $plugin_update_timestamp = 0;
         if ( OW::getConfig()->configExists('mailbox', 'plugin_update_timestamp') )

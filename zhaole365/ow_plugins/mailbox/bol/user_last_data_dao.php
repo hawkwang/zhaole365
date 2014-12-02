@@ -93,7 +93,7 @@ class MAILBOX_BOL_UserLastDataDao extends OW_BaseDao
     public function findUserLastDataFor($userId)
     {
         $example = new OW_Example();
-        $example->andFieldLike('userId', $userId);
+        $example->andFieldEqual('userId', $userId);
 
         return $this->findObjectByExample($example);
     }

@@ -58,8 +58,9 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         $this->setEnctype('multipart/form-data');
 
         $subject = new TextField('subject');
-        $subject->setHasInvitation(true);
-        $subject->setInvitation($language->text('mailbox', 'subject'));
+//        $subject->setHasInvitation(true);
+//        $subject->setInvitation($language->text('mailbox', 'subject'));
+        $subject->addAttribute('placeholder', $language->text('mailbox', 'subject'));
 
         $requiredValidator = new RequiredValidator();
         $requiredValidator->setErrorMessage( $language->text('mailbox', 'subject_is_required') );
@@ -78,8 +79,10 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         
         /* @var $textarea MAILBOX_CLASS_Textarea */
         $textarea->addValidator($validator);
-        $textarea->setHasInvitation(true);
-        $textarea->setInvitation($language->text('mailbox', 'message_invitation'));
+        $textarea->setCustomBodyClass("mailbox");
+//        $textarea->setHasInvitation(true);
+//        $textarea->setInvitation($language->text('mailbox', 'message_invitation'));
+        $textarea->addAttribute('placeholder', $language->text('mailbox', 'message_invitation'));
         $requiredValidator = new RequiredValidator();
         $requiredValidator->setErrorMessage( $language->text('mailbox', 'chat_message_empty') );
         $textarea->addValidator($requiredValidator);
@@ -89,8 +92,8 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         $user = OW::getClassInstance("MAILBOX_CLASS_UserField", "opponentId");
         
         /* @var $user MAILBOX_CLASS_UserField */
-        $user->setHasInvitation(true);
-        $user->setInvitation($language->text('mailbox', 'to'));
+//        $user->setHasInvitation(true);
+//        $user->setInvitation($language->text('mailbox', 'to'));
 
         $requiredValidator = new RequiredValidator();
         $requiredValidator->setErrorMessage( $language->text('mailbox', 'recipient_is_required') );
@@ -212,6 +215,13 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         $language = OW::getLanguage();
         $conversationService = MAILBOX_BOL_ConversationService::getInstance();
 
+        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval($userId);
+        if (!$userSendMessageIntervalOk)
+        {
+            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+            return array('result'=>false, 'error'=>$language->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)));
+        }
+
         $actionName = 'send_message';
         $isAuthorized = OW::getUser()->isAuthorized('mailbox', $actionName);
         if ( !$isAuthorized )
@@ -230,8 +240,9 @@ class MAILBOX_CLASS_NewMessageForm extends Form
             return array('result'=>false, 'error'=>$checkResult['suspendReasonMessage']);
         }
 
-        $message = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($message));
-        $message = nl2br($message);
+//        $message = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($message));
+        $message = UTIL_HtmlTag::stripJs($message);
+//        $message = nl2br($message);
 
         $event = new OW_Event('mailbox.before_create_conversation', array(
             'senderId' => $userId,
@@ -260,6 +271,9 @@ class MAILBOX_CLASS_NewMessageForm extends Form
         }
 
         BOL_AuthorizationService::getInstance()->trackAction('mailbox', 'send_message');
+
+        $conversationService->resetUserLastData($userId);
+        $conversationService->resetUserLastData($opponentId);
 
         return array('result' => true, 'lastMessageTimestamp'=>$messageDto->timeStamp);
     }

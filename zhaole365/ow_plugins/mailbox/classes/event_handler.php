@@ -66,7 +66,7 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('base.ping', array($this, 'onPing'));
         OW::getEventManager()->bind('base.ping.notifications', array($this, 'onApiPing'), 1);
         OW::getEventManager()->bind('mailbox.ping', array($this, 'onPing'));
-
+        
 
         if (OW::getPluginManager()->isPluginActive('ajaxim'))
         {
@@ -102,8 +102,13 @@ class MAILBOX_CLASS_EventHandler
         OW::getEventManager()->bind('mailbox.get_history', array($this, 'getHistory'));
         OW::getEventManager()->bind('mailbox.show_send_message_button', array($this, 'showSendMessageButton'));
         OW::getEventManager()->bind('friends.request-accepted', array($this, 'onFriendRequestAccepted'));
+        OW::getEventManager()->bind(OW_EventManager::ON_USER_LOGIN, array($this, 'resetAllUsersLastData'));
+        OW::getEventManager()->bind(OW_EventManager::ON_USER_UNREGISTER, array($this, 'resetAllUsersLastData'));
+        OW::getEventManager()->bind(OW_EventManager::ON_USER_REGISTER, array($this, 'resetAllUsersLastData'));
 
         OW::getEventManager()->bind(OW_EventManager::ON_PLUGINS_INIT, array($this, 'updatePlugin'));
+        
+        OW::getEventManager()->bind('base.after_avatar_update', array($this, 'onChangeUserAvatar'));
     }
 
     public function init()
@@ -863,6 +868,9 @@ class MAILBOX_CLASS_EventHandler
                             $ajaxActionResponse[$action['uniqueId']] = $this->service->getConversationListByUserId( OW::getUser()->getId(), $action['data']['from'], 10 );
                         }
                         break;
+                    case 'bulkActions':
+                        $ajaxActionResponse[$action['uniqueId']] = $this->ajaxService->bulkActions($action['data']);
+                        break;
                 }
             }
         }
@@ -912,7 +920,7 @@ class MAILBOX_CLASS_EventHandler
             $conversationId = $this->service->getWinkConversationIdWithUserById($params['userId'], $params['partnerId']);
             if (empty($conversationId))
             {
-                $conversation = $this->service->createConversation($params['userId'], $params['partnerId'], 'Wink');
+                $conversation = $this->service->createConversation($params['userId'], $params['partnerId'], MAILBOX_BOL_ConversationDao::WINK_CONVERSATION_SUBJECT);
             }
             else
             {
@@ -1035,7 +1043,7 @@ class MAILBOX_CLASS_EventHandler
             return;
         }
 
-        $conversations = $this->service->getConsoleConversationList($userId, 0, 5, $params['console']['time'], $params['ids']);
+        $conversations = $this->service->getConsoleConversationList($userId, 0, 8, $params['console']['time'], $params['ids']);
 
         $conversationIdList = array();
         foreach ( $conversations as $conversationData )
@@ -1245,6 +1253,23 @@ class MAILBOX_CLASS_EventHandler
 
         MAILBOX_BOL_ConversationService::getInstance()->resetUserLastData($params['senderId']);
         MAILBOX_BOL_ConversationService::getInstance()->resetUserLastData($params['recipientId']);
+    }
+
+    public function resetAllUsersLastData(OW_Event $event)
+    {
+        $params = $event->getParams();
+
+        MAILBOX_BOL_ConversationService::getInstance()->resetAllUsersLastData();
+    }
+    
+    public function onChangeUserAvatar(OW_Event $event)
+    {
+        $params = $event->getParams();
+
+        if ( !empty($params['userId']) )
+        {
+            MAILBOX_BOL_ConversationService::getInstance()->resetUserLastData($params['userId']);
+        }
     }
 }
 

@@ -58,6 +58,13 @@ class MAILBOX_CMP_ConsoleMailbox extends BASE_CMP_ConsoleDropdownClick
         $this->list = new MAILBOX_CMP_ConsoleList($this->getKey());
         $this->addClass('ow_mailbox_items_list');
 
+        $modeList = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
+        $singleMode = count($modeList) == 1;
+        if ($singleMode)
+        {
+            $this->addClass('ow_mailbox_single_mode');
+        }
+
         $toolbar = new MAILBOX_CMP_Toolbar();
         OW::getDocument()->appendBody($toolbar->render());
     }

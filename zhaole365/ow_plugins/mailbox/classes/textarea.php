@@ -34,7 +34,7 @@
  * @package ow_plugin.mailbox.classes
  * @since 1.6.1
  * */
-class MAILBOX_CLASS_Textarea extends Textarea
+class MAILBOX_CLASS_Textarea extends WysiwygTextarea
 {
 
 }

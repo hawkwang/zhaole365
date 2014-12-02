@@ -48,6 +48,7 @@ class MAILBOX_CLASS_UserField extends InvitationFormElement
 
         $this->addAttribute('type', 'hidden');
         $this->addAttribute('class', 'userFieldHidden');
+        $this->addAttribute('placeholder', OW::getLanguage()->text('mailbox', 'to'));
 
         $input = new UserFieldRenderable();
 

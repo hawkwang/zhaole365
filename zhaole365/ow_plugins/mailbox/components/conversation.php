@@ -82,6 +82,10 @@ class MAILBOX_CMP_Conversation extends OW_Component
 
         $this->assign('replyToMessageActionPromotedText', $replyToMessageActionPromotedText);
 
+        $text = new WysiwygTextarea('mailbox_message');
+        $text->setId('conversationTextarea');
+        $this->assign('mailbox_message', $text->renderInput());
+
         return parent::render();
     }
 }

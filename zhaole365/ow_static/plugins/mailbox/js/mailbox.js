@@ -16,19 +16,33 @@ String.prototype.width = function(font) {
     return w;
 }
 
+MAILBOX_Message = Backbone.Model.extend({
+    idAttribute: 'id',
+});
+
+MAILBOX_MessageCollection = Backbone.Collection.extend({
+    model: MAILBOX_Message,
+    comparator: function(model){
+        return model.get('id');
+    }
+});
+
 MAILBOX_Conversation = Backbone.Model.extend({
     idAttribute: 'conversationId',
     defaults: {
         conversationId: null,
         opponentId: null,
-        isSelected: false,
+
         conversationRead: 1,
         displayName: '',
         lastMessageTimestamp: 0,
         newMessageCount: 0,
         wasCreatedByScroll: false,
         show: false,
-        shortUserData: ''
+        shortUserData: '',
+        messages: new MAILBOX_MessageCollection(),
+        firstMessageId: 0,
+        lastMessageId: 0
     },
 
     show: function(){
@@ -209,14 +223,18 @@ OWMailbox.Application = function(params){
         if (typeof data.markedUnreadConversationList != 'undefined'){
             self.markedUnreadConversationList = data.markedUnreadConversationList;
             OW.trigger('mailbox.console_update_counter', { unreadMessageList: [] });
+            OW.MailboxConsole.updateCounter();
         }
 
         if (typeof data.messageList != 'undefined'){
+            var tmpLastMessageTimestamp = OW.Mailbox.lastMessageTimestamp;
             $.each(data.messageList, function(){
                 if (this.timeStamp != self.lastMessageTimestamp){
                     OW.trigger('mailbox.message', this);
+                    tmpLastMessageTimestamp = parseInt(this.timeStamp);
                 }
             });
+            //OW.Mailbox.lastMessageTimestamp = tmpLastMessageTimestamp;
         }
 
         //TODO self.ajaxActionCallbacks.error
@@ -239,6 +257,7 @@ OWMailbox.Application = function(params){
         }
 
         OW.trigger('mailbox.after_ping');
+        OW.MailboxConsole.updateCounter();
     }
 
     OW.getPing().addCommand('mailbox_ping', {
@@ -628,30 +647,30 @@ OWMailbox.NewMessageForm.Controller = function(model){
         storage.setItem('mailbox.new_message_form_message', $(this).val());
     });
 
+//
+//    $(self.form.elements['subject'].input).bind('blur.invitation', {formElement:self.form.elements['subject']},
+//        function(e){
+//            el = $(this);
+//            if( el.val() == '' || el.val() == e.data.formElement.invitationString){
+//                el.addClass('invitation');
+//                el.val(e.data.formElement.invitationString);
+//            }
+//            else{
+//                el.unbind('focus.invitation').unbind('blur.invitation');
+//            }
+//        });
 
-    $(self.form.elements['subject'].input).bind('blur.invitation', {formElement:self.form.elements['subject']},
-        function(e){
-            el = $(this);
-            if( el.val() == '' || el.val() == e.data.formElement.invitationString){
-                el.addClass('invitation');
-                el.val(e.data.formElement.invitationString);
-            }
-            else{
-                el.unbind('focus.invitation').unbind('blur.invitation');
-            }
-        });
-
-    $(self.form.elements['message'].input).bind('blur.invitation', {formElement:self.form.elements['message']},
-        function(e){
-            el = $(this);
-            if( el.val() == '' || el.val() == e.data.formElement.invitationString){
-                el.addClass('invitation');
-                el.val(e.data.formElement.invitationString);
-            }
-            else{
-                el.unbind('focus.invitation').unbind('blur.invitation');
-            }
-        });
+//    $(self.form.elements['message'].input).bind('blur.invitation', {formElement:self.form.elements['message']},
+//        function(e){
+//            el = $(this);
+//            if( el.val() == '' || el.val() == e.data.formElement.invitationString){
+//                el.addClass('invitation');
+//                el.val(e.data.formElement.invitationString);
+//            }
+//            else{
+//                el.unbind('focus.invitation').unbind('blur.invitation');
+//            }
+//        });
 
     // Global Binds
     
@@ -769,7 +788,13 @@ OW_MailboxConsole = function( itemKey, params ){
         var markedUnreadNotViewedConversations = OW.Mailbox.conversationsCollection.where({conversationViewed: false});
         var markedUnreadConversations = OW.Mailbox.conversationsCollection.where({conversationRead: 0});
 
-        var data = {'new': markedUnreadNotViewedConversations.length, 'all': markedUnreadConversations.length};
+        //var all = markedUnreadConversations.length;
+        //if (OW.Mailbox.markedUnreadConversationList.length > markedUnreadConversations.length){
+        //    all = OW.Mailbox.markedUnreadConversationList.length;
+        //}
+        var all = OW.Mailbox.markedUnreadConversationList.length;
+
+        var data = {'new': markedUnreadNotViewedConversations.length, 'all': all};
 //        this.setCounterData( data );
         this.model.set('counter', data, true);
     }
@@ -843,6 +868,7 @@ var SearchField = function( id, name, invitationString ){
         $(formElement.input).focus();
 
         formElement.handler.updateList($(formElement.input).val());
+        $('#mailboxConvOptionSelectAll').prop('checked', false);
     });
 
     return formElement;
@@ -853,18 +879,18 @@ var MailboxUserField = function( id, name, invitationString ){
     var formElement = new OwFormElement(id, name);
 
     var textFormElement = new OwFormElement('mailbox_new_message_user', 'mailbox_new_message_user');
-    if( invitationString ){
-        addInvitationBeh(textFormElement, invitationString);
-        $(textFormElement.input).bind('blur', {formElement:textFormElement},
-            function(e){
-                el = $(this);
-                if( el.val() == '' || el.val() == e.data.formElement.invitationString){
-                    el.addClass('invitation');
-                    el.val(e.data.formElement.invitationString);
-                }
-
-            });
-    }
+//    if( invitationString ){
+//        addInvitationBeh(textFormElement, invitationString);
+//        $(textFormElement.input).bind('blur', {formElement:textFormElement},
+//            function(e){
+//                el = $(this);
+//                if( el.val() == '' || el.val() == e.data.formElement.invitationString){
+//                    el.addClass('invitation');
+//                    el.val(e.data.formElement.invitationString);
+//                }
+//
+//            });
+//    }
 
     this.contacts = {};
     this.inputControl = $('.userFieldInputControl');
@@ -962,7 +988,7 @@ var MailboxUserField = function( id, name, invitationString ){
         var storage = OWMailbox.getStorage();
 
         $(formElement.input).val('');
-        $(textFormElement.input).val(textFormElement.invitationString);
+        $(textFormElement.input).val('');
         OW.Mailbox.newMessageFormController.resetUser();
 
         storage.removeItem('mailbox.new_message_form_opponent_id');
@@ -1277,15 +1303,19 @@ $(function(){
                 this.attr('rows', linesLength);
                 var offset = 0;
                 for (var i=1; i<=linesLength; i++){
+
                     if (i == 2){
                         offset = offset + 12;
+                        $('.ow_chat_message', options.control).removeClass('scroll');
                     }
                     else{
                         if (i >= 3 && i <= 6){
                             offset = offset + 17;
+                            $('.ow_chat_message', options.control).removeClass('scroll');
                         }
                         else{
                             if (i > 6){
+                                $('.ow_chat_message', options.control).addClass('scroll');
                                 offset = 80;
                                 break;
                             }

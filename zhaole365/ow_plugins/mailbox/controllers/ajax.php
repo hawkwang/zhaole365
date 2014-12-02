@@ -108,6 +108,16 @@ class MAILBOX_CTRL_Ajax extends OW_ActionController
         {
             $user = BOL_UserService::getInstance()->findUserById($_POST['userId']);
 
+            if (!$user)
+            {
+                $info = array(
+                    'warning' => true,
+                    'message' => 'User not found',
+                    'type' => 'error'
+                );
+                exit(json_encode($info));
+            }
+
             if ( !OW::getAuthorization()->isUserAuthorized($user->getId(), 'mailbox', 'reply_to_chat_message') )
             {
                 $status = BOL_AuthorizationService::getInstance()->getActionStatus('mailbox', 'reply_to_chat_message', array('userId'=>$user->getId()));
@@ -169,16 +179,12 @@ class MAILBOX_CTRL_Ajax extends OW_ActionController
                     exit(json_encode($info));
                 }
             }
+
+            $info = $conversationService->getUserInfo($user->getId());
+            exit(json_encode($info));
         }
 
-        if ( empty($user) )
-        {
-            exit('{error: "User not found"}');
-        }
-
-        $info = $conversationService->getUserInfo($user->getId());
-
-        exit(json_encode($info));
+        exit();
     }
 
     public function settings()
@@ -238,5 +244,31 @@ class MAILBOX_CTRL_Ajax extends OW_ActionController
 
         echo json_encode($entries);
         exit;
+    }
+
+    /**
+     * Deprecated see AjaxService / bulkActions
+     */
+    public function bulkOptions()
+    {
+        $userId = OW::getUser()->getId();
+
+        switch($_POST['actionName'])
+        {
+            case 'markUnread':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->markConversation($_POST['convIdList'], $userId, MAILBOX_BOL_ConversationService::MARK_TYPE_UNREAD);
+                $message = OW::getLanguage()->text('mailbox', 'mark_unread_message', array('count'=>$count));
+                break;
+            case 'markRead':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->markConversation($_POST['convIdList'], $userId, MAILBOX_BOL_ConversationService::MARK_TYPE_READ);
+                $message = OW::getLanguage()->text('mailbox', 'mark_read_message', array('count'=>$count));
+                break;
+            case 'delete':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->deleteConversation($_POST['convIdList'], $userId);
+                $message = OW::getLanguage()->text('mailbox', 'delete_message', array('count'=>$count));
+                break;
+        }
+
+        exit(json_encode(array('count'=>$count, 'message'=>$message)));
     }
 }

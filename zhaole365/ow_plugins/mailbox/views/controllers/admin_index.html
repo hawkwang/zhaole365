@@ -14,6 +14,17 @@
         </td>
         <td class="ow_desc ow_small"></td>
     </tr>
+    {if $mailModeEnabled}
+    <tr class="ow_alt2">
+        <td class="ow_label">{label name="send_message_interval"}</td>
+        <td class="ow_value">
+            {input name="send_message_interval" style="width: 40px"} {text key='mailbox+settings_label_send_message_interval_seconds'}
+        </td>
+        <td>
+            &nbsp;
+        </td>
+    </tr>
+    {/if}
 {*
     <tr class="ow_alt1" id="showAllMembersContainer" {if $selectedMode == 'mail'}style="display: none;"{/if}>
         <td class="ow_label">{label name="show_all_members"}</td>

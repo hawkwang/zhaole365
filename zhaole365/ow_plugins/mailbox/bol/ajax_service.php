@@ -11,7 +11,7 @@ class MAILBOX_BOL_AjaxService {
     /**
      * Class instance
      *
-     * @var MAILBOX_BOL_Service
+     * @var MAILBOX_BOL_AjaxService
      */
     private static $classInstance;
 
@@ -23,7 +23,7 @@ class MAILBOX_BOL_AjaxService {
     /**
      * Returns class instance
      *
-     * @return MAILBOX_BOL_Service
+     * @return MAILBOX_BOL_AjaxService
      */
     public static function getInstance() {
         if (self::$classInstance === null) {
@@ -52,6 +52,14 @@ class MAILBOX_BOL_AjaxService {
         }
 
         $userId = OW::getUser()->getId();
+
+//        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval($userId);
+//        if (!$userSendMessageIntervalOk)
+//        {
+//            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+//            return array('error'=>$language->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)));
+//        }
+
         $conversationId = $params['convId'];
         if ( !isset($conversationId) )
         {
@@ -69,9 +77,32 @@ class MAILBOX_BOL_AjaxService {
         }
 
         $conversation = $conversationService->getConversation($conversationId);
+        if (empty($conversation))
+        {
+            $uidParams = explode('_', $params['uid']);
+
+            if (count($uidParams) == 5 && $uidParams[0] == 'mailbox' && $uidParams[1] == 'dialog') {
+                $opponentId = (int)$uidParams[3];
+
+                $conversationId = $conversationService->getChatConversationIdWithUserById($userId, $opponentId);
+                if ($conversationId != 0)
+                {
+                    $conversation = $conversationService->getConversation($conversationId);
+                }
+            }
+        }
+
+        if (empty($conversation))
+        {
+            $conversation = $conversationService->createChatConversation($userId, $opponentId);
+            $conversationId = $conversation->getId();
+        }
+
         $opponentId = $conversation->initiatorId == $userId ? $conversation->interlocutorId : $conversation->initiatorId;
 
         $checkResult = $conversationService->checkUser($userId, $opponentId);
+
+        MAILBOX_BOL_ConversationService::getInstance()->resetUserLastData($opponentId);
 
         if ( $checkResult['isSuspended'] )
         {
@@ -106,6 +137,9 @@ class MAILBOX_BOL_AjaxService {
                         return array('error'=>$status['msg']);
                     }
                 }
+                $params['text'] = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($params['text']));
+                $params['text'] = nl2br($params['text']);
+
                 break;
 
             case 'mail':
@@ -120,11 +154,10 @@ class MAILBOX_BOL_AjaxService {
                         return array('error'=>$status['msg']);
                     }
                 }
+                $params['text'] = UTIL_HtmlTag::stripJs($params['text']);
                 break;
         }
 
-        $params['text'] = UTIL_HtmlTag::stripTags(UTIL_HtmlTag::stripJs($params['text']));
-        $params['text'] = nl2br($params['text']);
 
         $event = new OW_Event('mailbox.before_send_message', array(
             'senderId' => $userId,
@@ -220,6 +253,8 @@ class MAILBOX_BOL_AjaxService {
         {
             $conversationService->markRead(array($conversationId), $userId);
             $conversationService->setConversationViewedInConsole(array($conversationId), $userId);
+            $conversationService->resetUserLastData($userId);
+            $conversationService->resetUserLastData($opponentId);
         }
 
         return $conversationService->getConversationDataAndLog($conversationId);
@@ -576,6 +611,15 @@ class MAILBOX_BOL_AjaxService {
         if ( $context == 'conversation' )
         {
             $this->onConversationSearch($event);
+
+            $out = array();
+
+            foreach ( $event->getData() as $item )
+            {
+                $out[] = $item;
+            }
+
+            return array('list'=>$out, 'kw'=>$kw);
         }
         else
         {
@@ -590,5 +634,29 @@ class MAILBOX_BOL_AjaxService {
         }
 
         return $out;
+    }
+
+
+    public function bulkActions($data)
+    {
+        $userId = OW::getUser()->getId();
+
+        switch($data['actionName'])
+        {
+            case 'markUnread':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->markConversation($data['convIdList'], $userId, MAILBOX_BOL_ConversationService::MARK_TYPE_UNREAD);
+                $message = OW::getLanguage()->text('mailbox', 'mark_unread_message', array('count'=>$count));
+                break;
+            case 'markRead':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->markConversation($data['convIdList'], $userId, MAILBOX_BOL_ConversationService::MARK_TYPE_READ);
+                $message = OW::getLanguage()->text('mailbox', 'mark_read_message', array('count'=>$count));
+                break;
+            case 'delete':
+                $count = MAILBOX_BOL_ConversationService::getInstance()->deleteConversation($data['convIdList'], $userId);
+                $message = OW::getLanguage()->text('mailbox', 'delete_message', array('count'=>$count));
+                break;
+        }
+
+        return array('count'=>$count, 'message'=>$message);
     }
 }

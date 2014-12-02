@@ -183,6 +183,18 @@ class MAILBOX_BOL_AttachmentDao extends OW_BaseDao
         return $result;
     }
 
+    public function findConversationsWithAttachmentFromConversationList($conversationIdList)
+    {
+        $condition = $this->dbo->mergeInClause($conversationIdList);
+
+        $sql = "SELECT `m`.`conversationId` FROM `".MAILBOX_BOL_AttachmentDao::getInstance()->getTableName()."` as a
+INNER JOIN `". MAILBOX_BOL_MessageDao::getInstance()->getTableName(). "` as m ON `m`.`id` = `a`.`messageId`
+WHERE conversationId IN ({$condition})
+GROUP BY `m`.`conversationId`";
+
+        return $this->dbo->queryForColumnList($sql);
+    }
+
 //    /**
 //     *
 //     * @param array $conversationIdList

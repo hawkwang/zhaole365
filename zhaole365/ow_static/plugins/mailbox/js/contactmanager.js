@@ -376,11 +376,15 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
                 }
             }
             else{
-                if (!conversationOpened){
+                if (!conversationOpened && message.recipientId == OWMailbox.userDetails.userId){
                     self.model.addUnreadMessageToList(message);
                     OW.trigger('mailbox.new_message_notification', {message: message, unreadMessageList: self.model.unreadMessageList});
                     return;
                 }
+                //else
+                //{
+                //    console.log(message);
+                //}
             }
         });
 
@@ -546,10 +550,11 @@ MAILBOX_ContactManagerView = Backbone.View.extend({
                 self.fitWindow();
             });
             OW.bind('mailbox.close_dialog', function(data){
-                var dialog = self.getDialog(data.convId, data.opponentId);
-
-                if (dialog.model.isOpened){
-                    dialog.hideTab();
+                if (typeof self.dialogs[data.convId] != 'undefined'){
+                    var dialog = self.getDialog(data.convId, data.opponentId);
+                    if (dialog.model.isOpened){
+                        dialog.hideTab();
+                    }
                 }
             });
             OW.bind('mailbox.conversation_deleted', function(data){
@@ -1874,18 +1879,21 @@ OWMailbox.Dialog.Controller = function(model){
                 if (i == 2)
                 {
                     offset = offset + 12;
+                    $('.ow_chat_message', self.control).removeClass('scroll');
                 }
                 else
                 {
                     if (i >= 3 && i <= 6)
                     {
                         offset = offset + 17;
+                        $('.ow_chat_message', self.control).removeClass('scroll');
                     }
                     else
                     {
                         if (i > 6)
                         {
                             offset = 80;
+                            $('.ow_chat_message', self.control).addClass('scroll');
                             break;
                         }
                     }
@@ -2055,6 +2063,7 @@ OWMailbox.Dialog.Controller.prototype = {
 
         this.messageListWrapper = $('.ow_chat_in_dialog', this.control);
         this.dialogWindowHeight = 250;
+        this.dialogWindowWidth = 250;
 
         this.messageListControl = $('#dialogLog', this.messageListWrapper);
 
@@ -2078,36 +2087,110 @@ OWMailbox.Dialog.Controller.prototype = {
         this.userIsUnreachableBlock = $('#dialogUserIsUnreachable', this.control);
         this.messageFormBlock = $('#dialogMessageFormBlock', this.control);
 
-//        this.puller = $('.ow_puller', this.control);
-//        this.puller.css('position','absolute');
-//        this.puller.draggable({
-//
-//            disabled: true,
-//            axis: "y",
-//            cursor: 'row-resize',
-//            drag: function(event, ui){
-//                if (ui.position.top < 0)
-//                {
-//                    if ( self.messageListWrapper.height() > $(window).innerHeight() * 0.8  )
-//                    {
-//                        return;
-//                    }
-//                }
-//                self.messageListWrapper.height( self.dialogWindowHeight - ui.position.top );
-//            },
-//            stop: function(event, ui){
-//                if ( self.messageListWrapper.height() > $(window).innerHeight() * 0.8  )
-//                {
-//                    self.messageListWrapper.height( $(window).innerHeight() * 0.8 );
-//                }
-//                self.puller.css('top','-10px');
-//                OW.updateScroll(self.messageListWrapper);
-//            },
-//            start: function(event, ui){
-//                self.dialogWindowHeight = self.messageListWrapper.height();
-//            }
-//
-//        });
+        this.puller = $('.ow_vertical_puller', this.control);
+        this.puller.css('position','absolute');
+        this.puller.draggable({
+
+            disabled: false,
+            axis: "y",
+            cursor: 'row-resize',
+            drag: function(event, ui){
+                if (ui.position.top < 0)
+                {
+                    if (self.control.height() > 506)
+                    {
+                        return;
+                    }
+
+                    if ( self.messageListWrapper.height() > $(window).innerHeight() * 0.8  )
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (self.control.height() < 334)
+                    {
+                        return;
+                    }
+                }
+                self.messageListWrapper.height( self.dialogWindowHeight - ui.position.top );
+            },
+            stop: function(event, ui){
+                if ( self.messageListWrapper.height() > $(window).innerHeight() * 0.8  )
+                {
+                    self.messageListWrapper.height( $(window).innerHeight() * 0.8 );
+                }
+                self.puller.css('top','-10px');
+                OW.updateScroll(self.messageListWrapper);
+            },
+            start: function(event, ui){
+                self.dialogWindowHeight = self.messageListWrapper.height();
+            }
+        });
+
+        this.diagPuller = $('.ow_diagonal_puller', this.control);
+        this.diagPuller.css('position','absolute');
+        this.diagPuller.draggable({
+
+            disabled: false,
+            axis: "xy",
+            cursor: 'row-resize',
+            drag: function(event, ui){
+
+                if (ui.position.left < 0)
+                {
+                    if (self.control.width() > 404)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (self.control.width() < 249)
+                    {
+                        return;
+                    }
+                }
+
+                self.control.width( self.dialogWindowWidth - ui.position.left );
+
+                if (ui.position.top < 0)
+                {
+                    if (self.control.height() > 506)
+                    {
+                        return;
+                    }
+                }
+                else
+                {
+                    if (self.control.height() < 334)
+                    {
+                        return;
+                    }
+                }
+                self.messageListWrapper.height( self.dialogWindowHeight - ui.position.top );
+            },
+            stop: function(event, ui){
+                if ( self.messageListWrapper.width() > $(window).innerWidth() * 0.8  )
+                {
+                    self.messageListWrapper.width( $(window).innerWidth() * 0.8 );
+                }
+                if ( self.messageListWrapper.height() > $(window).innerHeight() * 0.8  )
+                {
+                    self.messageListWrapper.height( $(window).innerHeight() * 0.8 );
+                }
+                self.puller.css('top','-10px');
+
+                self.diagPuller.css('left', '0px');
+                self.diagPuller.css('top', '0px');
+                OW.updateScroll(self.messageListWrapper);
+            },
+            start: function(event, ui){
+                self.dialogWindowHeight = self.messageListWrapper.height();
+                self.dialogWindowWidth = self.control.width();
+            }
+        });
 
         $('#dialogsContainer').prepend(this.control);
 
@@ -2146,14 +2229,17 @@ OWMailbox.Dialog.Controller.prototype = {
         for (var i=1; i<=linesLength; i++){
             if (i == 2){
                 offset = offset + 12;
+                $('.ow_chat_message', self.control).removeClass('scroll');
             }
             else{
                 if (i >= 3 && i <= 6){
                     offset = offset + 17;
+                    $('.ow_chat_message', self.control).removeClass('scroll');
                 }
                 else{
                     if (i > 6){
                         offset = 80;
+                        $('.ow_chat_message', self.control).addClass('scroll');
                         break;
                     }
                 }

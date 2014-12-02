@@ -57,10 +57,14 @@ $sql = "CREATE TABLE IF NOT EXISTS `" . OW_DB_PREFIX . "mailbox_conversation` (
   `createStamp` int(10) default '0',
   `initiatorDeletedTimestamp` INT( 10 ) NOT NULL DEFAULT  '0',
   `interlocutorDeletedTimestamp` INT( 10 ) NOT NULL DEFAULT  '0',
+  `lastMessageId` int(11) NOT NULL,
+  `lastMessageTimestamp` int(11) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `initiatorId` (`initiatorId`),
-  KEY `interlocutorId` (`interlocutorId`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1";
+  KEY `interlocutorId` (`interlocutorId`),
+  KEY `lastMessageTimestamp` (`lastMessageTimestamp`),
+  KEY `subject` (`subject`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8";
 
 OW::getDbo()->query($sql);
 
@@ -121,7 +125,8 @@ $sql = "CREATE TABLE `" . OW_DB_PREFIX . "mailbox_user_last_data` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `userId` int(11) NOT NULL,
   `data` longtext,
-  PRIMARY KEY (`id`)
+  PRIMARY KEY (`id`),
+  KEY `userId` (`userId`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8";
 
 OW::getDbo()->query($sql);
@@ -207,3 +212,4 @@ OW::getConfig()->addConfig('mailbox', 'updated_to_messages', 1);
 OW::getConfig()->addConfig('mailbox', 'install_complete', 0);
 OW::getConfig()->addConfig('mailbox', 'last_attachment_id', 0);
 OW::getConfig()->addConfig('mailbox', 'plugin_update_timestamp', 0);
+OW::getConfig()->addConfig('mailbox', 'send_message_interval', 60);

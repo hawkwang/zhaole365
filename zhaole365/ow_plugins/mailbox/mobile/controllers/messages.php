@@ -125,6 +125,17 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
             }
         }
 
+        $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval(OW::getUser()->getId());
+        if (!$userSendMessageIntervalOk)
+        {
+            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+            $this->echoOut(
+                array('error'=>OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)))
+            );
+        }
+
         $this->assign('defaultAvatarUrl', BOL_AvatarService::getInstance()->getDefaultAvatarUrl());
         $opponentId = $params['opponentId'];
 
@@ -137,7 +148,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
         $avatarUrl = BOL_AvatarService::getInstance()->getAvatarUrl($opponentId);
         $this->assign('avatarUrl', empty($avatarUrl) ? BOL_AvatarService::getInstance()->getDefaultAvatarUrl() : $avatarUrl);
 
-        $this->assign('status', MAILBOX_BOL_ConversationService::getInstance()->getUserStatus($opponentId));
+        $this->assign('status', $conversationService->getUserStatus($opponentId));
 
         $params = array(
             'profileUrl' => $profileUrl
@@ -196,10 +207,20 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
             ));
         }
 
+        $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+//        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval(OW::getUser()->getId());
+//        if (!$userSendMessageIntervalOk)
+//        {
+//            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+//            $this->echoOut(
+//                array('error'=>OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)))
+//            );
+//        }
+
         if ( !empty($_FILES['attachment']["tmp_name"]) )
         {
             $attachmentService = BOL_AttachmentService::getInstance();
-            $conversationService = MAILBOX_BOL_ConversationService::getInstance();
 
             $conversationId = $_POST['conversationId'];
             $userId = OW::getUser()->getId();
@@ -250,6 +271,17 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
             ));
         }
 
+        $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
+//        $userSendMessageIntervalOk = $conversationService->checkUserSendMessageInterval(OW::getUser()->getId());
+//        if (!$userSendMessageIntervalOk)
+//        {
+//            $send_message_interval = (int)OW::getConfig()->getValue('mailbox', 'send_message_interval');
+//            $this->echoOut(
+//                array('error'=>OW::getLanguage()->text('mailbox', 'feedback_send_message_interval_exceed', array('send_message_interval'=>$send_message_interval)))
+//            );
+//        }
+
         if ( empty($_POST['conversationId']) || empty($_POST['opponentId']) || empty($_POST['uid']) || empty($_POST['newMessageText']) )
         {
             $this->echoOut(array(
@@ -257,7 +289,7 @@ class MAILBOX_MCTRL_Messages extends OW_MobileActionController
             ));
         }
 
-        $conversationService = MAILBOX_BOL_ConversationService::getInstance();
+
         $conversationId = $_POST['conversationId'];
         $userId = OW::getUser()->getId();
 

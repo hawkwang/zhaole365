@@ -61,6 +61,9 @@ class MAILBOX_CTRL_Admin extends ADMIN_CTRL_Abstract
 
         $this->assign('selectedMode', $selectedMode);
 
+        $mailModeEnabled = in_array('mail', $activeModes);
+        $this->assign('mailModeEnabled', $mailModeEnabled);
+
         if ( OW::getRequest()->isPost() && $configSaveForm->isValid($_POST) )
         {
             $configSaveForm->process();
@@ -138,6 +141,14 @@ class ConfigSaveForm extends Form
         $activeModeList->setRequired();
         $this->addElement($activeModeList);
 
+        if (in_array('mail', $activeModes))
+        {
+            $sendMessageInterval = new TextField('send_message_interval');
+            $sendMessageInterval->setValue($configs['send_message_interval']);
+            $sendMessageInterval->setLabel($language->text('mailbox', 'settings_label_send_message_interval'));
+            $this->addElement($sendMessageInterval);
+        }
+
         $showAllMembers = new CheckboxField('show_all_members');
         $showAllMembers->setLabel($language->text('mailbox', 'settings_label_show_all_members'));
         $showAllMembers->setDescription($language->text('mailbox', 'settings_desc_show_all_members'));
@@ -183,6 +194,9 @@ class ConfigSaveForm extends Form
         $enableAttachmentsValue = true; //TODO tmp solution, remove this assignment when it will be necessary
         $config->saveConfig('mailbox', 'enable_attachments', $enableAttachmentsValue);
         $config->saveConfig('mailbox', 'show_all_members', 0);
+
+        $send_message_interval = empty($values['send_message_interval']) ? 0 : (int)$values['send_message_interval'];
+        $config->saveConfig('mailbox', 'send_message_interval', $send_message_interval);
 
         $authorization = OW::getAuthorization();
         $groupName = 'mailbox';

@@ -41,6 +41,8 @@ class MAILBOX_Cron extends OW_Cron
         {
             $this->addJob('mailboxUpdate', 2);
         }
+
+        $this->addJob('resetAllUsersLastData', 1);
     }
 
     public function run()
@@ -51,5 +53,18 @@ class MAILBOX_Cron extends OW_Cron
     public function mailboxUpdate()
     {
         MAILBOX_BOL_ConversationService::getInstance()->convertHtmlTags();
+    }
+
+    public function resetAllUsersLastData()
+    {
+        $sql = "SELECT COUNT(*) FROM `".MAILBOX_BOL_UserLastDataDao::getInstance()->getTableName()."` AS `uld`
+LEFT JOIN `".BOL_UserOnlineDao::getInstance()->getTableName()."` AS uo ON uo.userId = uld.userId
+WHERE uo.id IS NULL";
+
+        $usersOfflineButOnline = OW::getDbo()->queryForColumn($sql);
+        if ($usersOfflineButOnline > 0)
+        {
+            MAILBOX_BOL_ConversationService::getInstance()->resetAllUsersLastData();
+        }
     }
 }

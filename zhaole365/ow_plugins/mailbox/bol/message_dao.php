@@ -108,7 +108,7 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
      */
     public function findListByConversationId( $conversationId, $count, $deletedTimestamp = 0 )
     {
-        $sql = "SELECT `tmp`.* FROM (SELECT * FROM `{$this->getTableName()}` WHERE `conversationId` = :conversationId AND `timeStamp` > :deletedTimestamp ORDER BY `timeStamp` DESC LIMIT :count) as `tmp` ORDER BY `tmp`.`timeStamp` ASC";
+        $sql = "SELECT `tmp`.* FROM (SELECT * FROM `{$this->getTableName()}` WHERE `conversationId` = :conversationId AND `timeStamp` > :deletedTimestamp ORDER BY `timeStamp` DESC LIMIT :count) as `tmp` ORDER BY `tmp`.`timeStamp` ASC, `tmp`.`id`";
 
         return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array('conversationId' => $conversationId, 'count' => $count, 'deletedTimestamp'=>$deletedTimestamp));
     }
@@ -122,7 +122,7 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
 
     public function findHistory( $conversationId, $beforeMessageId, $count, $deletedTimestamp = 0 )
     {
-        $sql = "SELECT * FROM `{$this->getTableName()}` WHERE `conversationId` = :conversationId AND `id` < :beforeMessageId AND `timeStamp` > :deletedTimestamp ORDER BY `timeStamp` DESC LIMIT :count";
+        $sql = "SELECT * FROM `{$this->getTableName()}` WHERE `conversationId` = :conversationId AND `id` < :beforeMessageId AND `timeStamp` > :deletedTimestamp ORDER BY `id` DESC LIMIT :count";
 
         return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array('conversationId' => $conversationId, 'beforeMessageId'=>$beforeMessageId, 'count' => $count, 'deletedTimestamp'=>$deletedTimestamp));
     }
@@ -217,7 +217,8 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
         LEFT JOIN `".MAILBOX_BOL_ConversationDao::getInstance()->getTableName()."` as `conv` ON (`conv`.`id` = `m`.`conversationId`)
         WHERE ( ( ( `conv`.`initiatorId` = :userId AND (`conv`.`deleted` != " . MAILBOX_BOL_ConversationDao::DELETED_INITIATOR . " OR `m`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` ) )
         OR ( `conv`.`interlocutorId` = :userId AND (`conv`.`deleted` != " . MAILBOX_BOL_ConversationDao::DELETED_INTERLOCUTOR . " OR `m`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp`) ) )
-        AND `m`.`recipientId` = :userId AND `m`.`recipientRead` = 0 {$ignore} ) OR ( `m`.`senderId` = :userId AND `m`.`timeStamp` > :timeStamp )";
+        AND `m`.`recipientId` = :userId AND `m`.`recipientRead` = 0 {$ignore} ) OR ( `m`.`senderId` = :userId AND `m`.`timeStamp` > :timeStamp )
+        ORDER BY `m`.`id`, `m`.`timeStamp` DESC";
 
         return $this->dbo->queryForObjectList($sql, $this->getDtoClassName(), array('userId' => $userId, 'timeStamp'=>$timeStamp));
     }
@@ -305,4 +306,17 @@ class MAILBOX_BOL_MessageDao extends OW_BaseDao
         return $this->dbo->queryForColumnList($sql, array('userId'=>$userId));
     }
 
+    /**
+     * @param $userId
+     * @return MAILBOX_BOL_Message
+     */
+    public function findUserLastMessage($userId)
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual('senderId', $userId);
+        $example->setOrder('timeStamp DESC');
+        $example->setLimitClause(0,1);
+
+        return $this->findObjectByExample($example);
+    }
 }

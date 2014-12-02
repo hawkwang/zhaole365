@@ -206,7 +206,7 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                     }
                     else
                     {
-                        $conversation['text'] = 'Can not display "'.$eventParams['entityType'].'" message.'; //TODO add lang
+                        $conversation['text'] = OW::getLanguage()->text('mailbox', 'can_not_display_entitytype_message', array('entityType'=>$eventParams['entityType']));
                     }
                 }
             }
@@ -360,6 +360,53 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                 $condition .= "AND `conv`.`subject` <> '".MAILBOX_BOL_ConversationService::CHAT_CONVERSATION_SUBJECT."' ";
             }
         }
+//
+//        $sql = " SELECT `conv`.`id`,
+//                        `conv`.`initiatorId`,
+//                        `conv`.`interlocutorId`,
+//                        `conv`.`subject`,
+//                        `conv`.`read`,
+//                        `conv`.`viewed`,
+//
+//                        `last_m`.`initiatorMessageId`,
+//                        `initiatorMessage`.`id` as initiatorLastMessageId,
+//                        `initiatorMessage`.`text` as initiatorText,
+//                        `initiatorMessage`.`recipientRead` as initiatorRecipientRead,
+//                        `initiatorMessage`.`isSystem` as initiatorMessageIsSystem,
+//                        `initiatorMessage`.`senderId` as `initiatorMessageSenderId`,
+//                        `initiatorMessage`.`recipientId` as `initiatorMessageRecipientId`,
+//                        `initiatorMessage`.`wasAuthorized` as `initiatorMessageWasAuthorized`,
+//                        `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`,
+//
+//                        `last_m`.`interlocutorMessageId`,
+//                        `interlocutorMessage`.`id` as interlocutorLastMessageId,
+//                        `interlocutorMessage`.`text` as interlocutorText,
+//                        `interlocutorMessage`.`recipientRead` as interlocutorRecipientRead,
+//                        `interlocutorMessage`.`isSystem` as interlocutorMessageIsSystem,
+//                        `interlocutorMessage`.`senderId` as `interlocutorMessageSenderId`,
+//                        `interlocutorMessage`.`recipientId` as `interlocutorMessageRecipientId`,
+//                        `interlocutorMessage`.`wasAuthorized` as `interlocutorMessageWasAuthorized`,
+//                        `interlocutorMessage`.`timeStamp` as `interlocutorMessageTimestamp`
+//
+//                 FROM `" . $this->getTableName() . "` AS `conv`
+//
+//				 LEFT JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
+//					 ON ( `last_m`.`conversationId` = `conv`.`id` )
+//
+//				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `interlocutorMessage`
+//				 	ON ( `conv`.`id` = `interlocutorMessage`.conversationId AND `last_m`.`interlocutorMessageId` = `interlocutorMessage`.`id` )
+//
+//				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
+//				 	ON ( `conv`.`id` = `initiatorMessage`.conversationId AND `last_m`.`initiatorMessageId` = `initiatorMessage`.`id` )
+//
+//				 WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
+//					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `interlocutorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) )) AND `last_m`.`id` IS NOT NULL
+//
+//                GROUP BY `conv`.`id`
+//
+//                ORDER BY GREATEST( COALESCE(`initiatorMessage`.`timeStamp`, 0), COALESCE(`interlocutorMessage`.`timeStamp`, 0) ) DESC
+//
+//                LIMIT :from, :count";
 
         $sql = " SELECT `conv`.`id`,
                         `conv`.`initiatorId`,
@@ -368,7 +415,6 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                         `conv`.`read`,
                         `conv`.`viewed`,
 
-                        `last_m`.`initiatorMessageId`,
                         `initiatorMessage`.`id` as initiatorLastMessageId,
                         `initiatorMessage`.`text` as initiatorText,
                         `initiatorMessage`.`recipientRead` as initiatorRecipientRead,
@@ -376,35 +422,19 @@ class MAILBOX_BOL_ConversationDao extends OW_BaseDao
                         `initiatorMessage`.`senderId` as `initiatorMessageSenderId`,
                         `initiatorMessage`.`recipientId` as `initiatorMessageRecipientId`,
                         `initiatorMessage`.`wasAuthorized` as `initiatorMessageWasAuthorized`,
-                        `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`,
-
-                        `last_m`.`interlocutorMessageId`,
-                        `interlocutorMessage`.`id` as interlocutorLastMessageId,
-                        `interlocutorMessage`.`text` as interlocutorText,
-                        `interlocutorMessage`.`recipientRead` as interlocutorRecipientRead,
-                        `interlocutorMessage`.`isSystem` as interlocutorMessageIsSystem,
-                        `interlocutorMessage`.`senderId` as `interlocutorMessageSenderId`,
-                        `interlocutorMessage`.`recipientId` as `interlocutorMessageRecipientId`,
-                        `interlocutorMessage`.`wasAuthorized` as `interlocutorMessageWasAuthorized`,
-                        `interlocutorMessage`.`timeStamp` as `interlocutorMessageTimestamp`
+                        `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`
 
                  FROM `" . $this->getTableName() . "` AS `conv`
 
-				 LEFT JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
-					 ON ( `last_m`.`conversationId` = `conv`.`id` )
-
-				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `interlocutorMessage`
-				 	ON ( `conv`.`id` = `interlocutorMessage`.conversationId AND `last_m`.`interlocutorMessageId` = `interlocutorMessage`.`id` )
-
-				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
-				 	ON ( `conv`.`id` = `initiatorMessage`.conversationId AND `last_m`.`initiatorMessageId` = `initiatorMessage`.`id` )
+				 INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
+				 	ON ( `conv`.`lastMessageId` = `initiatorMessage`.`id` )
 
 				 WHERE {$condition} AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
-					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `interlocutorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) )) AND `last_m`.`id` IS NOT NULL
+					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `initiatorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))
 
                 GROUP BY `conv`.`id`
 
-                ORDER BY GREATEST( COALESCE(`initiatorMessage`.`timeStamp`, 0), COALESCE(`interlocutorMessage`.`timeStamp`, 0) ) DESC
+                ORDER BY `conv`.`lastMessageTimestamp` DESC
 
                 LIMIT :from, :count";
 
@@ -585,12 +615,12 @@ AND (( `conv`.`initiatorId` = :user AND `conv`.`read` <> ". self::READ_INITIATOR
         //TODO get by username
         if ($questionName == 'username')
         {
-            $join = "INNER JOIN `".BOL_UserDao::getInstance()->getTableName()."` AS us ON ( `us`.`id` = `conv`.`initiatorId` OR `us`.`id` = `conv`.`interlocutorId` )";
+            $join = "INNER JOIN `".BOL_UserDao::getInstance()->getTableName()."` AS us ON ( `us`.`id` = IF (`conv`.`initiatorId`=:user, `conv`.`interlocutorId`, `conv`.`initiatorId`)   )";
             $where = " `us`.`username` LIKE :kw ";
         }
         else
         {
-            $join = "INNER JOIN `".$questionDataTable."` AS qd ON ( `qd`.`userId` = `conv`.`initiatorId` OR `qd`.`userId` = `conv`.`interlocutorId` )";
+            $join = "INNER JOIN `".$questionDataTable."` AS qd ON ( `qd`.`userId` = IF (`conv`.`initiatorId`=:user, `conv`.`interlocutorId`, `conv`.`initiatorId`)  )";
             $where = " `qd`.`questionName`=:name AND `qd`.`textValue` LIKE :kw ";
         }
 
@@ -600,48 +630,131 @@ AND (( `conv`.`initiatorId` = :user AND `conv`.`read` <> ". self::READ_INITIATOR
                         `conv`.`subject`,
                         `conv`.`read`,
                         `conv`.`viewed`,
+                        `conv`.`lastMessageTimestamp`,
 
-                        `last_m`.`initiatorMessageId`,
-                        `initiatorMessage`.`id` as initiatorLastMessageId,
-                        `initiatorMessage`.`text` as initiatorText,
-                        `initiatorMessage`.`recipientRead` as initiatorRecipientRead,
-                        `initiatorMessage`.`isSystem` as initiatorMessageIsSystem,
-                        `initiatorMessage`.`senderId` as `initiatorMessageSenderId`,
-                        `initiatorMessage`.`recipientId` as `initiatorMessageRecipientId`,
-                        `initiatorMessage`.`wasAuthorized` as `initiatorMessageWasAuthorized`,
-                        `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`,
-
-                        `last_m`.`interlocutorMessageId`,
-                        `interlocutorMessage`.`id` as interlocutorLastMessageId,
-                        `interlocutorMessage`.`text` as interlocutorText,
-                        `interlocutorMessage`.`recipientRead` as interlocutorRecipientRead,
-                        `interlocutorMessage`.`isSystem` as interlocutorMessageIsSystem,
-                        `interlocutorMessage`.`senderId` as `interlocutorMessageSenderId`,
-                        `interlocutorMessage`.`recipientId` as `interlocutorMessageRecipientId`,
-                        `interlocutorMessage`.`wasAuthorized` as `interlocutorMessageWasAuthorized`,
-                        `interlocutorMessage`.`timeStamp` as `interlocutorMessageTimestamp`
+                        `message`.`id` as lastMessageId,
+                        `message`.`text` as lastMessageText,
+                        `message`.`recipientRead` as lastMessageRecipientRead,
+                        `message`.`isSystem` as lastMessageIsSystem,
+                        `message`.`senderId` as lastMessageSenderId,
+                        `message`.`recipientId` as lastMessageRecipientId,
+                        `message`.`wasAuthorized` as lastMessageWasAuthorized
 
                  FROM `" . $this->getTableName() . "` AS `conv`
 
-				 LEFT JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
-					 ON ( `last_m`.`conversationId` = `conv`.`id` )
-
-				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `interlocutorMessage`
-				 	ON ( `conv`.`id` = `interlocutorMessage`.conversationId AND `last_m`.`interlocutorMessageId` = `interlocutorMessage`.`id` )
-
-				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
-				 	ON ( `conv`.`id` = `initiatorMessage`.conversationId AND `last_m`.`initiatorMessageId` = `initiatorMessage`.`id` )
+				 INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `message`
+				 	ON ( `conv`.`lastMessageId` = `message`.`id` )
 
                  {$join}
 
-				 WHERE ( {$where} ) AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
-					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `interlocutorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) )) AND `last_m`.`id` IS NOT NULL
+				 WHERE ( {$where} ) AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `message`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
+					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `message`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) ))
 
-                GROUP BY `conv`.`id`
+                UNION
 
-                ORDER BY GREATEST( COALESCE(`initiatorMessage`.`timeStamp`, 0), COALESCE(`interlocutorMessage`.`timeStamp`, 0) ) DESC
+                SELECT `conv`.`id`,
+                        `conv`.`initiatorId`,
+                        `conv`.`interlocutorId`,
+                        `conv`.`subject`,
+                        `conv`.`read`,
+                        `conv`.`viewed`,
+                        `conv`.`lastMessageTimestamp`,
+
+                        `message`.`id` as lastMessageId,
+                        `message`.`text` as lastMessageText,
+                        `message`.`recipientRead` as lastMessageRecipientRead,
+                        `message`.`isSystem` as lastMessageIsSystem,
+                        `message`.`senderId` as lastMessageSenderId,
+                        `message`.`recipientId` as lastMessageRecipientId,
+                        `message`.`wasAuthorized` as lastMessageWasAuthorized
+
+                 FROM `" . $this->getTableName() . "` AS `conv`
+
+				 INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `message`
+				 	ON ( `conv`.`lastMessageId` = `message`.`id` )
+
+				 WHERE conv.subject LIKE :kw AND ( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `message`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
+
+
+                UNION
+
+                SELECT `conv`.`id`,
+                        `conv`.`initiatorId`,
+                        `conv`.`interlocutorId`,
+                        `conv`.`subject`,
+                        `conv`.`read`,
+                        `conv`.`viewed`,
+                        `conv`.`lastMessageTimestamp`,
+
+                        `message`.`id` as lastMessageId,
+                        `message`.`text` as lastMessageText,
+                        `message`.`recipientRead` as lastMessageRecipientRead,
+                        `message`.`isSystem` as lastMessageIsSystem,
+                        `message`.`senderId` as lastMessageSenderId,
+                        `message`.`recipientId` as lastMessageRecipientId,
+                        `message`.`wasAuthorized` as lastMessageWasAuthorized
+
+                 FROM `" . $this->getTableName() . "` AS `conv`
+
+				 INNER JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `message`
+				 	ON ( `conv`.`lastMessageId` = `message`.`id` )
+
+				 WHERE conv.subject LIKE :kw AND (  `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `message`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ))
+
+
+                GROUP BY 1
+                ORDER BY 7 DESC
 
                 ".$limitStr;
+//print_r($query);
+//        $query = " SELECT `conv`.`id`,
+//                        `conv`.`initiatorId`,
+//                        `conv`.`interlocutorId`,
+//                        `conv`.`subject`,
+//                        `conv`.`read`,
+//                        `conv`.`viewed`,
+//
+//                        `last_m`.`initiatorMessageId`,
+//                        `initiatorMessage`.`id` as initiatorLastMessageId,
+//                        `initiatorMessage`.`text` as initiatorText,
+//                        `initiatorMessage`.`recipientRead` as initiatorRecipientRead,
+//                        `initiatorMessage`.`isSystem` as initiatorMessageIsSystem,
+//                        `initiatorMessage`.`senderId` as `initiatorMessageSenderId`,
+//                        `initiatorMessage`.`recipientId` as `initiatorMessageRecipientId`,
+//                        `initiatorMessage`.`wasAuthorized` as `initiatorMessageWasAuthorized`,
+//                        `initiatorMessage`.`timeStamp` as `initiatorMessageTimestamp`,
+//
+//                        `last_m`.`interlocutorMessageId`,
+//                        `interlocutorMessage`.`id` as interlocutorLastMessageId,
+//                        `interlocutorMessage`.`text` as interlocutorText,
+//                        `interlocutorMessage`.`recipientRead` as interlocutorRecipientRead,
+//                        `interlocutorMessage`.`isSystem` as interlocutorMessageIsSystem,
+//                        `interlocutorMessage`.`senderId` as `interlocutorMessageSenderId`,
+//                        `interlocutorMessage`.`recipientId` as `interlocutorMessageRecipientId`,
+//                        `interlocutorMessage`.`wasAuthorized` as `interlocutorMessageWasAuthorized`,
+//                        `interlocutorMessage`.`timeStamp` as `interlocutorMessageTimestamp`
+//
+//                 FROM `" . $this->getTableName() . "` AS `conv`
+//
+//				 INNER JOIN `" . MAILBOX_BOL_LastMessageDao::getInstance()->getTableName() . "` AS `last_m`
+//					 ON ( `last_m`.`conversationId` = `conv`.`id` )
+//
+//				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `interlocutorMessage`
+//				 	ON ( `conv`.`id` = `interlocutorMessage`.conversationId AND `last_m`.`interlocutorMessageId` = `interlocutorMessage`.`id` )
+//
+//				 LEFT JOIN `" . MAILBOX_BOL_MessageDao::getInstance()->getTableName() . "` AS `initiatorMessage`
+//				 	ON ( `conv`.`id` = `initiatorMessage`.conversationId AND `last_m`.`initiatorMessageId` = `initiatorMessage`.`id` )
+//
+//                 {$join}
+//
+//				 WHERE ( {$where} ) AND (( `conv`.`initiatorId` = :user AND (`conv`.`deleted` != " . self::DELETED_INITIATOR . " OR `initiatorMessage`.`timeStamp`>`conv`.`initiatorDeletedTimestamp` )  )
+//					 	OR ( `conv`.`interlocutorId` = :user AND (`conv`.`deleted` != "  . self::DELETED_INTERLOCUTOR .  " OR `interlocutorMessage`.`timeStamp`>`conv`.`interlocutorDeletedTimestamp` ) )) AND `last_m`.`id` IS NOT NULL
+//
+//                GROUP BY `conv`.`id`
+//
+//                ORDER BY GREATEST( COALESCE(`initiatorMessage`.`timeStamp`, 0), COALESCE(`interlocutorMessage`.`timeStamp`, 0) ) DESC
+//
+//                ".$limitStr;
 
         $conversationItemList = OW::getDbo()->queryForList($query, array(
             'kw' => '%' . $kw . '%',
@@ -651,32 +764,60 @@ AND (( `conv`.`initiatorId` = :user AND `conv`.`read` <> ". self::READ_INITIATOR
 
         foreach($conversationItemList as $i => $conversation)
         {
-            if ((int)$conversation['initiatorMessageTimestamp'] > (int)$conversation['interlocutorMessageTimestamp'])
-            {
-                $conversationItemList[$i]['timeStamp'] = (int)$conversation['initiatorMessageTimestamp'];
-                $conversationItemList[$i]['lastMessageSenderId'] = $conversation['initiatorMessageSenderId'];
-                $conversationItemList[$i]['isSystem'] = $conversation['initiatorMessageIsSystem'];
-                $conversationItemList[$i]['text'] = $conversation['initiatorText'];
+            $conversationItemList[$i]['timeStamp'] = (int)$conversation['lastMessageTimestamp'];
+            $conversationItemList[$i]['lastMessageSenderId'] = $conversation['lastMessageSenderId'];
+            $conversationItemList[$i]['isSystem'] = $conversation['lastMessageIsSystem'];
+            $conversationItemList[$i]['text'] = $conversation['lastMessageText'];
 
-                $conversationItemList[$i]['lastMessageId'] = $conversation['initiatorLastMessageId'];
-                $conversationItemList[$i]['recipientRead'] = $conversation['initiatorRecipientRead'];
-                $conversationItemList[$i]['lastMessageRecipientId'] = $conversation['initiatorMessageRecipientId'];
-                $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['initiatorMessageWasAuthorized'];
-            }
-            else
-            {
-                $conversationItemList[$i]['timeStamp'] = (int)$conversation['interlocutorMessageTimestamp'];
-                $conversationItemList[$i]['lastMessageSenderId'] = $conversation['interlocutorMessageSenderId'];
-                $conversationItemList[$i]['isSystem'] = $conversation['interlocutorMessageIsSystem'];
-                $conversationItemList[$i]['text'] = $conversation['interlocutorText'];
-
-                $conversationItemList[$i]['lastMessageId'] = $conversation['interlocutorLastMessageId'];
-                $conversationItemList[$i]['recipientRead'] = $conversation['interlocutorRecipientRead'];
-                $conversationItemList[$i]['lastMessageRecipientId'] = $conversation['interlocutorMessageRecipientId'];
-                $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['interlocutorMessageWasAuthorized'];
-            }
+            $conversationItemList[$i]['lastMessageId'] = $conversation['lastMessageId'];
+            $conversationItemList[$i]['recipientRead'] = $conversation['lastMessageRecipientRead'];
+            $conversationItemList[$i]['lastMessageRecipientId'] = $conversation['lastMessageRecipientId'];
+            $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['lastMessageWasAuthorized'];
         }
 
+//        foreach($conversationItemList as $i => $conversation)
+//        {
+//            if ((int)$conversation['initiatorMessageTimestamp'] > (int)$conversation['interlocutorMessageTimestamp'])
+//            {
+//                $conversationItemList[$i]['timeStamp'] = (int)$conversation['initiatorMessageTimestamp'];
+//                $conversationItemList[$i]['lastMessageSenderId'] = $conversation['initiatorMessageSenderId'];
+//                $conversationItemList[$i]['isSystem'] = $conversation['initiatorMessageIsSystem'];
+//                $conversationItemList[$i]['text'] = $conversation['initiatorText'];
+//
+//                $conversationItemList[$i]['lastMessageId'] = $conversation['initiatorLastMessageId'];
+//                $conversationItemList[$i]['recipientRead'] = $conversation['initiatorRecipientRead'];
+//                $conversationItemList[$i]['lastMessageRecipientId'] = $conversation['initiatorMessageRecipientId'];
+//                $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['initiatorMessageWasAuthorized'];
+//            }
+//            else
+//            {
+//                $conversationItemList[$i]['timeStamp'] = (int)$conversation['interlocutorMessageTimestamp'];
+//                $conversationItemList[$i]['lastMessageSenderId'] = $conversation['interlocutorMessageSenderId'];
+//                $conversationItemList[$i]['isSystem'] = $conversation['interlocutorMessageIsSystem'];
+//                $conversationItemList[$i]['text'] = $conversation['interlocutorText'];
+//
+//                $conversationItemList[$i]['lastMessageId'] = $conversation['interlocutorLastMessageId'];
+//                $conversationItemList[$i]['recipientRead'] = $conversation['interlocutorRecipientRead'];
+//                $conversationItemList[$i]['lastMessageRecipientId'] = $conversation['interlocutorMessageRecipientId'];
+//                $conversationItemList[$i]['lastMessageWasAuthorized'] = $conversation['interlocutorMessageWasAuthorized'];
+//            }
+//        }
+
         return $conversationItemList;
+    }
+
+
+    /**
+     * @param $userId
+     * @return MAILBOX_BOL_Conversation
+     */
+    public function findUserLastConversation($userId)
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual('initiatorId', $userId);
+        $example->setOrder('createStamp DESC');
+        $example->setLimitClause(0,1);
+
+        return $this->findObjectByExample($example);
     }
 }

@@ -16,10 +16,25 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
         else{
             this.$el.attr('id', 'conversationItem'+this.model.get('conversationId'));
             this.$el.addClass('mails');
+
+            if (this.model.get('hasAttachment')){
+                this.$el.addClass('attach');
+            }
         }
 
-        this.$el.bind('click', function(){
-            OW.trigger('mailbox.conversation_item_selected', {convId: self.model.get('conversationId'), opponentId: self.model.get('opponentId')});
+        this.$el.bind('click', function(e){
+            if ($(e.target).is('input.ow_mailbox_conv_option'))
+            {
+                //e.preventDefault();
+                return;
+            }
+
+            if (!OW.Mailbox.conversationController.someConversationLoading) {
+                OW.trigger('mailbox.conversation_item_selected', {
+                    convId: self.model.get('conversationId'),
+                    opponentId: self.model.get('opponentId')
+                });
+            }
         });
 
         this.model.on('remove', this.remove, this);
@@ -145,7 +160,14 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
                     self.model.set('previewText', message.previewText);
                 }
                 else{
-                    self.model.set('previewText', message.text);
+
+                    var previewText = message.text;
+                    if (previewText.length > 50)
+                    {
+                        previewText = previewText.substr(0, 50)+'...';
+                    }
+
+                    self.model.set('previewText', previewText);
                 }
             }
 
@@ -219,7 +241,10 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
     changeNewMessageCount: function(){
         if (this.model.get('newMessageCount')>0){
             this.model.set('conversationRead', 0);
-            this.model.set('conversationViewed', false);
+            if (!this.model.get('conversationViewed'))
+            {
+                this.model.set('conversationViewed', false);
+            }
             this.$el.find('.ow_mailbox_convers_count_new').html( OW.getLanguageText('mailbox', 'new_message_count', {count: this.model.get('newMessageCount')}) );
         }
         else{
@@ -237,7 +262,7 @@ MAILBOX_ConversationItemView = Backbone.View.extend({
         if (this.model.get('mode') == 'chat'){
             $('#conversationItemPreviewText', this.$el).html( this.model.get('previewText') );
         }
-        
+
         OW.trigger('mailbox.render_conversation_item', this);
     }
 });
@@ -247,7 +272,8 @@ MAILBOX_ConversationListModel = Backbone.Model.extend({
         latestConvId: 0,
         activeConvId: null,
         selectedOpponentId: null,
-        loadedConvCount: 0
+        loadedConvCount: 0,
+        pageConvId: null
     },
 
     loadList: function(numberToLoad){
@@ -345,6 +371,9 @@ MAILBOX_ConversationListModel = Backbone.Model.extend({
                 complete: function(){
                     OW.Mailbox.sendInProcess = false;
                     options.listLoadInProgress = false;
+                    if (self.get('pageConvId') != null){
+                        options.loadMoreToConversationId(self.get('pageConvId'));
+                    }
                 }
             }
 
@@ -393,6 +422,63 @@ MAILBOX_ConversationListView = Backbone.View.extend({
             }
         });
 
+        $('#closeBulkOptionsBtn').click(function(e){
+            self.preloaderControl.removeClass('ow_mailbox_bulk_options');
+            return false;
+        });
+
+        $('#openBulkOptionsBtn').click(function(){
+            self.preloaderControl.addClass('ow_mailbox_bulk_options');
+        });
+
+        $('#mailboxConvOptionSelectAll').click(function(){
+            if ($(this).prop('checked')) {
+
+                $('.ow_mailbox_conv_option:visible').prop('checked', true);
+            }
+            else {
+                $('.ow_mailbox_conv_option').prop('checked', false);
+
+            }
+        });
+
+        $('#mailboxConvOpenActions').click(function(){
+            $('mailboxConvOpenActionsContainer').toggleClass('ow_hidden');
+        });
+
+        $('#mailboxConvActionMarkUnread').click(function(){
+
+            var list = $('.ow_mailbox_conv_option:checked');
+            var convIdList = [];
+            _.each(list, function (checkbox) {
+                convIdList.push( $(checkbox).attr('id').replace('conversation_', '') );
+            });
+
+            self.bulkAction(convIdList, 'markUnread');
+        });
+
+        $('#mailboxConvActionMarkRead').click(function(){
+
+            var list = $('.ow_mailbox_conv_option:checked');
+            var convIdList = [];
+            _.each(list, function (checkbox) {
+                convIdList.push( $(checkbox).attr('id').replace('conversation_', '') );
+            });
+
+            self.bulkAction(convIdList, 'markRead');
+        });
+
+        $('#mailboxConvActionDelete').click(function(){
+
+            var list = $('.ow_mailbox_conv_option:checked');
+            var convIdList = [];
+            _.each(list, function (checkbox) {
+                convIdList.push( $(checkbox).attr('id').replace('conversation_', '') );
+            });
+
+            self.bulkAction(convIdList, 'delete');
+        });
+
         OW.bind('mailbox.menu_mode_changed', function(data){
             self.model.set('mode', data.mode);
         });
@@ -438,6 +524,11 @@ MAILBOX_ConversationListView = Backbone.View.extend({
             if (OW.Mailbox.conversationsCollection.length > 0){
                 self.hideNoConversation();
                 self.model.loadList();
+                if (self.model.get('pageConvId') != null){
+                    if (!OW.Mailbox.conversationsCollection.findWhere({conversationId: self.model.get('pageConvId')})){
+                        self.model.loadMore(self);
+                    }
+                }
             }
             else{
                 self.showNoConversation();
@@ -445,6 +536,73 @@ MAILBOX_ConversationListView = Backbone.View.extend({
 
             self.hidePreloader();
         });
+    },
+
+    loadMoreToConversationId: function(conversationId){
+        if (!OW.Mailbox.conversationsCollection.findWhere({conversationId: this.model.get('pageConvId')}))
+        {
+            this.model.loadMore(this);
+        }
+        else
+        {
+            var jsp = this.conversationItemListWrapper.data('jsp');
+            jsp.scrollToBottom();
+        }
+    },
+
+    bulkAction: function(convIdList, actionName){
+
+        var ajaxData = {};
+        ajaxData['actionData'] = {
+            'uniqueId': OWMailbox.uniqueId('bulkActions'),
+            'name': 'bulkActions',
+            'data': {
+                'convIdList': convIdList,
+                'actionName': actionName
+            }
+        };
+        ajaxData['actionCallbacks'] = {
+            success: function(data){
+                if ( typeof data != 'undefined' )
+                {
+                    if (actionName == 'markUnread'){
+                        _.each(convIdList, function (id) {
+                            OW.trigger('mailbox.conversation_marked_unread', {convId: id});
+                        });
+                    }
+
+                    if (actionName == 'markRead'){
+                        _.each(convIdList, function (id) {
+                            OW.trigger('mailbox.conversation_marked_read', {convId: id});
+                        });
+                    }
+
+                    if (actionName == 'delete'){
+                        _.each(convIdList, function (id) {
+                            OW.trigger('mailbox.conversation_deleted', {convId: parseInt(id)});
+                        });
+                    }
+
+                    if (data.message){
+                        OW.info(data.message);
+                    }
+
+                    $('.ow_mailbox_conv_option').prop('checked', false);
+                    $('#mailboxConvOptionSelectAll').prop('checked', false);
+                }
+            },
+            error: function(e){
+                OWMailbox.log(e);
+                OW.Mailbox.sendInProcess = false;
+            },
+            complete: function(){
+                OW.Mailbox.sendInProcess = false;
+            }
+        };
+
+        OW.Mailbox.addAjaxData(ajaxData);
+
+        OW.Mailbox.sendData();
     },
 
     hideNoConversation: function(){
@@ -504,7 +662,7 @@ MAILBOX_ConversationListView = Backbone.View.extend({
                 OW.trigger('mailbox.conversation_item_selected', {convId: conversation.get('conversationId'), opponentId: conversation.get('opponentId')});
             }
         }
-        
+
         OW.trigger('mailbox.render_conversation_item', conversationItemView);
     },
 
@@ -548,6 +706,7 @@ MAILBOX_ConversationListView = Backbone.View.extend({
 //                    item.hide();
 //                }
 //            }
+            $('.ow_btn_close_search').removeClass('ow_preloader');
         }
         else{
 
@@ -584,22 +743,39 @@ MAILBOX_ConversationListView = Backbone.View.extend({
 //            }
 
             if (!self.syncing){
+                $('.ow_btn_close_search').addClass('ow_preloader');
                 self.syncing = true;
-                $.getJSON(OWMailbox.userSearchResponderUrl, {term: name, idList: {}, context: 'conversation'}, function( data ) {
 
-                    _.each(data, function(conversation){
+                setTimeout(function(){
 
-                        if ( $('#conversationItem'+conversation.data.conversationId).length == 0 ){
-                            var conv = new MAILBOX_Conversation(conversation.data);
-                            self.createItem(conv);
-                            conv.show();
+                    var kw = $('#conversation_search').val();
+                    self.lastSearchedKeyword = $('#conversation_search').val();
+
+                    $.getJSON(OWMailbox.userSearchResponderUrl, {term: kw, idList: {}, context: 'conversation'}, function( data ) {
+
+                        if ($('#conversation_search').val() != data.kw)
+                        {
+                            self.syncing = false;
+                            self.updateList($('#conversation_search').val());
                         }
+                        else {
+                            _.each(data.list, function (conversation) {
 
+                                if ($('#conversationItem' + conversation.data.conversationId).length == 0) {
+                                    var conv = new MAILBOX_Conversation(conversation.data);
+                                    self.createItem(conv);
+                                    conv.show();
+                                }
+
+                            });
+
+                            OW.updateScroll(self.conversationItemListWrapper);
+                            self.syncing = false;
+                            $('.ow_btn_close_search').removeClass('ow_preloader');
+                        }
                     });
 
-                    OW.updateScroll(self.conversationItemListWrapper);
-                    self.syncing = false;
-                });
+                }, 500);
             }
         }
 
@@ -608,6 +784,9 @@ MAILBOX_ConversationListView = Backbone.View.extend({
 
 });
 
+MAILBOX_ConversationModel1 = Backbone.Model.extend({
+    defaults: {}
+});
 
 MAILBOX_ConversationModel = function () {
     var self = this;
@@ -700,6 +879,9 @@ MAILBOX_ConversationModel.prototype = {
 MAILBOX_ConversationView = function () {
     var self = this;
 
+    this.conversation = new MAILBOX_Conversation();
+    this.conversation.get('messages').on('add', this.messageWrite, this);
+
     this.model = new MAILBOX_ConversationModel();
     this.control = $('#conversationContainer');
     this.preloaderControl = $('#conversationContainer');
@@ -724,6 +906,28 @@ MAILBOX_ConversationView = function () {
         if ( !isTarget && !isBtn ){
             self.hideSettingsBlock();
         }
+
+        var isTextarea = $('#conversationMessageFormBlock', self.control).is(e.target) || $('#conversationMessageFormBlock', self.control).find(e.target).length || $('.floatbox_container').find(e.target).length;
+        if (!isTextarea){
+            //$('#conversationMessageFormBlock').removeClass('continue');
+
+            if (self.textareaControl && self.textareaControl.val() != ''){
+                $('#conversationMessageFormBlock').removeClass('active');
+                $('#conversationMessageFormBlock').addClass('continue');
+                $('.ow_mailbox_log').removeClass('textarea_active');
+                var text = $('<div>'+self.textareaControl.val()+'</div>').text();
+                var words = text.split(' ');
+                var fiveWords = words.slice(-5);
+                var textPreview = fiveWords.join(' ');
+                $('#fake_conversationTextarea').val(textPreview);
+            }
+            else
+            {
+                $('#conversationMessageFormBlock').removeClass('active');
+                $('.ow_mailbox_log').removeClass('textarea_active');
+            }
+            OW.updateScroll(self.messageListControl);
+        }
     });
 
     this.bindTextareaControlEvents = function(){
@@ -733,15 +937,31 @@ MAILBOX_ConversationView = function () {
             storage.setItem('mailbox.conversation' + self.model.convId + '_form_message', $(this).val());
         });
 
-        if (self.model.mode == 'chat' && this.textareaControl.length > 0){
-            this.textareaControl.dialogAutosize(self);
+        if (this.textareaControl.length > 0){
+            if (self.model.mode == 'chat'){
+                this.textareaControl.dialogAutosize(self);
+            }
+            else
+            {
+                //TODO autosize mail wysiwyg textarea
+            }
         }
     }
 
     this.setConversationId = function(params){
         self.showPreloader();
 
+        if (self.someConversationLoading == 1 || self.someConversationLoading == 2){
+            self.someConversationLoading = 2;
+        }
+        else
+        {
+            self.someConversationLoading = 1;
+        }
+
         self.reset();
+
+        this.conversation = OW.Mailbox.conversationsCollection.findWhere({conversationId: params.convId});
 
         var ajaxData = {};
         ajaxData['actionData'] = {
@@ -755,6 +975,10 @@ MAILBOX_ConversationView = function () {
         };
         ajaxData['actionCallbacks'] = {
             success: function(data){
+
+                if (self.someConversationLoading == 2){
+                    return;
+                }
 
                 if ( typeof data != 'undefined' )
                 {
@@ -772,6 +996,7 @@ MAILBOX_ConversationView = function () {
 
                     var newUid = '';
                     if (data.mode == 'chat'){
+                        $('#conversationChatFormBlock #dialogAttachmentsBtn').removeClass('uploading');
 
                         $('#dialogAttachmentsBtn').find('.mlt_file_input').remove();
 
@@ -790,6 +1015,7 @@ MAILBOX_ConversationView = function () {
                             'lItems': []
                         });
 
+                        $('#'+newUid+' .ow_file_attachment_preview').html('');
                         owFileAttachments[newUid].reset(newUid);
                     }
                     else{
@@ -810,9 +1036,16 @@ MAILBOX_ConversationView = function () {
                             'lItems': []
                         });
 
+                        $('#'+newUid+' .ow_file_attachment_preview').html('');
                         owFileAttachments[newUid].reset(newUid);
+                        $('#fake_conversationTextarea').val('');
+                        $('#conversationMessageFormBlock').removeClass('continue');
+                        $('#conversationMessageFormBlock').removeClass('active');
+                        $('.ow_mailbox_log').removeClass('textarea_active');
+                        OW.updateScroll(self.messageListControl);
                     }
                     self.uid = newUid;
+                    $('#conversationTextarea').val('').keyup();
 
 
                     if (data.log.length > 0)
@@ -822,8 +1055,9 @@ MAILBOX_ConversationView = function () {
                             {
                                 self.model.firstMessageId = data.log[i].id;
                             }
-                            self.write(data.log[i], 'history');
+                            //self.write(data.log[i], 'history');
                         }
+                        self.conversation.get('messages').set(data.log);
                     }
 
                     var storage = OWMailbox.getStorage();
@@ -862,6 +1096,7 @@ MAILBOX_ConversationView = function () {
             complete: function(){
                 self.historyLoadInProgress = false;
                 OW.Mailbox.sendInProcess = false;
+                self.someConversationLoading = 0;
             }
         }
 
@@ -935,7 +1170,8 @@ MAILBOX_ConversationView = function () {
                             var heightBefore = self.messageListWrapperControl.height();
 
                             $(data.log).each(function(){
-                                self.writeHistory(this);
+                                //self.writeHistory(this);
+                                self.conversation.get('messages').add(this);
                             });
 
                             OW.trigger('mailbox.history_loaded');
@@ -1153,6 +1389,16 @@ MAILBOX_ConversationView = function () {
             self.conversationChatFormBlock.addClass('ow_hidden');
             self.messageFormBlock.removeClass('ow_hidden');
             self.textareaControl = $('#conversationTextarea', self.control);
+
+            $('.ow_mailbox_form').click(function(){
+                $('#conversationMessageFormBlock').removeClass('continue');
+                $('#conversationMessageFormBlock').addClass('active');
+                $('.ow_mailbox_log').addClass('textarea_active');
+                $('#conversationTextarea').focus();
+                $('#conversationTextarea').get(0).htmlareaFocus();
+                OW.updateScroll(self.messageListControl);
+                self.scrollDialog(true);
+            });
         }
 
         self.messageListControl.css('height', '');
@@ -1272,7 +1518,8 @@ MAILBOX_ConversationView = function () {
             return;
         }
 
-        self.write(message);
+        self.conversation.get('messages').add(message);
+        //self.write(message);
     });
 
     OW.bind('mailbox.presence', function(presence){
@@ -1418,7 +1665,21 @@ MAILBOX_ConversationView.prototype = {
         this.messageGroupStickyBlockControl.hide();
     },
 
-    scrollDialog: function(){
+    messageWrite: function(message){
+        var itemIndex;
+        itemIndex = this.conversation.get('messages').indexOf(message);
+
+        if (itemIndex == 0){
+            this.writeHistory(message.attributes);
+        }
+        else{
+            this.write(message.attributes);
+        }
+    },
+
+    scrollDialog: function(scrollToBottom){
+
+        var scrollToBottom = scrollToBottom || false;
 
         this.historyLoadAllowed = false;
         OW.updateScroll(this.messageListControl);
@@ -1427,7 +1688,7 @@ MAILBOX_ConversationView.prototype = {
         if (typeof jsp != 'undefined' && jsp != null)
         {
             lastMessage = this.messageListControl.find('.ow_mailbox_log_message').last();
-            if (lastMessage.length > 0){
+            if (!scrollToBottom && lastMessage.length > 0){
                 jsp.scrollToElement(lastMessage, true, true);
             }
             else{
@@ -1529,6 +1790,7 @@ MAILBOX_ConversationView.prototype = {
         var storage = OWMailbox.getStorage();
         storage.setItem('mailbox.conversation' + self.model.convId + '_form_message', '');
         self.textareaControl.val('');
+        $('#conversationTextarea').get(0).htmlareaRefresh();
     },
 
     postMessage: function(tmpMessageUid, data){
@@ -1546,9 +1808,10 @@ MAILBOX_ConversationView.prototype = {
 
                 if (typeof data.error == 'undefined' || data.error == null)
                 {
+                    self.conversation.get('messages').add(data.message, {silent: true});
                     data.message.uniqueId = tmpMessageUid;
                     self.updateMessage(data.message);
-                    OW.Mailbox.lastMessageTimestamp = data.message.timeStamp;
+                    OW.Mailbox.lastMessageTimestamp = parseInt(data.message.timeStamp);
                     OW.trigger('mailbox.update_message', {'sentFrom': 'conversation', 'opponentId': self.model.opponentId, 'convId': self.model.convId, 'message': data.message});
 
                     var newUid = OWMailbox.uniqueId('mailbox_conversation_'+self.model.convId+'_'+self.model.opponentId+'_');
@@ -1621,13 +1884,19 @@ MAILBOX_ConversationView.prototype = {
         this.messageGroupStickyBlockControl.show();
     },
 
-    showTimeBlock: function(timeLabel, groupContainer){
-
+    getTimeBlock: function(timeLabel){
         var timeBlock = $('#dialogTimeBlockPrototypeBlock').clone();
 
         timeBlock.attr('id', 'timeBlock'+this.model.lastMessageTimestamp);
 
         $('.ow_time_text', timeBlock).html(timeLabel);
+
+        return timeBlock;
+    },
+
+    showTimeBlock: function(timeLabel, groupContainer){
+
+        var timeBlock = this.getTimeBlock(timeLabel);
 
         groupContainer.append(timeBlock);
         this.scrollDialog();
@@ -2004,23 +2273,29 @@ MAILBOX_ConversationView.prototype = {
         groupContainer.append(messageContainer);
         this.messageListWrapperControl.append(groupContainer);
         this.scrollDialog();
-        
+
         OW.trigger('mailbox.after_write_mail_message', message);
     },
 
     write: function(message, css_class){
+
+        //if (message.timeStamp < this.model.lastMessageTimestamp)
+        //{
+        //    return this;
+        //}
+
         if (this.model.mode == 'chat'){
             this.writeChatMessage(message, css_class);
         }
 
         if (this.model.mode == 'mail'){
 
-            if (message.timeStamp < OWMailbox.pluginUpdateTimestamp){
-                this.autolinkEnabled = false;
-            }
-            else{
-                this.autolinkEnabled = true;
-            }
+            //if (message.timeStamp < OWMailbox.pluginUpdateTimestamp){
+            this.autolinkEnabled = false;
+            //}
+            //else{
+            //    this.autolinkEnabled = true;
+            //}
 
             this.writeMailMessage(message, css_class);
         }
@@ -2028,6 +2303,10 @@ MAILBOX_ConversationView.prototype = {
         if ( message.recipientId == OWMailbox.userDetails.userId && message.recipientRead == 0 ){
             OW.trigger('mailbox.mark_message_read', {message: message});
         }
+
+        //if ( message.senderId == OWMailbox.userDetails.userId ){
+        //    OW.trigger('mailbox.mark_message_read', {message: message});
+        //}
 
         return this;
     },
@@ -2089,28 +2368,39 @@ MAILBOX_ConversationView.prototype = {
         }
 
         var groupContainer = $('#groupedMessages-'+message.date, this.control);
-        if (groupContainer.length == 0){
-            groupContainer.prepend(messageContainer);
+        if (groupContainer.length == 0) {
+            groupContainer = $('#conversationMessageGroupPrototypeBlock').clone();
 
             var timeBlock = $('#dialogTimeBlockPrototypeBlock').clone();
-            timeBlock.attr('id', 'timeBlock'+message.timeStamp);
+            timeBlock.attr('id', 'timeBlock' + message.timeStamp);
             $('.ow_time_text', timeBlock).html(message.timeLabel);
-            groupContainer.prepend(timeBlock);
+            groupContainer.append(timeBlock);
+            groupContainer.append(messageContainer);
 
-            groupContainer = $('#conversationMessageGroupPrototypeBlock').clone();
             $('#conversationMessageGroupDate', groupContainer).html(message.dateLabel);
 
-            groupContainer.attr('id', 'groupedMessages-'+message.date);
+            groupContainer.attr('id', 'groupedMessages-' + message.date);
             groupContainer.data({
                 date: message.date,
                 dateLabel: message.dateLabel
             });
 
-            this.messageListWrapperControl.prepend();
+            this.messageListWrapperControl.prepend(groupContainer);
         }
         else{
-            var firstMessageContainer = $('#messageItem'+this.model.firstMessageId, this.control);
-            firstMessageContainer.before(messageContainer);
+
+            //var firstMessageContainer = $('#messageItem'+this.model.firstMessageId, this.control);
+            //firstMessageContainer.before(messageContainer);
+
+            $('.ow_mailbox_date_cap', groupContainer).after(messageContainer);
+            if ( message.timeLabel != this.model.firstMessageTimeLabel )
+            {
+                this.model.firstMessageTimeLabel = message.timeLabel;
+                var timeBlock = this.getTimeBlock(message.timeLabel);
+
+                $('.ow_mailbox_date_cap', groupContainer).after(timeBlock);
+            }
+
         }
 
         this.model.firstMessageId = message.id;
@@ -2220,6 +2510,10 @@ MAILBOX_ConversationView.prototype = {
         if (this.model.mode == 'mail')
         {
             this.writeHistoryMailMessage(message);
+        }
+
+        if ( message.recipientId == OWMailbox.userDetails.userId && message.recipientRead == 0 ){
+            OW.trigger('mailbox.mark_message_read', {message: message});
         }
     }
 };

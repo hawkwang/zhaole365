@@ -50,8 +50,8 @@ class MAILBOX_CMP_ConversationList extends OW_Component
 
         if (!empty($params['conversationId']))
         {
-            $js .= "conversationListModel.set('activeConvId', {$params['conversationId']});
-";
+            $js .= "conversationListModel.set('activeConvId', {$params['conversationId']});";
+            $js .= "conversationListModel.set('pageConvId', {$params['conversationId']});";
         }
 
         $js .= "OW.Mailbox.conversationListController = new MAILBOX_ConversationListView({model: conversationListModel});";
@@ -67,5 +67,9 @@ class MAILBOX_CMP_ConversationList extends OW_Component
 
         $conversationSearchForm->addElement($search);
         $this->addForm($conversationSearchForm);
+
+        $modeList = MAILBOX_BOL_ConversationService::getInstance()->getActiveModeList();
+        $singleMode = count($modeList) == 1;
+        $this->assign('singleMode', $singleMode);
     }
 }
