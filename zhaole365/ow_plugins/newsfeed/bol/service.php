@@ -57,6 +57,9 @@ class NEWSFEED_BOL_Service
         self::SYSTEM_ACTIVITY_CREATE,
         self::SYSTEM_ACTIVITY_SUBSCRIBE
     );
+    
+    const EVENT_BEFORE_ACTION_DELETE = "feed.before_action_delete";
+    const EVENT_AFTER_ACTION_ADD = "feed.after_action_add";
 
     private static $classInstance;
 
@@ -175,6 +178,13 @@ class NEWSFEED_BOL_Service
         {
             return;
         }
+        
+        $event = new OW_Event(self::EVENT_BEFORE_ACTION_DELETE, array(
+            "actionId" => $dto->id,
+            "entityType" => $dto->entityType,
+            "entityId" => $dto->entityId
+        ));
+        OW::getEventManager()->trigger($event);
 
         $this->likeDao->deleteByEntity($dto->entityType, $dto->entityId);
         $this->actionDao->delete($dto);
@@ -260,7 +270,22 @@ class NEWSFEED_BOL_Service
     {
         $this->actionFeedDao->deleteByFeedAndActivityId($feedType, $feedId, $activityId);
     }
-
+    
+    public function findFeedListByActivityids( $activityIds )
+    {
+        $list = $this->actionFeedDao->findByActivityIds($activityIds);
+        $out = array();
+        foreach ( $list as $af )
+        {
+            $out[$af->activityId] = isset($out[$af->activityId]) 
+                    ? $out[$af->activityId] : array();
+            
+            $out[$af->activityId][] = $af;
+        }
+        
+        return $out;
+    }
+    
     /**
      *
      * @param string $activityType
@@ -379,6 +404,8 @@ class NEWSFEED_BOL_Service
     /**
      * Find activity by special key
      *
+     * [activityType].[activityId]:[entityType].[entityId]:[userId]
+     * 
      * @param $activityKey
      * @return array
      */

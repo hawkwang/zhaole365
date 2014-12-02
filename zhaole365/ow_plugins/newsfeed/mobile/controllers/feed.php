@@ -151,9 +151,17 @@ class NEWSFEED_MCTRL_Feed extends NEWSFEED_CTRL_Feed
         
         if ( !empty($data) )
         {
+            $item = empty($data["entityType"]) || empty($data["entityId"])
+                    ? null
+                    : array(
+                        "entityType" => $data["entityType"],
+                        "entityId" => $data["entityId"]
+                    );
+
             $this->echoOut($_POST['feedAutoId'], array(
-                "entityType" => $data["entityType"],
-                "entityId" => $data["entityId"]
+                "item" => $item,
+                "message" => empty($data["message"]) ? null : $data["message"],
+                "error" => empty($data["error"]) ? null : $data["error"]
             ));
         }
 
@@ -164,6 +172,8 @@ class NEWSFEED_MCTRL_Feed extends NEWSFEED_CTRL_Feed
                     "attachmentId" => $attachment["uid"]
                 ));
         
-        $this->echoOut($_POST['feedAutoId'], $out);
+        $this->echoOut($_POST['feedAutoId'], array(
+            "item" => $out
+        ));
     }
 }

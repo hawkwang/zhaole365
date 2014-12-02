@@ -77,22 +77,49 @@ abstract class NEWSFEED_CLASS_Driver
 
         $activityList = $this->findActivityList($this->params, array_values($this->actionIdList));
 
+        $actionActivityList = array();
         foreach ( $activityList as $activity )
         {
             $actionActivityList[$activity->actionId][$activity->id] = $activity;
         }
 
+        $createActivityIdList = array();
+        
         foreach ( $actionList as $actionDto )
         {
+            $aList = empty($actionActivityList[$actionDto->id]) 
+                    ? array() 
+                    : $actionActivityList[$actionDto->id];
+            
             /* @var $actionDto NEWSFEED_BOL_Action */
-           $action = $this->makeAction($actionDto, empty($actionActivityList[$actionDto->id]) ? array() : $actionActivityList[$actionDto->id] );
+           $action = $this->makeAction($actionDto, $aList);
 
            if ( $action !== null )
            {
                 $this->actionList[$actionDto->id] = $action;
+                
+                $createActivity = $action->getCreateActivity();
+                
+                if ( !empty($createActivity) )
+                {
+                   $createActivityIdList[] = $createActivity->id;
+                }
            }
         }
 
+        $feedList = $this->service->findFeedListByActivityids($createActivityIdList);
+        
+        foreach ( $this->actionList as $action )
+        {
+            /* @var $actionDto NEWSFEED_BOL_Action */
+            $createActivity = $action->getCreateActivity();
+                
+            if ( !empty($createActivity) && isset($feedList[$createActivity->id]) )
+            {
+               $action->setFeedList($feedList[$createActivity->id]);
+            }
+        }
+        
         return $this->actionList;
     }
 

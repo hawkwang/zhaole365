@@ -346,7 +346,7 @@ class NEWSFEED_BOL_ActivityDao extends OW_BaseDao
         {
             $activity->id = $dto->id;
         }
-
+        
         $this->save($activity);
     }
 

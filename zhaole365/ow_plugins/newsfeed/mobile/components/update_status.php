@@ -61,7 +61,14 @@ class NEWSFEED_MCMP_UpdateStatus extends NEWSFEED_CMP_UpdateStatus
                     OWM.error(r.error); return;
                 }
 
-                window.ow_newsfeed_feed_list[{$autoId}].loadNewItem(r, false);
+                if ( r.item ) {
+                    window.ow_newsfeed_feed_list[{$autoId}].loadNewItem(r.item, false);
+                }
+                
+                if ( r.message ) {
+                    OWM.info(r.message);
+                }
+                
                 OWM.getActiveFloatBox().close();
             }',
         array(

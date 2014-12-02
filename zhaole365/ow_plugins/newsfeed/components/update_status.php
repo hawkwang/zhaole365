@@ -234,15 +234,19 @@ class NEWSFEED_StatusForm extends Form
                 $(this.status).val("");
                 $(".newsfeed-status-preloader", "#" + {$autoId}).hide();
 
-                if ( r )
-                {
-                    window.ow_newsfeed_feed_list[{$autoId}].loadNewItem(r, false);
+                if ( r.error ) {
+                    OW.error(r.error); return;
                 }
-                else
-                {
-                    OW.error({$errorMessage});
+                
+                if ( r.message ) {
+                    OW.info(r.message);
                 }
-            });', array('autoId' => $feedAutoId, 'errorMessage' => OW::getLanguage()->text('base', 'form_validate_common_error_message') ));
+
+                if ( r.item )
+                {
+                    window.ow_newsfeed_feed_list[{$autoId}].loadNewItem(r.item, false);
+                }
+            });', array('autoId' => $feedAutoId ));
 
             OW::getDocument()->addOnloadScript( $js );
         }

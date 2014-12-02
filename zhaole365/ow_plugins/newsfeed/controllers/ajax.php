@@ -125,7 +125,9 @@ class NEWSFEED_CTRL_Ajax extends OW_ActionController
     {
         if ( empty($_POST['status']) && empty($_POST['attachment']) )
         {
-            echo json_encode(false);
+            echo json_encode(array(
+                "error" => OW::getLanguage()->text('base', 'form_validate_common_error_message')
+            ));
             exit;
         }
 
@@ -187,9 +189,17 @@ class NEWSFEED_CTRL_Ajax extends OW_ActionController
                 BOL_AttachmentService::getInstance()->deleteAttachmentByBundle("newsfeed", $attachId);
             }
             
+            $item = empty($data["entityType"]) || empty($data["entityId"])
+                    ? null
+                    : array(
+                        "entityType" => $data["entityType"],
+                        "entityId" => $data["entityId"]
+                    );
+            
             echo json_encode(array(
-                "entityType" => $data["entityType"],
-                "entityId" => $data["entityId"]
+                "item" => $item,
+                "message" => empty($data["message"]) ? null : $data["message"],
+                "error" => empty($data["error"]) ? null : $data["error"]
             ));
             exit;
         }
@@ -201,7 +211,9 @@ class NEWSFEED_CTRL_Ajax extends OW_ActionController
                     "attachmentId" => $attachId
                 ));
         
-        echo json_encode($out);
+        echo json_encode(array(
+            "item" => $out
+        ));
         exit;
     }
 

@@ -123,7 +123,6 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         foreach ( $action->getActivityList() as $a )
         {
             /* @var $a NEWSFEED_BOL_Activity */
-
             $activity[$a->id] = array(
                 'activityType' => $a->activityType,
                 'activityId' => $a->activityId,
@@ -143,6 +142,22 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
 
         $creatorIdList = $action->getCreatorIdList();
         $data = $this->mergeData($action->getData(), $action);
+
+        $sameFeed = false;
+        $feedList = array();
+        foreach ( $action->getFeedList() as $feed )
+        {
+            if ( !$sameFeed )
+            {
+                $sameFeed = $this->sharedData['feedType'] == $feed->feedType
+                        && $this->sharedData['feedId'] == $feed->feedId;
+            }
+            
+            $feedList[] = array(
+                "feedType" => $feed->feedType,
+                "feedId" => $feed->id
+            );
+        }
         
         $eventParams = array(
             'action' => array(
@@ -154,7 +169,9 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 'userId' => $action->getUserId(), // backward compatibility with desktop version
                 "userIds" => $creatorIdList,
                 'format' => $action->getFormat(),
-                'data' => $data
+                'data' => $data,
+                "feeds" => $feedList,
+                "onOriginalFeed" => $sameFeed
             ),
 
             'activity' => $activity,
@@ -171,15 +188,9 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
             "userIds" => $creatorIdList,
             'createTime' => $action->getCreateTime()
         );
-        
-        if ( $lastActivity !== null )
-        {
-            $data = $this->extendAction($data, $lastActivity);
-            $data = $this->extendActionData($data, $lastActivity);
-        }
-        
+ 
         $shouldExtend = $this->displayType == NEWSFEED_CMP_Feed::DISPLAY_TYPE_ACTIVITY && $lastActivity !== null;
-
+ 
         if ( $shouldExtend )
         {
             if ( !empty($lastActivity['data']['string']) || !empty($lastActivity['data']['line']) )
@@ -187,10 +198,16 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 $data = $this->applyRespond($data, $lastActivity);
             }
         }
-
+        
+        if ( $lastActivity !== null )
+        {
+            $data = $this->extendAction($data, $lastActivity);
+            $data = $this->extendActionData($data, $lastActivity);
+        }
+ 
         $event = new OW_Event('feed.on_item_render', $eventParams, $data);
         OW::getEventManager()->trigger($event);
-
+ 
         return $this->mergeData( $event->getData(), $action );
     }
     
@@ -220,11 +237,19 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
     protected function extendAction( $data, $activity )
     {
         $actionOverride = $activity['data'];
+        $action = empty($actionOverride['action']) ? array() : $actionOverride['action'];
         
         if ( !empty($actionOverride['params']) )
         {
-            $actionOverride['action'] = $actionOverride['params'];
+            $action = $actionOverride['params'];
         }
+                
+        if ( !empty($action["userId"]) && empty($action["userIds"]) )
+        {
+            $action["userIds"] = array($action["userId"]); // backward compatibility with desktop version
+        }
+        
+        $data["action"] = array_merge($data["action"], $action);
         
         return $data;
    }
@@ -251,7 +276,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                     $newContent["vars"] = array_merge($data[$key]["vars"], $value["vars"]);
                 }
             }                
-            else if ( !in_array($key, array("string", "line")) )
+            else if ( !in_array($key, array("action", "string", "line")) )
             {
                 $data[$key] = $value;
             }
@@ -259,7 +284,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         
         return $data;
     }
-
+ 
     public function generateJs( $data )
     {
         $js = UTIL_JsGenerator::composeJsString('
@@ -281,37 +306,37 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 'displayType' => $this->displayType
             )
         ));
-
+ 
         OW::getDocument()->addOnloadScript($js, 50);
     }
-
+ 
     protected function processAssigns( $content, $assigns )
     {
         $search = array();
         $values = array();
-
+ 
         foreach ( $assigns as $key => $item )
         {
             $search[] = '[ph:' . $key . ']';
             $values[] = $item;
         }
-
+ 
         $result = str_replace($search, $values, $content);
         $result = preg_replace('/\[ph\:\w+\]/', '', $result);
-
+ 
         return $result;
     }
-
+ 
     protected function renderTemplate( $tplFile, $vars )
     {
         $template = new NEWSFEED_CMP_Template();
         $template->setTemplate($tplFile);
-
+ 
         foreach ( $vars as $k => $v )
         {
             $template->assign($k, $v);
         }
-
+ 
         return $template->render();
     }
     
@@ -326,7 +351,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         {
             return $content;
         }
-
+ 
         $vars = empty($content['vars']) || !is_array($content['vars']) ? array() : $content['vars'];
         
         $template = null;
@@ -344,7 +369,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         {
             return $this->renderTemplate($template, $vars);
         }
-
+ 
         if ( empty($content["format"]) )
         {
             return "";
@@ -352,15 +377,15 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         
         return $this->renderFormat($content["format"], $vars);
     }
-
+ 
     protected function getUserInfo( $userId )
     {
         $usersInfo = $this->sharedData['usersInfo'];
-
+ 
         if ( !in_array($userId, $this->sharedData['usersIdList']) )
         {
             $userInfo = BOL_AvatarService::getInstance()->getDataForUserAvatars(array($userId));
-
+ 
             $usersInfo['avatars'][$userId] = $userInfo[$userId]['src'];
             $usersInfo['urls'][$userId] = $userInfo[$userId]['url'];
             $usersInfo['names'][$userId] = $userInfo[$userId]['title'];
@@ -369,7 +394,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 'labelColor' => $userInfo[$userId]['labelColor']
             );
         }
-
+ 
         $user = array(
             'id' => $userId,
             'avatarUrl' => $usersInfo['avatars'][$userId],
@@ -379,7 +404,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 ? array('label' => '', 'labelColor' => '')
                 : $usersInfo['roleLabels'][$userId]
         );
-
+ 
         return $user;
     }
     
@@ -398,7 +423,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         }
         
         $out = array();
-
+ 
         foreach ( $userIds as $userId )
         {
             $out[$userId] = $this->getUserInfo($userId);
@@ -406,16 +431,16 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         
         return $out;
     }
-
+ 
     protected function getContextMenu( $data )
     {
         $contextActionMenu = new BASE_CMP_ContextAction();
-
+ 
         $contextParentAction = new BASE_ContextAction();
         $contextParentAction->setKey('newsfeed_context_menu_' . $this->autoId);
         $contextParentAction->setClass('ow_newsfeed_context');
         $contextActionMenu->addAction($contextParentAction);
-
+ 
         $order = 1;
         foreach( $data['contextMenu'] as $action )
         {
@@ -428,33 +453,33 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                 'key' => uniqid($this->autoId . '_'),
                 'attributes' => array()
             ), $action);
-
+ 
             $contextAction = new BASE_ContextAction();
             $contextAction->setParentKey($contextParentAction->getKey());
-
+ 
             $contextAction->setLabel($action['label']);
             $contextAction->setClass($action['class']);
             $contextAction->setUrl($action['url']);
             $contextAction->setId($action['id']);
             $contextAction->setKey($action['key']);
             $contextAction->setOrder($action['order']);
-
+ 
             foreach ( $action['attributes'] as $key => $value )
             {
                 $contextAction->addAttribute($key, $value);
             }
-
+ 
             $contextActionMenu->addAction($contextAction);
             $order++;
         }
-
+ 
         return $contextActionMenu->render();
     }
-
+ 
     protected function getFeaturesData( $data )
     {
         $configs = $this->sharedData['configs'];
-
+ 
         $customFeatures = array();
         $systemFeatures = array();
         foreach ( $data['features'] as $key => $feature )
@@ -480,18 +505,18 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
             $commentsFeature = array();
             
             $featureData = $systemFeatures['comments'];
-
+ 
             $commentsFeature["authGroup"] = empty($featureData['pluginKey']) ? $data['action']['pluginKey'] : $featureData['pluginKey'];
             $commentsFeature["entityType"] = empty($featureData['entityType']) ? $data['action']['entityType'] : $featureData['entityType'];
             $commentsFeature["entityId"] = empty($featureData['entityId']) ? $data['action']['entityId'] : $featureData['entityId'];
-
+ 
             $authActionDto = BOL_AuthorizationService::getInstance()->findAction($commentsFeature["authGroup"], 'add_comment', true);
-
+ 
             if ( $authActionDto === null )
             {
                 $commentsFeature["authGroup"] = 'newsfeed';
             }
-
+ 
             $commentsFeature['count'] = $this->sharedData['commentsData'][$commentsFeature["entityType"]][$commentsFeature["entityId"]]['commentsCount'];
             $commentsFeature['allow'] = OW::getUser()->isAuthorized($commentsFeature["authGroup"], 'add_comment');
             $commentsFeature['expanded'] = $configs['features_expanded'] && $commentsFeature['count'] > 0;
@@ -505,14 +530,14 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
            $likesFeature = array();
             
            $featureData = $systemFeatures['likes'];
-
+ 
            $likesFeature["entityType"] = empty($featureData['entityType']) ? $data['action']['entityType'] : $featureData['entityType'];
            $likesFeature["entityId"] = empty($featureData['entityId']) ? $data['action']['entityId'] : $featureData['entityId'];
-
+ 
            $likesData = $this->sharedData['likesData'];
            $likes = empty($likesData[$likesFeature["entityType"]][$likesFeature["entityId"]])
                 ? array() : $likesData[$likesFeature["entityType"]][$likesFeature["entityId"]];
-
+ 
            $userLiked = false;
            foreach ( $likes as $like )
            {
@@ -521,12 +546,12 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
                     $userLiked = true;
                 }
            }
-
+ 
            $likesFeature['count'] = count($likes);
            $likesFeature['liked'] = $userLiked;
            $likesFeature["likes"] = $likes;
            $likesFeature['allow'] = true;
-
+ 
            if ( empty($featureData['error']) )
            {
                 $likesFeature['error'] = OW::getUser()->isAuthenticated()
@@ -560,7 +585,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
             ),
             'custom' => array()
         );
-
+ 
         $out['custom'] = $featuresData["custom"];
         $systemFeatures = $featuresData["system"];
         
@@ -578,20 +603,20 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
             $commentsParams->setDisplayType(BASE_CommentsParams::DISPLAY_TYPE_WITH_LOAD_LIST_MINI);                        
             $commentsParams->setWrapInBox(false);
             $commentsParams->setShowEmptyList(false);            
-
+ 
             if ( !empty($feature['error']) )
             {
                 $commentsParams->setErrorMessage($feature['error']);
             }
-
+ 
             if ( isset($feature['allow']) )
             {
                 $commentsParams->setAddComment($feature['allow']);
             }
-
+ 
             $commentCmp = new BASE_CMP_Comments($commentsParams);
             $out['system']['comments']['cmp'] = $commentCmp->render();
-
+ 
             $out['system']['comments']['count'] = $feature["count"];
             $out['system']['comments']['allow'] = $feature["allow"];
             $out['system']['comments']['expanded'] = $feature["expanded"];
@@ -600,7 +625,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         if ( !empty($systemFeatures["likes"]) )
         {
            $feature = $systemFeatures['likes'];
-
+ 
            $out['system']['likes']['count'] = $feature["count"];
            $out['system']['likes']['liked'] = $feature["liked"];
            $out['system']['likes']['allow'] = $feature["allow"];
@@ -609,7 +634,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
            $likeCmp = new NEWSFEED_CMP_Likes($feature["entityType"], $feature["entityId"], $feature["likes"]);
            $out['system']['likes']['cmp'] = $likeCmp->render();
         }
-
+ 
         return $out;
     }
     
@@ -619,39 +644,39 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         {
             return $textData;
         }
-
+ 
         $keyData = explode("+", $textData["key"]);
         $vars = empty($textData["vars"]) ? array() : $textData["vars"];
         
         return OW::getLanguage()->text($keyData[0], $keyData[1], $vars);
     }
-
+ 
     public function getTplData( $cycle = null )
     {
         $action = $this->action;
         $data = $this->getActionData($action);
         
         $usersInfo = $this->sharedData['usersInfo'];
-
+ 
         $configs = $this->sharedData['configs'];
-
+ 
         $userNameEmbed = '<a href="' . $usersInfo['urls'][$action->getUserId()] . '"><b>' . $usersInfo['names'][$action->getUserId()] . '</b></a>';
         $assigns = empty($data['assign']) ? array() : $data['assign'];
         $replaces = array_merge(array(
             'user' => $userNameEmbed
         ), $assigns);
-
+ 
         $data['content'] = $this->renderContent($data['content']);
-
+ 
         foreach ( $assigns as & $item )
         {
             $item = $this->renderContent($item);
         }
-
+ 
         $permalink = empty($data['permalink'])
             ? NEWSFEED_BOL_Service::getInstance()->getActionPermalink($action->getId(), $this->sharedData['feedType'], $this->sharedData['feedId'])
             : null;
-
+ 
         $string = $this->getLocalizedText($data['string']);
         $line = $this->getLocalizedText($data['line']);
         
@@ -674,15 +699,15 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
             'permalink' => $permalink,
             'cycle' => $cycle
         );
-
+ 
         $item['autoId'] = $this->autoId;
-
+ 
         $item['features'] = $this->getFeatures($data);
         $item['contextActionMenu'] = $this->getContextMenu($data);
         
         return $item;
     }
-
+ 
     public function renderMarkup( $cycle = null )
     {
         $item = $this->getTplData($cycle);
@@ -690,7 +715,7 @@ class NEWSFEED_CMP_FeedItem extends OW_Component
         
         $this->assign('item', $item);
         $this->assign("displayType", $this->displayType);
-
+ 
         // Only for the item view page
         if ( $this->displayType == NEWSFEED_CMP_Feed::DISPLAY_TYPE_PAGE )
         {

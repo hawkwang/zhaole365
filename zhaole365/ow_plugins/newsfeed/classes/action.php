@@ -41,6 +41,7 @@ class NEWSFEED_CLASS_Action
     private $properties = array();
     private $createActivity, $lastActivity;
     private $creatorIdList = array();
+    private $feeds = array();
 
     public function setDataValue( $name, $value )
     {
@@ -110,6 +111,16 @@ class NEWSFEED_CLASS_Action
     public function getCreatorIdList()
     {
         return $this->creatorIdList;
+    }
+    
+    public function setFeedList( $feedList )
+    {
+        $this->feeds = $feedList;
+    }
+    
+    public function getFeedList()
+    {
+        return $this->feeds;
     }
 
     public function getUpdateTime()

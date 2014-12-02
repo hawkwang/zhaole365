@@ -90,10 +90,5 @@ class NEWSFEED_BOL_Activity extends OW_Entity
      * 
      * @var string
      */
-    public $status;
-    
-    public function __construct()
-    {
-        $this->status = NEWSFEED_BOL_Service::ACTION_STATUS_ACTIVE;    
-    }
+    public $status = NEWSFEED_BOL_Service::ACTION_STATUS_ACTIVE;
 }

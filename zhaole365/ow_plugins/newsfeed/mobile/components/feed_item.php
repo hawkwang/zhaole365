@@ -202,8 +202,12 @@ class NEWSFEED_MCMP_FeedItem extends NEWSFEED_CMP_FeedItem
             return $data;
         }
         
+        $userId = empty($activity["data"]["action"]["userId"])
+                ? $activity["userId"]
+                : $activity["data"]["action"]["userId"];
+        
         $data["respond"] = array(
-            "user" => $this->getUserInfo($activity["userId"]),
+            "user" => $this->getUserInfo($userId),
             "text" => $this->getLocalizedText($activity["data"]["string"])
         );
         

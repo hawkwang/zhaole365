@@ -306,6 +306,12 @@ class NEWSFEED_CLASS_EventHandler
 
             $this->service->saveAction($action);
 
+            OW::getEventManager()->trigger(new OW_Event(NEWSFEED_BOL_Service::EVENT_AFTER_ACTION_ADD, array(
+                "actionId" => $action->id,
+                "entityType" => $action->entityType,
+                "entityId" => $action->entityId
+            )));
+
             $activityParams = array(
                 'pluginKey' => $params['pluginKey'],
                 'entityType' => $params['entityType'],
@@ -1138,9 +1144,9 @@ class NEWSFEED_CLASS_EventHandler
                 && ( 
                     $params['action']['userId'] == OW::getUser()->getId() 
                     || OW::getUser()->isAuthorized('newsfeed')
-                    || ( $isFeedOwner && $isStatus )
+                    || ( $isFeedOwner && $isStatus && $params['action']['onOriginalFeed'] )
                 );
-
+        
         if ( $canRemove && in_array($params['feedType'], array('site', 'my', 'user')) )
         {
             array_unshift($data['contextMenu'], array(
@@ -1149,6 +1155,23 @@ class NEWSFEED_CLASS_EventHandler
                     'data-confirm-msg' => OW::getLanguage()->text('base', 'are_you_sure')
                 ),
                 "class" => "newsfeed_remove_btn owm_red_btn"
+            ));
+        }
+        
+        // Flags
+        
+        $contentType = BOL_ContentService::getInstance()->getContentTypeByEntityType($params['action']['entityType']);
+        $flagsAllowed = !empty($contentType) && in_array(BOL_ContentService::MODERATION_TOOL_FLAG, $contentType["moderation"]);
+        
+        if ( $params['action']['userId'] != OW::getUser()->getId() && $flagsAllowed )
+        {
+            array_unshift($data['contextMenu'], array(
+                'label' => OW::getLanguage()->text('base', 'flag'),
+                'attributes' => array(
+                    'onclick' => 'OW.flagContent($(this).data().etype, $(this).data().eid)',
+                    "data-etype" => $params['action']['entityType'],
+                    "data-eid" => $params['action']['entityId']
+                )
             ));
         }
         
@@ -1719,5 +1742,7 @@ class NEWSFEED_CLASS_EventHandler
             $event = new OW_Event('feed.after_first_init', array('pluginKey' => 'newsfeed'));
             OW::getEventManager()->trigger($event);
         }
+        
+        NEWSFEED_CLASS_ContentProvider::getInstance()->init();
     }
 }

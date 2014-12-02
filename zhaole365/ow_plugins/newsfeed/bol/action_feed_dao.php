@@ -119,4 +119,26 @@ class NEWSFEED_BOL_ActionFeedDao extends OW_BaseDao
 
         $this->deleteByExample($example);
     }
+    
+    public function findByActivityIds( $activityIds )
+    {
+        if ( empty($activityIds) )
+        {
+            return array();
+        }
+        
+        $example = new OW_Example();
+        $example->andFieldInArray('activityId', $activityIds);
+
+        return $this->findListByExample($example);
+    }
+    
+    public function findByFeed( $feedType, $feedId )
+    {
+        $example = new OW_Example();
+        $example->andFieldEqual('feedType', $feedType);
+        $example->andFieldEqual('feedId', $feedId);
+
+        return $this->findListByExample($example);
+    }
 }
