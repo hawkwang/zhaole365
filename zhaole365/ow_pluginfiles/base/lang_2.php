@@ -223,7 +223,7 @@ $language[2] = array (
   'admin+massmailing_preview_label' => '预览',
   'admin+massmailing_send_mails_message' => '{$count} emails were sent',
   'admin+massmailing_start_mailing_button' => 'Start Mailing',
-  'admin+massmailing_subject_label' => 'Subject',
+  'admin+massmailing_subject_label' => '主题',
   'admin+massmailing_total_members' => '<b>总计:</b> <i>{$count}</i>激活会员',
   'admin+massmailing_unsubscribe_link_html' => '<br />
 <br />
@@ -892,8 +892,8 @@ Remember: Users with this account:
   'base+confirm_page_ok_label' => 'ok',
   'base+console_item_invitations_label' => '邀请',
   'base+console_item_label_dashboard' => '个人中心',
-  'base+console_item_label_mailbox' => 'Mailbox',
-  'base+console_item_label_preferences' => 'Preferences',
+  'base+console_item_label_mailbox' => '邮箱',
+  'base+console_item_label_preferences' => '偏好',
   'base+console_item_label_profile' => '个人主页',
   'base+console_item_label_sign_out' => '退出',
   'base+console_item_sign_up_label' => '注册',
@@ -1657,7 +1657,7 @@ Thank you.',
   'base+password_protection_submit_label' => 'Enter',
   'base+password_protection_success_message' => 'Redirecting...',
   'base+password_protection_text' => '抱歉，网站已停止对公众开放.',
-  'base+preference_index' => '个性化设置',
+  'base+preference_index' => '偏好设置',
   'base+preference_mass_mailing_subscribe_description' => '取消选择停止接受群发邮件',
   'base+preference_mass_mailing_subscribe_label' => '订阅新邮件',
   'base+preference_menu_item' => '默认',
@@ -2557,7 +2557,7 @@ http://class1.local/zhaole365/',
   'mailbox+load_earlier' => 'Load Earlier Messages',
   'mailbox+mailbox' => 'Mailbox',
   'mailbox+mailbox_console_title' => '消息',
-  'mailbox+mail_subject_prefix' => 'Subject: ',
+  'mailbox+mail_subject_prefix' => '主题: ',
   'mailbox+mark_as_read_button' => 'Mark as Read',
   'mailbox+mark_as_unread_button' => 'Mark as Unread',
   'mailbox+mark_conversation_read_message' => 'Conversation has been marked as read',
@@ -2585,20 +2585,20 @@ http://class1.local/zhaole365/',
   'mailbox+new_message_title' => '新消息',
   'mailbox+new_message_to' => '',
   'mailbox+notification_mail_subject' => '来自 {$sendername} 的新消息',
-  'mailbox+notification_mail_template_html' => 'Hello {$username},<br/>
+  'mailbox+notification_mail_template_html' => '{$username}, 你好！<br/>
 <br/>
-You have received a new message from {$sendername} on 找乐365.<br/>
+你收到来自  找乐365－{$sendername} 的新消息.<br/>
 <br/>
-Go to <a href="{$replyUrl}">{$replyUrl}</a> to reply to this message. <br/>
+点击 <a href="{$replyUrl}">{$replyUrl}</a> 回复. <br/>
 <br/>
-Sincerely, 找乐365 administration',
+致礼, 找乐365 系统管理员',
   'mailbox+notification_mail_template_text' => '{$username}, 你好！
 
-You have received a new message from {$sendername} on 找乐365.
+你收到来自  找乐365－{$sendername} 的新消息.
 
-Go to {$replyUrl} to reply to this message. 
+点击 {$replyUrl} 回复. 
 
-Sincerely, 找乐365 administration',
+致礼, 找乐365 系统管理员',
   'mailbox+no_contacts_online' => '没有好友在线',
   'mailbox+no_conversations' => '没有消息',
   'mailbox+others_online' => 'Others',
@@ -2638,11 +2638,11 @@ Sincerely, 找乐365 administration',
   'mailbox+show_all_users' => '显示所有乐友',
   'mailbox+show_online_only' => '只显示在线乐友',
   'mailbox+status_invisible_label' => 'Invisible for all',
-  'mailbox+subject' => 'Subject',
-  'mailbox+subject_is_required' => 'Subject is empty',
+  'mailbox+subject' => '主题',
+  'mailbox+subject_is_required' => '主题为空',
   'mailbox+switch_to_chat_mode' => 'Open in chat',
   'mailbox+text' => 'Text',
-  'mailbox+text_message_invitation' => 'Text Message',
+  'mailbox+text_message_invitation' => '文本消息',
   'mailbox+to' => 'To',
   'mailbox+uninstall_inprogress' => 'In progress',
   'mailbox+uninstall_inprogress_desc' => 'The <i>Messages</i> plugin is being uninstalled. Time for completing the uninstallation depends on the number of users and cron schedule. <br />Uninstalled so far: {$percents}%',
@@ -2701,6 +2701,7 @@ Sincerely, 找乐365 administration',
   'notifications+config_schedule_title' => '同时通过电子邮件发送通知',
   'notifications+config_title' => 'Schedule Settings',
   'notifications+console_item_label' => '通知',
+  'notifications+console_menu_label' => '邮件通知',
   'notifications+dashboard_menu_item' => '通知',
   'notifications+dashboard_menu_item_label' => '邮件通知',
   'notifications+email_html_bottom' => 'Talk soon,<br />
@@ -3486,7 +3487,7 @@ Here\'s the latest activity on 找乐365 related to you:',
   'privacy+no_items' => '没有项目',
   'privacy+privacy_description' => '设置你内容的访问权限',
   'privacy+privacy_everybody' => '任何人',
-  'privacy+privacy_index' => '隐私',
+  'privacy+privacy_index' => '隐私管理',
   'privacy+privacy_no_permission_heading' => '保密的',
   'privacy+privacy_no_permission_message' => '{$display_name} chooses not to share this content.',
   'privacy+privacy_only_for_me' => '只有我自己',
