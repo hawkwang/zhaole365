@@ -15,7 +15,6 @@
  * @package ow_plugins.ocs_guests.classes
  * @since 1.6.0
  */
-
 class OCSGUESTS_CLASS_EventHandler
 {
     /**
@@ -29,7 +28,10 @@ class OCSGUESTS_CLASS_EventHandler
      * Class constructor
      *
      */
-    private function __construct() { }
+    private function __construct()
+    {
+        
+    }
 
     /**
      * Returns class instance
@@ -46,7 +48,6 @@ class OCSGUESTS_CLASS_EventHandler
         return self::$classInstance;
     }
 
-
     public function onProfilePageRender( BASE_CLASS_EventCollector $event )
     {
         $params = $event->getParams();
@@ -55,15 +56,18 @@ class OCSGUESTS_CLASS_EventHandler
         {
             return;
         }
-
+        
         $userId = (int) $params['entityId'];
-            $viewerId = OW::getUser()->getId();
+        $viewerId = OW::getUser()->getId();
 
-        if ( $userId && $viewerId && $viewerId != $userId )
-            {
-                OCSGUESTS_BOL_Service::getInstance()->trackVisit($userId, $viewerId);
-            }
+        $authService = BOL_AuthorizationService::getInstance();
+        $isAdmin = $authService->isActionAuthorizedForUser($viewerId, 'admin') || $authService->isActionAuthorizedForUser($viewerId, 'base');
+
+        if ( $userId && $viewerId && ($viewerId != $userId) && !$isAdmin )
+        {
+            OCSGUESTS_BOL_Service::getInstance()->trackVisit($userId, $viewerId);
         }
+    }
 
     public function trackVisit( OW_Event $event )
     {
@@ -77,7 +81,10 @@ class OCSGUESTS_CLASS_EventHandler
         $userId = $params['userId'];
         $guestId = $params['guestId'];
 
-        if ( $userId && $guestId && $guestId != $userId )
+        $authService = BOL_AuthorizationService::getInstance();
+        $isAdmin = $authService->isActionAuthorizedForUser($guestId, 'admin') || $authService->isActionAuthorizedForUser($guestId, 'base');
+
+        if ( $userId && $guestId && ($guestId != $userId) && !$isAdmin )
         {
             OCSGUESTS_BOL_Service::getInstance()->trackVisit($userId, $guestId);
         }
@@ -91,24 +98,24 @@ class OCSGUESTS_CLASS_EventHandler
 
         OCSGUESTS_BOL_Service::getInstance()->deleteUserGuests($userId);
     }
-    
+
     public function getList( OW_Event $event )
     {
         $params = $event->getParams();
         $userId = $params['userId'];
         $page = empty($params['page']) ? 1 : $params['page'];
         $limit = empty($params['limit']) ? 1000000 : $params['limit'];
-        
+
         $users = OCSGUESTS_BOL_Service::getInstance()->findGuestUsers($userId, $page, $limit);
         $guestsIdList = array();
-        foreach ($users as $user)
+        foreach ( $users as $user )
         {
             $guestsIdList[] = $user->id;
         }
-        
+
         $guests = OCSGUESTS_BOL_Service::getInstance()->findGuestsByGuestIds($userId, $guestsIdList);
         $out = array();
-        
+
         foreach ( $guests as $guest )
         {
             $out[] = array(
@@ -117,12 +124,12 @@ class OCSGUESTS_CLASS_EventHandler
                 "timeStamp" => $guest->visitTimestamp
             );
         }
-        
+
         $event->setData($out);
-        
+
         return $out;
     }
-    
+
     public function getNewCount( OW_Event $event )
     {
         $params = $event->getParams();
@@ -134,19 +141,19 @@ class OCSGUESTS_CLASS_EventHandler
 
         return $count;
     }
-    
+
     public function markViewed( OW_Event $event )
     {
         $params = $event->getParams();
-        
+
         if ( empty($params['guestIds']) )
         {
             return;
         }
-        
+
         $userId = $params['userId'];
         $guestIds = $params['guestIds'];
-        
+
         OCSGUESTS_BOL_Service::getInstance()->setViewedStatusByGuestIds($userId, $guestIds);
     }
 
@@ -158,15 +165,15 @@ class OCSGUESTS_CLASS_EventHandler
         $em->bind("guests.get_new_guests_count", array($this, "getNewCount"));
         $em->bind("guests.mark_guests_viewed", array($this, "markViewed"));
         $em->bind("guests.track_visit", array($this, "trackVisit"));
-        
+
         $em->bind(OW_EventManager::ON_USER_UNREGISTER, array($this, 'onUserUnregister'));
     }
-    
+
     public function init()
     {
         $this->genericInit();
         $em = OW::getEventManager();
-        
+
         $em->bind('base.widget_panel.content.top', array($this, 'onProfilePageRender'));
     }
 }

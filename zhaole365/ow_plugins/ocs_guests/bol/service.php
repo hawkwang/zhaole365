@@ -15,20 +15,20 @@
  * @package ow.ow_plugins.ocs_guests.bol
  * @since 1.3.1
  */
-
 final class OCSGUESTS_BOL_Service
 {
     /**
      * @var OCSGUESTS_BOL_GuestDao
      */
     private $guestDao;
+
     /**
      * Class instance
      *
      * @var OCSGUESTS_BOL_Service
      */
     private static $classInstance;
-    
+
     /**
      * Class constructor
      *
@@ -52,7 +52,7 @@ final class OCSGUESTS_BOL_Service
 
         return self::$classInstance;
     }
-    
+
     /**
      * @param $userId
      * @param $guestId
@@ -60,27 +60,32 @@ final class OCSGUESTS_BOL_Service
      */
     public function trackVisit( $userId, $guestId )
     {
-    	$guest = $this->guestDao->findGuest($userId, $guestId);
-    	
-    	if ( $guest )
-    	{
-    		$guest->visitTimestamp = time();
-    		$this->guestDao->save($guest);
-    		
-    		return true;
-    	}
-    	
-    	$guest = new OCSGUESTS_BOL_Guest();
-    	$guest->userId = $userId;
-    	$guest->guestId = $guestId;
-    	$guest->viewed = 0;
-    	$guest->visitTimestamp = time();
-    	
-    	$this->guestDao->save($guest);
-    	
-    	return true;
+        if ( !$userId || !$guestId || ($guestId == $userId) || BOL_AuthorizationService::getInstance()->isModerator($guestId) )
+        {
+            return;
+        }
+
+        $guest = $this->guestDao->findGuest($userId, $guestId);
+
+        if ( $guest )
+        {
+            $guest->visitTimestamp = time();
+            $this->guestDao->save($guest);
+
+            return true;
+        }
+
+        $guest = new OCSGUESTS_BOL_Guest();
+        $guest->userId = $userId;
+        $guest->guestId = $guestId;
+        $guest->viewed = 0;
+        $guest->visitTimestamp = time();
+
+        $this->guestDao->save($guest);
+
+        return true;
     }
-        
+
     /**
      * @param $userId
      * @param $page
@@ -89,21 +94,21 @@ final class OCSGUESTS_BOL_Service
      */
     public function findGuestsForUser( $userId, $page, $limit )
     {
-    	if ( !$userId )
+        if ( !$userId )
         {
             return array();
         }
-    	
-    	$guests = $this->guestDao->findUserGuests($userId, $page, $limit);
-    	
-    	foreach ( $guests as &$g )
-    	{
-    		$g->visitTimestamp = UTIL_DateTime::formatDate($g->visitTimestamp, false);
-    	}
-    	
-    	return $guests;
+
+        $guests = $this->guestDao->findUserGuests($userId, $page, $limit);
+
+        foreach ( $guests as &$g )
+        {
+            $g->visitTimestamp = UTIL_DateTime::formatDate($g->visitTimestamp, false);
+        }
+
+        return $guests;
     }
-    
+
     /**
      * @param $userId
      * @param $page
@@ -116,12 +121,12 @@ final class OCSGUESTS_BOL_Service
         {
             return array();
         }
-        
+
         $guests = $this->guestDao->findGuestUsers($userId, $page, $limit);
-        
+
         return $guests;
     }
-    
+
     /**
      * @param $userId
      * @return int
@@ -135,50 +140,50 @@ final class OCSGUESTS_BOL_Service
 
         return (int) $this->guestDao->countNewGuests($userId);
     }
-    
+
     /**
      * @param $userId
      * @return int
      */
     public function countGuestsForUser( $userId )
     {
-    	return $this->guestDao->countUserGuests($userId);    	
+        return $this->guestDao->countUserGuests($userId);
     }
-    
+
     /**
      * @return bool
      */
     public function checkExpiredGuests()
     {
-    	$months = (int) OW::getConfig()->getValue('ocsguests', 'store_period');
-    	$timestamp = $months * 30 * 24 * 60 * 60;
-    	
+        $months = (int) OW::getConfig()->getValue('ocsguests', 'store_period');
+        $timestamp = $months * 30 * 24 * 60 * 60;
+
         $this->guestDao->deleteExpired($timestamp);
-        
+
         return true;
     }
-    
+
     /**
      * @param $userId
      * @return bool
      */
     public function deleteUserGuests( $userId )
     {
-    	$this->guestDao->deleteUserGuests($userId);
-    	
-    	return true;
+        $this->guestDao->deleteUserGuests($userId);
+
+        return true;
     }
-    
+
     public function getViewedStatusByGuestsIds( $userId, $guestIds )
     {
         return $this->guestDao->getViewedStatusByGuestIds($userId, $guestIds);
     }
-    
+
     public function findGuestsByGuestIds( $userId, $guestIds )
     {
         return $this->guestDao->findGuestsByGuestIds($userId, $guestIds);
     }
-    
+
     public function setViewedStatusByGuestIds( $userId, $guestIds, $viewed = true )
     {
         return $this->guestDao->setViewedStatusByGuestIds($userId, $guestIds, $viewed);

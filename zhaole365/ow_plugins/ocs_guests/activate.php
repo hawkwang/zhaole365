@@ -19,5 +19,5 @@
 $widgetService = BOL_ComponentAdminService::getInstance();
 
 $widget = $widgetService->addWidget('OCSGUESTS_CMP_MyGuestsWidget', false);
-$placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_DASHBOARD);
+$placeWidget = $widgetService->addWidgetToPlace($widget, BOL_ComponentAdminService::PLACE_PROFILE);
 $widgetService->addWidgetToPosition($placeWidget, BOL_ComponentService::SECTION_LEFT);

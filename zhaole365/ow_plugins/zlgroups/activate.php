@@ -19,10 +19,6 @@ $widget = $widgetService->addWidget('ZLGROUPS_CMP_UserGroupsWidget', false);
 $widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_PROFILE);
 $widgetService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_LEFT);
 
-/*$widget = $widgetService->addWidget('ZLGROUPS_CMP_UserGroupsWidget', false);
-$widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_DASHBOARD);
-$widgetService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_RIGHT);*/
-
 //将所有乐群widget放置在index页面左面部分
 $widget = $widgetService->addWidget('ZLGROUPS_CMP_GroupsWidget', false);
 $widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_INDEX);

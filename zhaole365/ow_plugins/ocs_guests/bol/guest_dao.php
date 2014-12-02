@@ -179,7 +179,7 @@ class OCSGUESTS_BOL_GuestDao extends OW_BaseDao
         
         return $this->countByExample($example);
     }
-    
+
     public function countNewGuests( $userId )
     {
         $example = new OW_Example();

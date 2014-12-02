@@ -15,7 +15,6 @@
  * @package ow.ow_plugins.ocs_guests.mobile.classes
  * @since 1.3.1
  */
-
 class OCSGUESTS_MCLASS_EventHandler
 {
     /**
@@ -29,7 +28,10 @@ class OCSGUESTS_MCLASS_EventHandler
      * Class constructor
      *
      */
-    private function __construct() { }
+    private function __construct()
+    {
+        
+    }
 
     /**
      * Returns class instance
@@ -46,7 +48,6 @@ class OCSGUESTS_MCLASS_EventHandler
         return self::$classInstance;
     }
 
-
     public function trackVisit( BASE_CLASS_EventCollector $event )
     {
         $params = $event->getParams();
@@ -59,10 +60,7 @@ class OCSGUESTS_MCLASS_EventHandler
         $userId = (int) $params['userId'];
         $viewerId = OW::getUser()->getId();
 
-        if ( $userId && $viewerId && $viewerId != $userId )
-        {
-            OCSGUESTS_BOL_Service::getInstance()->trackVisit($userId, $viewerId);
-        }
+        OCSGUESTS_BOL_Service::getInstance()->trackVisit($userId, $viewerId);
     }
 
     public function onUserUnregister( OW_Event $event )

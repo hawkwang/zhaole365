@@ -26,8 +26,8 @@ class OCSGUESTS_CTRL_List extends OW_ActionController
 
         $page = (!empty($_GET['page']) && intval($_GET['page']) > 0 ) ? $_GET['page'] : 1;
         $lang = OW::getLanguage();
-        
-        $perPage = (int)OW::getConfig()->getValue('base', 'users_count_on_page');
+
+        $perPage = (int)OW::getConfig()->getValue('base', OW::getPluginManager()->isPluginActive('skadate') ? 'users_on_page' : 'users_count_on_page');
         $guests = OCSGUESTS_BOL_Service::getInstance()->findGuestsForUser($userId, $page, $perPage);
 
         $guestList = array();

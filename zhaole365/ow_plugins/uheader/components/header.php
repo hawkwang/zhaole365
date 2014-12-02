@@ -74,7 +74,7 @@ class UHEADER_CMP_Header extends OW_Component
         $user = array();
 
         $user['id'] = $this->userId;
-
+        
         $onlineUser = BOL_UserService::getInstance()->findOnlineUserById($this->userId);
         $user['isOnline'] = $onlineUser !== null;
 
@@ -83,7 +83,7 @@ class UHEADER_CMP_Header extends OW_Component
         $avatar = BOL_AvatarService::getInstance()->getAvatarUrl($this->userId, 2, null, false, !$permissions['viewAvatar']);
         $user['avatar'] =  $avatar ? $avatar : BOL_AvatarService::getInstance()->getDefaultAvatarUrl(2);
         $user["avatarApproved"] = $avatar ? $avatarDto->status == "active" : true;
-        $user['avatarId'] = $avatarDto->id;
+        $user['avatarId'] = $avatarDto ? $avatarDto->id : false; // FIXME, 这是一个bug
         
         $roles = BOL_AuthorizationService::getInstance()->getRoleListOfUsers(array($this->userId));
 
