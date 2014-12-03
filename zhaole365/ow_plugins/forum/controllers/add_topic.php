@@ -184,7 +184,7 @@ class FORUM_CTRL_AddTopic extends OW_ActionController
                 $topicDto->groupId = $data['group'];
                 $topicDto->title = strip_tags($data['title']);
 
-                $forumService->saveOrUpdateTopic($topicDto);
+                $forumService->addTopic($topicDto);
 
                 $postDto = new FORUM_BOL_Post();
 
@@ -195,7 +195,6 @@ class FORUM_CTRL_AddTopic extends OW_ActionController
                 $postDto->createStamp = time();
 
                 $forumService->saveOrUpdatePost($postDto);
-
                 $topicDto->lastPostId = $postDto->getId();
 
                 $forumService->saveOrUpdateTopic($topicDto);
@@ -280,6 +279,10 @@ class FORUM_CTRL_AddTopic extends OW_ActionController
                 {
                     BOL_AuthorizationService::getInstance()->trackAction('forum', 'edit');
                 }
+
+                OW::getEventManager()->trigger(new OW_Event(FORUM_BOL_ForumService::EVENT_AFTER_TOPIC_ADD, array(
+                    'topicId' => $topicDto->id
+                )));
 
                 $this->redirect($topicUrl);
             }

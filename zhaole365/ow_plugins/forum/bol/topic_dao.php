@@ -38,7 +38,8 @@
  */
 class FORUM_BOL_TopicDao extends OW_BaseDao
 {
-
+    const GROUP_ID = 'groupId';
+    const STATUS = 'status';
     /**
      * Class constructor
      *
@@ -95,9 +96,15 @@ class FORUM_BOL_TopicDao extends OW_BaseDao
      */
     public function findGroupTopicCount( $groupId )
     {
+        if ( empty($groupId) )
+        {
+            return 0;
+        }
+
         $example = new OW_Example();
 
-        $example->andFieldEqual('groupId', (int) $groupId);
+        $example->andFieldEqual(self::GROUP_ID, (int)$groupId);
+        $example->andFieldEqual(self::STATUS, FORUM_BOL_ForumService::STATUS_APPROVED);
 
         return $this->countByExample($example);
     }
@@ -110,16 +117,18 @@ class FORUM_BOL_TopicDao extends OW_BaseDao
      */
     public function findGroupPostCount( $groupId )
     {
-        $query = "
-		SELECT COUNT(`p`.`id`) FROM `" . $this->getTableName() . "` AS `t`
-		LEFT JOIN `" . FORUM_BOL_PostDao::getInstance()->getTableName() . "` AS `p` 
-		ON ( `t`.`id` = `p`.`topicId` )
-		WHERE `t`.`groupId` = ?
-		";
+        if ( empty($groupId) )
+        {
+            return 0;
+        }
 
-        $postCount = $this->dbo->queryForColumn($query, array($groupId));
+        $query = 'SELECT COUNT(`p`.`id`)
+            FROM `' . $this->getTableName() . '` AS `t`
+		        INNER JOIN `' . FORUM_BOL_PostDao::getInstance()->getTableName() . '` AS `p`
+		            ON ( `t`.`id` = `p`.`topicId` )
+		    WHERE `t`.`' . self::GROUP_ID . '` = :groupId AND `t`.`' . self::STATUS . '` = :status';
 
-        return (int) $postCount;
+        return (int)$this->dbo->queryForColumn($query, array('groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED));
     }
 
     /**
@@ -132,18 +141,16 @@ class FORUM_BOL_TopicDao extends OW_BaseDao
      */
     public function findGroupTopicList( $groupId, $first, $count )
     {
-        $query = "
-		SELECT `t`.*
-		FROM `" . $this->getTableName() . "` AS `t`
-		INNER JOIN `" . FORUM_BOL_PostDao::getInstance()->getTableName() . "` AS `p`
-		ON (`t`.`lastPostId` = `p`.`id`)
-		WHERE `t`.`groupId` = ?
-		GROUP BY `p`.`topicId`
-		ORDER BY `t`.`sticky` DESC, `p`.`createStamp` DESC
-		LIMIT ?, ?
-		";
+        $query = 'SELECT `t`.*
+		    FROM `' . $this->getTableName() . '` AS `t`
+		        INNER JOIN `' . FORUM_BOL_PostDao::getInstance()->getTableName() . '` AS `p`
+		            ON (`t`.`lastPostId` = `p`.`id`)
+		    WHERE `t`.`groupId` = ? AND `t`.`status` = ?
+		    GROUP BY `p`.`topicId`
+		    ORDER BY `t`.`sticky` DESC, `p`.`createStamp` DESC
+		    LIMIT ?, ?';
 
-        $list = $this->dbo->queryForList($query, array($groupId, $first, $count));
+        $list = $this->dbo->queryForList($query, array($groupId, FORUM_BOL_ForumService::STATUS_APPROVED, (int)$first, (int)$count));
 
         if ( $list )
         {
@@ -171,21 +178,16 @@ class FORUM_BOL_TopicDao extends OW_BaseDao
 
         $excludeCond = $excludeGroupIdList ? ' AND `g`.`id` NOT IN ('.implode(',', $excludeGroupIdList).') = 1' : '';
 
-        $query = "
-            SELECT `t`.*
-            FROM `" . $this->getTableName() . "` AS `t`
-            INNER JOIN `" . $groupDao->getTableName() . "` AS `g`
-            ON (`t`.`groupId` = `g`.`id`)
-            INNER JOIN `" . $sectionDao->getTableName() . "` AS `s`
-            ON (`s`.`id` = `g`.`sectionId`)
-            INNER JOIN `" . $postDao->getTableName() . "` AS `p`
-            ON (`t`.`lastPostId` = `p`.`id`)
-            WHERE `s`.`isHidden` = 0 ".$excludeCond." 
+        $query = 'SELECT `t`.*
+            FROM `' . $this->getTableName() . '` AS `t`
+                INNER JOIN `' . $groupDao->getTableName() . '` AS `g` ON (`t`.`groupId` = `g`.`id`)
+                INNER JOIN `' . $sectionDao->getTableName() . '` AS `s` ON (`s`.`id` = `g`.`sectionId`)
+                INNER JOIN `' . $postDao->getTableName() . '` AS `p` ON (`t`.`lastPostId` = `p`.`id`)
+            WHERE `s`.`isHidden` = 0 AND `t`.`status` = :status ' . $excludeCond . '
             ORDER BY `p`.`createStamp` DESC
-            LIMIT ?
-        ";
+            LIMIT :limit';
 
-        $list = $this->dbo->queryForList($query, array($limit));
+        $list = $this->dbo->queryForList($query, array('status' => FORUM_BOL_ForumService::STATUS_APPROVED, 'limit' => (int)$limit));
 
         if ( $list )
         {

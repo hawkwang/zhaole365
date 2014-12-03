@@ -61,5 +61,7 @@ OW::getRouter()->addRoute(new OW_Route('forum_search', 'forum/search/', 'FORUM_C
 OW::getRouter()->addRoute(new OW_Route('forum_search_group', 'forum/:groupId/search/', 'FORUM_CTRL_Search', 'inGroup'));
 OW::getRouter()->addRoute(new OW_Route('forum_search_section', 'forum/section/:sectionId/search/', 'FORUM_CTRL_Search', 'inSection'));
 OW::getRouter()->addRoute(new OW_Route('forum_search_topic', 'forum/topic/:topicId/search/', 'FORUM_CTRL_Search', 'inTopic'));
+OW::getRouter()->addRoute(new OW_Route('forum_approve_topic', 'forum/approve/:id', 'FORUM_CTRL_Topic', 'approve'));
 
 FORUM_CLASS_EventHandler::getInstance()->init();
+FORUM_CLASS_ContentProvider::getInstance()->init();

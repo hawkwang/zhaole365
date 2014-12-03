@@ -64,16 +64,14 @@ class FORUM_CTRL_Topic extends OW_ActionController
      */
     public function index( array $params )
     {
-        if ( !isset($params['topicId']) || !($topicId = (int) $params['topicId']) )
+        if ( !isset($params['topicId']) || ($topicDto = $this->forumService->findTopicById($params['topicId'])) === null )
         {
             throw new Redirect404Exception();
         }
 
-        $topicDto = $this->forumService->findTopicById($topicId);
-
-        if ( !$topicDto )
+        if ( $topicDto != FORUM_BOL_ForumService::STATUS_APPROVED )
         {
-            throw new Redirect404Exception();
+            //throw new Redirect404Exception();
         }
 
         $forumGroup = $this->forumService->findGroupById($topicDto->groupId);
@@ -158,10 +156,10 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $this->forumService->saveOrUpdateTopic($topicDto);
 
         //update user read info
-        $this->forumService->setTopicRead($topicId, $userId);
+        $this->forumService->setTopicRead($topicDto->id, $userId);
 
-        $topicInfo = $this->forumService->getTopicInfo($topicId);
-        $postList = $this->forumService->getTopicPostList($topicId, $page);
+        $topicInfo = $this->forumService->getTopicInfo($topicDto->id);
+        $postList = $this->forumService->getTopicPostList($topicDto->id, $page);
 
         OW::getEventManager()->trigger(new OW_Event('forum.topic_post_list', array('list' => $postList)));
 
@@ -204,7 +202,7 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $this->assign('canLock', $canLock);
         $this->assign('canSticky', $canSticky);
         $this->assign('canSubscribe', OW::getUser()->isAuthorized('forum', 'subscribe'));
-        $this->assign('isSubscribed', $userId && FORUM_BOL_SubscriptionService::getInstance()->isUserSubscribed($userId, $topicId));
+        $this->assign('isSubscribed', $userId && FORUM_BOL_SubscriptionService::getInstance()->isUserSubscribed($userId, $topicDto->id));
 
         if ( !$postList )
         {
@@ -223,6 +221,8 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $userIds = array();
         $postIds = array();
         $flagItems = array();
+
+        $firstTopicPost = $this->forumService->findTopicFirstPost($topicDto->id);
 
         foreach ( $postList as &$post )
         {
@@ -275,6 +275,11 @@ class FORUM_CTRL_Topic extends OW_ActionController
                 {
                     array_push($toolbar, array('id' => $post['id'], 'class' => 'delete_post', 'href' => 'javascript://', 'label' => $langDelete));
                 }
+
+                if ( $iteration === 0 && !$isOwner && $isModerator && $topicInfo['status'] == FORUM_BOL_ForumService::STATUS_APPROVAL )
+                {
+                    $toolbar[] = array('id' => $topicInfo['id'], 'href' => OW::getRouter()->urlForRoute('forum_approve_topic', array('id' => $topicInfo['id'])), 'label' => OW::getLanguage()->text('forum', 'approve_topic'));
+                }
             }
 
             $toolbars[$post['id']] = $toolbar;
@@ -293,7 +298,12 @@ class FORUM_CTRL_Topic extends OW_ActionController
             ->newVariable('flagItems', $flagItems)
             ->jQueryEvent(
             '.post_flag_item a', 'click', 'var inf = flagItems[this.id];
-                OW.flagContent("forum_post", inf.id, inf.title, inf.href, "forum+flags");'
+                if (inf.id == '.$firstTopicPost->id.' ){
+                    OW.flagContent("'.FORUM_BOL_ForumService::FEED_ENTITY_TYPE.'", '.$firstTopicPost->topicId.');
+                }
+                else{
+                    OW.flagContent("'.FORUM_BOL_ForumService::FEED_POST_ENTITY_TYPE.'", inf.id);
+                }'
         );
 
         OW::getDocument()->addOnloadScript($js, 1001);
@@ -307,7 +317,7 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $this->assign('enableAttachments', $enableAttachments);
 
         $uid = uniqid();
-        $addPostForm = $this->generateAddPostForm($topicId, $uid);
+        $addPostForm = $this->generateAddPostForm($topicDto->id, $uid);
         $this->addForm($addPostForm);
 
         $addPostInputId = $addPostForm->getElement('text')->getId();
@@ -325,14 +335,14 @@ class FORUM_CTRL_Topic extends OW_ActionController
 
         $indexUrl = OW::getRouter()->urlForRoute('forum-default');
         $groupUrl = OW::getRouter()->urlForRoute('group-default', array('groupId' => $topicDto->groupId));
-        $deletePostUrl = OW::getRouter()->urlForRoute('delete-post', array('topicId' => $topicId, 'postId' => 'postId'));
-        $stickyTopicUrl = OW::getRouter()->urlForRoute('sticky-topic', array('topicId' => $topicId, 'page' => $page));
-        $lockTopicUrl = OW::getRouter()->urlForRoute('lock-topic', array('topicId' => $topicId, 'page' => $page));
-        $deleteTopicUrl = OW::getRouter()->urlForRoute('delete-topic', array('topicId' => $topicId));
+        $deletePostUrl = OW::getRouter()->urlForRoute('delete-post', array('topicId' => $topicDto->id, 'postId' => 'postId'));
+        $stickyTopicUrl = OW::getRouter()->urlForRoute('sticky-topic', array('topicId' => $topicDto->id, 'page' => $page));
+        $lockTopicUrl = OW::getRouter()->urlForRoute('lock-topic', array('topicId' => $topicDto->id, 'page' => $page));
+        $deleteTopicUrl = OW::getRouter()->urlForRoute('delete-topic', array('topicId' => $topicDto->id));
         $getPostUrl = OW::getRouter()->urlForRoute('get-post', array('postId' => 'postId'));
         $moveTopicUrl = OW::getRouter()->urlForRoute('move-topic');
-        $subscribeTopicUrl = OW::getRouter()->urlForRoute('subscribe-topic', array('id' => $topicId));
-        $unsubscribeTopicUrl = OW::getRouter()->urlForRoute('unsubscribe-topic', array('id' => $topicId));
+        $subscribeTopicUrl = OW::getRouter()->urlForRoute('subscribe-topic', array('id' => $topicDto->id));
+        $unsubscribeTopicUrl = OW::getRouter()->urlForRoute('unsubscribe-topic', array('id' => $topicDto->id));
 
         $topicInfoJs = json_encode(array('sticky' => $topicDto->sticky, 'locked' => $topicDto->locked, 'ishidden' => $isHidden && !$canMoveToHidden));
 
@@ -367,12 +377,12 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $lang->addKeyForJs('forum', 'forum_quote_from');
 
         // first topic's post
-        $postDto = $this->forumService->findTopicFirstPost($topicId);
+        $postDto = $firstTopicPost;
 
         //posts count on page
         $count = $this->forumService->getPostPerPageConfig();
 
-        $postCount = $this->forumService->findTopicPostCount($topicId);
+        $postCount = $this->forumService->findTopicPostCount($topicDto->id);
         $pageCount = ceil($postCount / $count);
 
         $groupSelect = $this->forumService->getGroupSelectList($topicDto->groupId, $canMoveToHidden, $userId);
@@ -388,7 +398,11 @@ class FORUM_CTRL_Topic extends OW_ActionController
             OW::getNavigation()->deactivateMenuItems(OW_Navigation::MAIN);
             OW::getNavigation()->activateMenuItem(OW_Navigation::MAIN, $forumSection->entity, $eventData['key']);
 
-            OW::getDocument()->setHeading(OW::getLanguage()->text($forumSection->entity, 'topic_page_heading', array('topic' => $topicInfo['title'], 'group' => $topicInfo['groupName'])));
+            OW::getDocument()->setHeading(OW::getLanguage()->text($forumSection->entity, 'topic_page_heading', array(
+                'topic' => $topicInfo['title'],
+                'group' => $topicInfo['groupName'],
+                'content' => ''
+            )));
 
             $bcItems = array(
                 array(
@@ -420,7 +434,10 @@ class FORUM_CTRL_Topic extends OW_ActionController
             $breadCrumbCmp = new BASE_CMP_Breadcrumb($bcItems, $lang->text('forum', 'topic_location'));
             $this->addComponent('breadcrumb', $breadCrumbCmp);
 
-            OW::getDocument()->setHeading(OW::getLanguage()->text('forum', 'topic_page_heading', array('topic' => $topicInfo['title'])));
+            OW::getDocument()->setHeading(OW::getLanguage()->text('forum', 'topic_page_heading', array(
+                'topic' => $topicInfo['title'],
+                'content' => $topicInfo['status'] == FORUM_BOL_ForumService::STATUS_APPROVED ? '' : OW::getLanguage()->text('forum', 'pending_approval')
+            )));
         }
 
         OW::getDocument()->setHeadingIconClass('ow_ic_script');
@@ -440,12 +457,12 @@ class FORUM_CTRL_Topic extends OW_ActionController
         OW::getDocument()->setTitle($topicInfo['title']);
         OW::getDocument()->setDescription($firstPostText);
 
-        $this->addComponent('search', new FORUM_CMP_ForumSearch(array('scope' => 'topic', 'topicId' => $topicId)));
+        $this->addComponent('search', new FORUM_CMP_ForumSearch(array('scope' => 'topic', 'topicId' => $topicDto->id)));
 
         $tb = array();
 
         $toolbarEvent = new BASE_CLASS_EventCollector('forum.collect_topic_toolbar_items', array(
-            'topicId' => $topicId,
+            'topicId' => $topicDto->id,
             'topicDto' => $topicDto
         ));
 
@@ -1026,5 +1043,44 @@ class FORUM_CTRL_Topic extends OW_ActionController
         $form->setAjax(true);
 
         return $form;
+    }
+
+    public function approve( $params )
+    {
+        if ( !OW::getUser()->isAuthorized('forum') )
+        {
+            exit();
+        }
+
+        $entityId = $params['id'];
+
+        $backUrl = OW::getRouter()->urlForRoute('topic-default', array(
+            'topicId' => $entityId
+        ));
+
+        $event = new OW_Event("moderation.approve", array(
+            "entityType" => FORUM_CLASS_ContentProvider::ENTITY_TYPE,
+            "entityId" => $entityId
+        ));
+
+        OW::getEventManager()->trigger($event);
+
+        $data = $event->getData();
+
+        if ( empty($data) )
+        {
+            $this->redirect($backUrl);
+        }
+
+        if ( $data["message"] )
+        {
+            OW::getFeedback()->info($data["message"]);
+        }
+        else
+        {
+            OW::getFeedback()->error($data["error"]);
+        }
+
+        $this->redirect($backUrl);
     }
 }

@@ -673,6 +673,7 @@ class FORUM_CLASS_EventHandler
         $em->bind('ads.enabled_plugins', array($this, 'adsEnabled'));
         $em->bind('admin.add_auth_labels', array($this, 'addAuthLabels'));
         $em->bind('feed.on_entity_add', array($this, 'feedOnEntityAdd'));
+        $em->bind('feed.on_entity_update', array($this, 'feedOnEntityAdd'));
         $em->bind('forum.add_post', array($this, 'feedOnPostAdd'));
         $em->bind('feed.collect_configurable_activity', array($this, 'feedCollectConfigurableActivity'));
         $em->bind('forum.subscribe_user', array($this, 'subscribeUser'));

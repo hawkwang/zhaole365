@@ -88,6 +88,7 @@ $sql = "CREATE TABLE IF NOT EXISTS `".$dbPref."forum_post` (
   `createStamp` int(11) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `topicId` (`topicId`),
+  KEY `createStamp` (`createStamp`),
   FULLTEXT KEY `post_text` (`text`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
 
@@ -136,10 +137,12 @@ $sql = "CREATE TABLE IF NOT EXISTS `".$dbPref."forum_topic` (
   `temp` TINYINT(1) NOT NULL DEFAULT '0',
   `viewCount` int(11) NOT NULL default '0',
   `lastPostId` int(11) NOT NULL default '0',
+  `status` enum('approval','approved','blocked') NOT NULL DEFAULT 'approved',
   PRIMARY KEY  (`id`),
   KEY `groupId` (`groupId`),
   KEY `lastPostId` (`lastPostId`),
-  FULLTEXT KEY `topic_title` (`title`)
+  FULLTEXT KEY `topic_title` (`title`),
+  KEY `status` (`status`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8;";
 
 OW::getDbo()->query($sql);
@@ -158,7 +161,7 @@ OW::getDbo()->query($sql);
 // Add default section
 $sql = "INSERT INTO `".$dbPref."forum_section` 
     (`name`, `order`, `entity`, `isHidden`)
-    VALUES ('找乐365', 1, NULL, 0);";
+    VALUES ('General', 1, NULL, 0);";
 
 $sectionId = OW::getDbo()->insert($sql);
 
@@ -167,7 +170,7 @@ if ( $sectionId )
     // Default group
     $sql = "INSERT INTO `".$dbPref."forum_group` 
         (`sectionId`, `name`, `description`, `order`, `entityId`)
-        VALUES (".$sectionId.", '找乐', '有关找乐的任何主题呦！', 1, NULL);";
+        VALUES (".$sectionId.", 'General Chat', 'Just about anything', 1, NULL);";
     
     $groupId = OW::getDbo()->insert($sql);    
 }

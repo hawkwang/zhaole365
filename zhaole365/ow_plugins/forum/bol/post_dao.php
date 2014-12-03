@@ -209,14 +209,20 @@ class FORUM_BOL_PostDao extends OW_BaseDao
     
     public function findGroupLastPost( $groupId )
     {
-        $topicDao = FORUM_BOL_TopicDao::getInstance();
+        if ( empty($groupId) )
+        {
+            return null;
+        }
         
-        $sql = "SELECT `p`.*, `t`.`title` FROM `".$this->getTableName()."` AS `p`
-            INNER JOIN `".$topicDao->getTableName()."` AS `t` ON(`p`.`topicId`=`t`.`id`)
-            WHERE `t`.`groupId` = :groupId
-            ORDER BY `p`.`createStamp` DESC LIMIT 1";
+        $sql = 'SELECT `p`.*, `t`.`title`
+            FROM `' . $this->getTableName() . '` AS `p`
+                INNER JOIN `' . FORUM_BOL_TopicDao::getInstance()->getTableName() . '` AS `t`
+                    ON(`p`.`topicId`=`t`.`id`)
+            WHERE `t`.`groupId` = :groupId AND `t`.`status` = :status
+            ORDER BY `p`.`createStamp` DESC
+            LIMIT 1';
         
-        return $this->dbo->queryForRow($sql, array('groupId' => $groupId));
+        return $this->dbo->queryForRow($sql, array('groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED));
     }
     
     public function getUserTokenJoinString( $userToken )
@@ -258,12 +264,12 @@ class FORUM_BOL_PostDao extends OW_BaseDao
                 INNER JOIN `".FORUM_BOL_GroupDao::getInstance()->getTableName()."` AS `g` ON (`g`.`id`=`t`.`groupId`)
                 INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE 1 ".$excludeCond." AND `s`.`isHidden` = 0
+                WHERE 1 ".$excludeCond." AND `s`.`isHidden` = 0 AND `t`.`status` = :status
                 GROUP BY `t`.`id`
                 ORDER BY `p`.`createStamp` DESC
                 LIMIT :first, :limit";
 
-            $params = array('first' => $first, 'limit' => $limit);
+            $params = array('status' => FORUM_BOL_ForumService::STATUS_APPROVED, 'first' => (int)$first, 'limit' => (int)$limit);
         }
         else
         {
@@ -279,12 +285,12 @@ class FORUM_BOL_PostDao extends OW_BaseDao
             INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
                 WHERE (MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") OR MATCH (`p`.`text`) AGAINST(:token".$booleanMode."))
-            ".$excludeCond." AND `s`.`isHidden` = 0
+            ".$excludeCond." AND `s`.`isHidden` = 0 AND `t`.`status` = :status
             GROUP BY `t`.`id`
                 ORDER BY ".$sortCond." MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") DESC, MATCH (`p`.`text`) AGAINST(:token".$booleanMode.") DESC
             LIMIT :first, :limit";
         
-        $params = array('token' => $token, 'first' => $first, 'limit' => $limit);
+        $params = array('status' => FORUM_BOL_ForumService::STATUS_APPROVED, 'token' => $token, 'first' => (int)$first, 'limit' => (int)$limit);
         }
         
         return $this->dbo->queryForList($query, $params);
@@ -302,8 +308,8 @@ class FORUM_BOL_PostDao extends OW_BaseDao
                 INNER JOIN `".FORUM_BOL_GroupDao::getInstance()->getTableName()."` AS `g` ON (`g`.`id`=`t`.`groupId`)
                 INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE 1 ".$excludeCond." AND `s`.`isHidden` = 0";
-            $params = array();
+                WHERE 1 ".$excludeCond." AND `s`.`isHidden` = 0 AND `t`.`status` = :status";
+            $params = array('status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
         else
         {
@@ -318,8 +324,8 @@ class FORUM_BOL_PostDao extends OW_BaseDao
             INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
                 WHERE (MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") OR MATCH (`p`.`text`) AGAINST(:token".$booleanMode."))
-            ".$excludeCond." AND `s`.`isHidden` = 0";
-            $params = array('token' => $token);
+            ".$excludeCond." AND `s`.`isHidden` = 0 AND `t`.`status` = :status";
+            $params = array('token' => $token, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
 
         return (int) $this->dbo->queryForColumn($query, $params);
@@ -426,12 +432,12 @@ class FORUM_BOL_PostDao extends OW_BaseDao
                 INNER JOIN `".FORUM_BOL_GroupDao::getInstance()->getTableName()."` AS `g` ON (`g`.`id`=`t`.`groupId`)
                 INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE `g`.`id` = :groupId " . $hiddenCond."
+                WHERE `g`.`id` = :groupId AND `t`.`status` = :status " . $hiddenCond."
                 GROUP BY `t`.`id`
                 ORDER BY `p`.`createStamp` DESC
                 LIMIT :first, :limit";
 
-            $params = array('groupId' => $groupId, 'first' => $first, 'limit' => $limit);
+            $params = array('groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED, 'first' => (int)$first, 'limit' => (int)$limit);
         }
         else
         {
@@ -447,13 +453,13 @@ class FORUM_BOL_PostDao extends OW_BaseDao
             INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
                 WHERE (MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") OR MATCH (`p`.`text`) AGAINST(:token".$booleanMode."))
-            AND `g`.`id` = :groupId " . $hiddenCond."
+            AND `g`.`id` = :groupId AND `t`.`status` = :status " . $hiddenCond."
             GROUP BY `t`.`id`
                 ORDER BY ".$sortCond." MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") DESC,
                 MATCH (`p`.`text`) AGAINST(:token".$booleanMode.") DESC
             LIMIT :first, :limit";
         
-        $params = array('token' => $token, 'groupId' => $groupId, 'first' => $first, 'limit' => $limit);
+        $params = array('token' => $token, 'groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED, 'first' => (int)$first, 'limit' => (int)$limit);
         }
         
         return $this->dbo->queryForList($query, $params);
@@ -471,9 +477,9 @@ class FORUM_BOL_PostDao extends OW_BaseDao
             INNER JOIN `".FORUM_BOL_GroupDao::getInstance()->getTableName()."` AS `g` ON (`g`.`id`=`t`.`groupId`)
             INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE `g`.`id` = :groupId " . $hiddenCond;
+                WHERE `g`.`id` = :groupId AND `t`.`status` = :status " . $hiddenCond;
 
-            $params = array('groupId' => $groupId);
+            $params = array('groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
         else
         {
@@ -488,9 +494,9 @@ class FORUM_BOL_PostDao extends OW_BaseDao
                 INNER JOIN `".FORUM_BOL_SectionDao::getInstance()->getTableName()."` AS `s` ON (`s`.`id`=`g`.`sectionId`)
                 " . $this->getUserTokenJoinString($userToken) . "
                 WHERE (MATCH (`t`.`title`) AGAINST(:token".$booleanMode.") OR MATCH (`p`.`text`) AGAINST(:token".$booleanMode."))
-            AND `g`.`id` = :groupId " . $hiddenCond;
+            AND `g`.`id` = :groupId AND `t`.`status` = :status " . $hiddenCond;
         
-        $params = array('token' => $token, 'groupId' => $groupId);
+        $params = array('token' => $token, 'groupId' => $groupId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
         
         return (int)$this->dbo->queryForColumn($query, $params);
@@ -504,11 +510,12 @@ class FORUM_BOL_PostDao extends OW_BaseDao
         {
             $query = "SELECT `p`.*
                 FROM `".$this->getTableName()."` AS `p`
+                INNER JOIN `".FORUM_BOL_TopicDao::getInstance()->getTableName()."` AS `t` ON(`p`.`topicId` = `t`.`id)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE `p`.`topicId` = :topicId
+                WHERE `p`.`topicId` = :topicId AND `t`.`status` = :status
                 ORDER BY `createStamp` DESC";
 
-            $params = array('topicId' => $topicId);
+            $params = array('topicId' => $topicId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
         else
         {
@@ -518,11 +525,12 @@ class FORUM_BOL_PostDao extends OW_BaseDao
 
             $query = "SELECT `p`.*, MATCH (`p`.`text`) AGAINST(:token".$booleanMode.")
                 FROM `".$this->getTableName()."` AS `p`
+                INNER JOIN `".FORUM_BOL_TopicDao::getInstance()->getTableName()."` AS `t` ON(`p`.`topicId` = `t`.`id`)
                 " . $this->getUserTokenJoinString($userToken) . "
-                WHERE MATCH (`p`.`text`) AGAINST(:token".$booleanMode.") AND `p`.`topicId` = :topicId
+                WHERE MATCH (`p`.`text`) AGAINST(:token".$booleanMode.") AND `p`.`topicId` = :topicId AND `t`.`status` = :status
                 ORDER BY ".$sortCond." MATCH (`p`.`text`) AGAINST(:token".$booleanMode.") DESC";
         
-        $params = array('token' => $token, 'topicId' => $topicId);
+        $params = array('token' => $token, 'topicId' => $topicId, 'status' => FORUM_BOL_ForumService::STATUS_APPROVED);
         }
         
         return $this->dbo->queryForObjectList($query, 'FORUM_BOL_Post', $params);

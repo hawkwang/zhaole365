@@ -70,4 +70,8 @@ class FORUM_BOL_Topic extends OW_Entity
      * @var int
      */
     public $lastPostId = 0;
+    /**
+     * @var string
+     */
+    public $status = 'approved';
 }

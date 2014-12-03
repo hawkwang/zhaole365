@@ -42,6 +42,14 @@ final class FORUM_BOL_ForumService
     const EVENT_AFTER_POST_EDIT = 'forum.after_post_edit';
     const EVENT_AFTER_TOPIC_DELETE = 'forum.after_topic_delete';
     const EVENT_AFTER_TOPIC_EDIT = 'forum.after_topic_edit';
+    const EVENT_AFTER_TOPIC_ADD = 'forum.after_topic_add';
+    const EVENT_BEFORE_TOPIC_DELETE = 'forum.before_topic_delete';
+    const FEED_ENTITY_TYPE = 'forum-topic';
+    const FEED_POST_ENTITY_TYPE = 'forum-post';
+
+    const STATUS_APPROVAL = 'approval';
+    const STATUS_APPROVED = 'approved';
+    const STATUS_BLOCKED = 'blocked';
 
     /**
      * @var FORUM_BOL_ForumService
@@ -883,6 +891,11 @@ final class FORUM_BOL_ForumService
         return $this->topicDao->findById($topicId);
     }
 
+    public function addTopic( $topicDto )
+    {
+        $this->topicDao->save($topicDto);
+    }
+
     /**
      * Saves or updates topic
      * 
@@ -891,9 +904,6 @@ final class FORUM_BOL_ForumService
     public function saveOrUpdateTopic( $topicDto )
     {
         $this->topicDao->save($topicDto);
-
-        $event = new OW_Event(self::EVENT_AFTER_TOPIC_EDIT, array('topicId' => $topicDto->id));
-        OW::getEventManager()->trigger($event);
     }
 
     /**
@@ -1037,9 +1047,6 @@ final class FORUM_BOL_ForumService
         $editPostDao = FORUM_BOL_EditPostDao::getInstance();
 
         $editPostDao->save($editPostDto);
-
-        $event = new OW_Event(self::EVENT_AFTER_POST_EDIT, array('photoId' => $editPostDto->id));
-        OW::getEventManager()->trigger($event);
     }
 
     /**
@@ -1117,6 +1124,11 @@ final class FORUM_BOL_ForumService
         return $this->postDao->findById($postId);
     }
 
+    public function findPostListByIds( $postIdList )
+    {
+        return $this->postDao->findByIdList( $postIdList );
+    }
+
     /**
      * Returns previous post
      * 
@@ -1159,7 +1171,7 @@ final class FORUM_BOL_ForumService
         FORUM_BOL_PostAttachmentService::getInstance()->deletePostAttachments($postId);
 
         //delete flags
-        BOL_FlagService::getInstance()->deleteByTypeAndEntityId('forum_post', $postId);
+        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(FORUM_CLASS_ContentProvider::POST_ENTITY_TYPE, $postId);
 
         $event = new OW_Event(self::EVENT_AFTER_POST_DELETE, array('postId' => $postId));
         OW::getEventManager()->trigger($event);
@@ -1172,6 +1184,9 @@ final class FORUM_BOL_ForumService
      */
     public function deleteTopic( $topicId )
     {
+        //delete flags
+        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(FORUM_CLASS_ContentProvider::ENTITY_TYPE, $topicId);
+        
         $editPostDao = FORUM_BOL_EditPostDao::getInstance();
         $readTopicDao = FORUM_BOL_ReadTopicDao::getInstance();
 
@@ -1191,6 +1206,10 @@ final class FORUM_BOL_ForumService
 
         //delete topic read info
         $readTopicDao->deleteByTopicId($topicId);
+
+        OW::getEventManager()->trigger(new OW_Event(self::EVENT_BEFORE_TOPIC_DELETE, array(
+            'topicId' => $topicId
+        )));
 
         //delete topic
         $this->topicDao->deleteById($topicId);
@@ -1554,5 +1573,10 @@ final class FORUM_BOL_ForumService
     public function findTemporaryTopics( $limit )
     {
         return $this->topicDao->findTemporaryTopicList($limit);
+    }
+
+    public function findTopicListByIds( $topicIdList )
+    {
+        return $this->topicDao->findByIdList( $topicIdList );
     }
 }

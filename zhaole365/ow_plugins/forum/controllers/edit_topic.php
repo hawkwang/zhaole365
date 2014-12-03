@@ -210,6 +210,18 @@ class FORUM_CTRL_EditTopic extends OW_ActionController
                 }
             }
 
+            OW::getEventManager()->trigger(new OW_Event('feed.action', array(
+                'pluginKey' => 'forum',
+                'entityType' => 'forum-topic',
+                'entityId' => $topicDto->id,
+                'userId' => $topicDto->userId,
+                'time' => $postDto->createStamp
+            )));
+
+            OW::getEventManager()->trigger(new OW_Event(FORUM_BOL_ForumService::EVENT_AFTER_TOPIC_EDIT, array(
+                'topicId' => $topicDto->id
+            )));
+
             $this->redirect($topicUrl);
         }
 
