@@ -28,8 +28,7 @@
 
        {component class='VIDEO_CMP_OtherVideoList' exclude=$clip->id itemsNum=3}
 
-	   {$rate}
-
-	   {$tags}
+	   {if !empty($rate)}{$rate}{/if}
+           {if !empty($tags)}{$tags}{/if}
 	</div>
 </div>

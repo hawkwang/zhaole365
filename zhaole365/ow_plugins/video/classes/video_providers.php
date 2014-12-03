@@ -52,6 +52,7 @@ class VideoProviders
     const PROVIDER_BIGTUBE = 'bigtube';
     const PROVIDER_TNAFLIX = 'tnaflix';
     const PROVIDER_XHAMSTER = 'xhamster';
+    const PROVIDER_FACEBOOK = 'facebook';
 
     const PROVIDER_UNDEFINED = 'undefined';
 
@@ -80,7 +81,8 @@ class VideoProviders
                 self::PROVIDER_GUBA => 'http://www.guba.com/',
                 self::PROVIDER_BIGTUBE => 'http://www.bigtube.com/',
                 self::PROVIDER_TNAFLIX => 'http://www.tnaflix.com/',
-                self::PROVIDER_XHAMSTER => 'http://xhamster.com/'
+                self::PROVIDER_XHAMSTER => 'http://xhamster.com/',
+                self::PROVIDER_FACEBOOK => 'http://www.facebook.com/'
             );
         }
     }
@@ -503,7 +505,44 @@ class VideoProviderXhamster
         }
 
         return VideoProviders::PROVIDER_UNDEFINED;
-    }   
+    }
+}
+
+class VideoProviderFacebook
+{
+    const clipUidPattern = 'www\.facebook\.com\/video\/embed\?video_id=([^\"]+)\"';
+    const thumbFeedPattern = 'http://graph.facebook.com/()';
+
+    private static function getUid( $code )
+    {
+        $pattern = self::clipUidPattern;
+
+        return preg_match("~{$pattern}~", $code, $match) ? $match[1] : null;
+    }
+
+    public static function getThumbUrl( $code )
+    {
+        if ( ($uid = self::getUid($code)) !== null )
+        {
+            $feedUrl = str_replace('()', $uid, self::thumbFeedPattern);
+
+            $fileCont = @file_get_contents($feedUrl);
+
+            if ( strlen($fileCont) )
+            {
+                $metaObj = @json_decode($fileCont);
+
+                if ( $metaObj )
+                {
+                    $url = @$metaObj->format[0]->picture;
+                }
+            }
+
+            return !empty($url) ? $url : VideoProviders::PROVIDER_UNDEFINED;
+        }
+
+        return VideoProviders::PROVIDER_UNDEFINED;
+    }
 }
 
 class VideoProviderUndefined

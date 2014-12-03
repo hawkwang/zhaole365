@@ -139,8 +139,19 @@ class VIDEO_CTRL_Video extends OW_ActionController
         {
             throw new Redirect404Exception();
         }
-
+        
+        
+        $userId = OW::getUser()->getId();
         $contentOwner = (int) $this->clipService->findClipOwner($id);
+        $ownerMode = $contentOwner == $userId;
+        
+        // is moderator
+        $modPermissions = OW::getUser()->isAuthorized('video');
+        
+        if ( $clip->status != "approved" && !( $modPermissions || $ownerMode ) )
+        {
+            throw new Redirect403Exception;
+        }
 
         $language = OW_Language::getInstance();
 
@@ -149,13 +160,7 @@ class VIDEO_CTRL_Video extends OW_ActionController
         $this->assign('clip', $clip);
         $is_featured = VIDEO_BOL_ClipFeaturedService::getInstance()->isFeatured($clip->id);
         $this->assign('featured', $is_featured);
-
-        // is moderator
-        $modPermissions = OW::getUser()->isAuthorized('video');
         $this->assign('moderatorMode', $modPermissions);
-
-        $userId = OW::getUser()->getId();
-        $ownerMode = $contentOwner == $userId;
         $this->assign('ownerMode', $ownerMode);
 
         if ( !$ownerMode && !OW::getUser()->isAuthorized('video', 'view') && !$modPermissions )
@@ -176,12 +181,17 @@ class VIDEO_CTRL_Video extends OW_ActionController
         $cmtParams->setEntityId($id);
         $cmtParams->setOwnerId($contentOwner);
         $cmtParams->setDisplayType(BASE_CommentsParams::DISPLAY_TYPE_BOTTOM_FORM_WITH_FULL_LIST);
+        
+        $cmtParams->setAddComment($clip->status == "approved");
 
         $videoCmts = new BASE_CMP_Comments($cmtParams);
         $this->addComponent('comments', $videoCmts);
 
-        $videoRates = new BASE_CMP_Rate('video', 'video_rates', $id, $contentOwner);
-        $this->addComponent('rate', $videoRates);
+        if ( $clip->status == "approved" )
+        {
+            $videoRates = new BASE_CMP_Rate('video', 'video_rates', $id, $contentOwner);
+            $this->addComponent('rate', $videoRates);
+        }
 
         $videoTags = new BASE_CMP_EntityTagCloud('video');
         $videoTags->setEntityId($id);
@@ -213,7 +223,14 @@ class VIDEO_CTRL_Video extends OW_ActionController
 
         OW::getDocument()->addOnloadScript($script);
 
-        OW::getDocument()->setHeading($clip->title);
+        $pendingApprovalString = "";
+        if ( $clip->status != "approved" )
+        {
+            $pendingApprovalString = '<span class="ow_remark ow_small">(' 
+                    . OW::getLanguage()->text("base", "pending_approval") . ')</span>';
+        }
+        
+        OW::getDocument()->setHeading($clip->title . " " . $pendingApprovalString);
         OW::getDocument()->setHeadingIconClass('ow_ic_video');
 
         $toolbar = array();
@@ -230,7 +247,7 @@ class VIDEO_CTRL_Video extends OW_ActionController
             array_push($toolbar, $toolbarItem);
         }
 
-        if ( OW::getUser()->isAuthenticated() && !$ownerMode )
+        if ( $clip->status == "approved" && OW::getUser()->isAuthenticated() && !$ownerMode )
         {
             array_push($toolbar, array(
                 'href' => 'javascript://',
@@ -274,34 +291,23 @@ class VIDEO_CTRL_Video extends OW_ActionController
                 ));
             }
 
-            /*
-            if ( $clip->status == 'approved' )
+            if ( $clip->status != 'approved' )
             {
                 array_push($toolbar, array(
-                    'href' => 'javascript://',
-                    'id' => 'clip-set-approval-staus',
-                    'rel' => 'disapprove',
-                    'label' => $language->text('base', 'disapprove')
+                    'href' => OW::getRouter()->urlFor(__CLASS__, "approve", array(
+                        "clipId" => $clip->id
+                    )),
+                    'label' => $language->text('base', 'approve'),
+                    "class" => "ow_green"
                 ));
             }
-            else
-            {
-                array_push($toolbar, array(
-                    'href' => 'javascript://',
-                    'id' => 'clip-set-approval-staus',
-                    'rel' => 'approve',
-                    'label' => $language->text('base', 'approve')
-                ));
-            }
-            */
         }
 
         $this->assign('toolbar', $toolbar);
 
         $js = UTIL_JsGenerator::newInstance()
-                ->jQueryEvent('#btn-video-flag', 'click', 'OW.flagContent(e.data.entity, e.data.id, e.data.title, e.data.href, "video+flags");', array('e'),
-                    array('entity' => 'video_clip', 'id' => $clip->id, 'title' => $clip->title, 'href' => OW::getRouter()->urlForRoute('view_clip', array('id' => $clip->id))
-                ));
+                ->jQueryEvent('#btn-video-flag', 'click', 'OW.flagContent(e.data.entity, e.data.id);', array('e'),
+                    array('entity' => VIDEO_BOL_ClipService::ENTITY_TYPE, 'id' => $clip->id));
 
         OW::getDocument()->addOnloadScript($js, 1001);
 
@@ -722,6 +728,40 @@ class VIDEO_CTRL_Video extends OW_ActionController
 
         return $return;
     }
+    
+    public function approve( $params )
+    {
+        $entityId = $params["clipId"];
+        $entityType = VIDEO_CLASS_ContentProvider::ENTITY_TYPE;
+        
+        $backUrl = OW::getRouter()->urlForRoute("view_clip", array(
+            "id" => $entityId
+        ));
+        
+        $event = new OW_Event("moderation.approve", array(
+            "entityType" => $entityType,
+            "entityId" => $entityId
+        ));
+        
+        OW::getEventManager()->trigger($event);
+        
+        $data = $event->getData();
+        if ( empty($data) )
+        {
+            $this->redirect($backUrl);
+        }
+        
+        if ( $data["message"] )
+        {
+            OW::getFeedback()->info($data["message"]);
+        }
+        else
+        {
+            OW::getFeedback()->error($data["error"]);
+        }
+        
+        $this->redirect($backUrl);
+    }
 }
 
 /**
@@ -817,16 +857,15 @@ class videoEditForm extends Form
                 }
                 $clip->code = UTIL_HtmlTag::stripJs($values['code']);
 
-                if ( $clipService->updateClip($clip) )
-                {
-                    BOL_TagService::getInstance()->updateEntityTags(
-                        $clip->id,
-                        'video',
-                        $values['tags']
-                    );
+                BOL_TagService::getInstance()->updateEntityTags(
+                    $clip->id,
+                    'video',
+                    $values['tags']
+                );
 
-                    return array('result' => true, 'id' => $clip->id);
-                }
+                $clipService->updateClip($clip);
+
+                return array('result' => true, 'id' => $clip->id);
             }
         }
         else

@@ -58,3 +58,4 @@ OW::getRouter()->addRoute(new OW_Route('video_admin_config', 'admin/video/', 'VI
 OW::getThemeManager()->addDecorator('video_list_item', $plugin->getKey());
 
 VIDEO_CLASS_EventHandler::getInstance()->init();
+VIDEO_CLASS_ContentProvider::getInstance()->init();

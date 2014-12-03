@@ -194,7 +194,7 @@ class VIDEO_CLASS_EventHandler
         $params = $e->getParams();
         $data = $e->getData();
 
-        if ( $params['entityType'] != 'video_comments' )
+        if ( $params['entityType'] != VIDEO_BOL_ClipService::ENTITY_TYPE )
         {
             return;
         }
@@ -476,14 +476,24 @@ class VIDEO_CLASS_EventHandler
                 // Newsfeed
                 $event = new OW_Event('feed.action', array(
                     'pluginKey' => 'video',
-                    'entityType' => 'video_comments',
+                    'entityType' => VIDEO_BOL_ClipService::ENTITY_TYPE,
                     'entityId' => $clip->id,
                     'userId' => $clip->userId
                 ));
 
                 OW::getEventManager()->trigger($event);
+                
+                OW::getEventManager()->trigger(new OW_Event(VIDEO_BOL_ClipService::EVENT_AFTER_ADD, array(
+                    'clipId' => $clip->id
+                )));
 
-                $e->setData(array('result' => true, 'id' => $clip->id));
+                $status = $clipService->findClipById($clip->id)->status;
+                
+                $e->setData(array(
+                    'result' => true,
+                    'id' => $clip->id,
+                    "status" => $status
+                ));
             }
         }
     }
@@ -518,6 +528,15 @@ class VIDEO_CLASS_EventHandler
 
         $addClipData = $event->getData();
 
+        if ( $addClipData["status"] == "approval" )
+        {
+            $e->setData(array(
+                "message" => OW::getLanguage()->text("video", "pending_approval_feedback")
+            ));
+            
+            return;
+        }
+        
         if ( !empty($addClipData['id']) )
         {
             $e->setData(array('entityType' => 'video_comments', 'entityId' => $addClipData['id']));

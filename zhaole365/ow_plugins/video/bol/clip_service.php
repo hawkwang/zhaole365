@@ -39,7 +39,15 @@
 final class VIDEO_BOL_ClipService
 {
     const EVENT_AFTER_DELETE = 'video.after_delete';
+    const EVENT_BEFORE_DELETE = 'video.before_delete';
     const EVENT_AFTER_EDIT = 'video.after_edit';
+    const EVENT_AFTER_ADD = 'video.after_add';
+    
+    const ENTITY_TYPE = 'video_comments';
+    
+    const TAGS_ENTITY_TYPE = "video";
+    const RATES_ENTITY_TYPE = "video_rates";
+    const FEED_ENTITY_TYPE = self::ENTITY_TYPE;
 
     /**
      * @var VIDEO_BOL_ClipDao
@@ -95,6 +103,12 @@ final class VIDEO_BOL_ClipService
 
         return $clip->id;
     }
+    
+    public function saveClip( VIDEO_BOL_Clip $clip ) 
+    {
+        $this->clipDao->save($clip);
+        $this->cleanListCache();
+    }
 
     /**
      * Updates video clip
@@ -108,17 +122,17 @@ final class VIDEO_BOL_ClipService
         
         $this->cleanListCache();
 
-        $event = new OW_Event(self::EVENT_AFTER_EDIT, array('clipId' => $clip->id));
-        OW::getEventManager()->trigger($event);
-
         $event = new OW_Event('feed.action', array(
             'pluginKey' => 'video',
-            'entityType' => 'video_comments',
+            'entityType' => self::FEED_ENTITY_TYPE,
             'entityId' => $clip->id,
             'userId' => $clip->userId
         ));
         OW::getEventManager()->trigger($event);
 
+        $event = new OW_Event(self::EVENT_AFTER_EDIT, array('clipId' => $clip->id));
+        OW::getEventManager()->trigger($event);
+        
         return $clip->id;
     }
 
@@ -131,6 +145,17 @@ final class VIDEO_BOL_ClipService
     public function findClipById( $id )
     {
         return $this->clipDao->findById($id);
+    }
+    
+    /**
+     * Finds clips by id list
+     *
+     * @param int $ids
+     * @return array
+     */
+    public function findClipByIds( $ids )
+    {
+        return $this->clipDao->findByIdList($ids);
     }
 
     /**
@@ -161,7 +186,7 @@ final class VIDEO_BOL_ClipService
         if ( $type == 'toprated' )
         {
             $first = ( $page - 1 ) * $limit;
-            $topRatedList = BOL_RateService::getInstance()->findMostRatedEntityList('video_rates', $first, $limit);
+            $topRatedList = BOL_RateService::getInstance()->findMostRatedEntityList(self::RATES_ENTITY_TYPE, $first, $limit);
 
             $clipArr = $this->clipDao->findByIdList(array_keys($topRatedList));
 
@@ -282,7 +307,7 @@ final class VIDEO_BOL_ClipService
     {
         $first = ($page - 1 ) * $limit;
 
-        $clipIdList = BOL_TagService::getInstance()->findEntityListByTag('video', $tag, $first, $limit);
+        $clipIdList = BOL_TagService::getInstance()->findEntityListByTag(self::TAGS_ENTITY_TYPE, $tag, $first, $limit);
 
         $clips = $this->clipDao->findByIdList($clipIdList);
 
@@ -341,7 +366,7 @@ final class VIDEO_BOL_ClipService
     {
         if ( $type == 'toprated' )
         {
-            return BOL_RateService::getInstance()->findMostRatedEntityCount('video');
+            return BOL_RateService::getInstance()->findMostRatedEntityCount(self::RATES_ENTITY_TYPE);
         }
 
         return $this->clipDao->countClips($type);
@@ -366,7 +391,7 @@ final class VIDEO_BOL_ClipService
      */
     public function findTaggedClipsCount( $tag )
     {
-        return BOL_TagService::getInstance()->findEntityCountByTag('video', $tag);
+        return BOL_TagService::getInstance()->findEntityCountByTag(self::TAGS_ENTITY_TYPE, $tag);
     }
 
     /**
@@ -446,18 +471,21 @@ final class VIDEO_BOL_ClipService
      */
     public function deleteClip( $id )
     {
+        $event = new OW_Event(self::EVENT_BEFORE_DELETE, array('clipId' => $id));
+        OW::getEventManager()->trigger($event);
+        
         $this->clipDao->deleteById($id);
 
-        BOL_CommentService::getInstance()->deleteEntityComments('video_comments', $id);
-        BOL_RateService::getInstance()->deleteEntityRates($id, 'video_rates');
-        BOL_TagService::getInstance()->deleteEntityTags($id, 'video');
+        BOL_CommentService::getInstance()->deleteEntityComments(self::ENTITY_TYPE, $id);
+        BOL_RateService::getInstance()->deleteEntityRates($id, self::RATES_ENTITY_TYPE);
+        BOL_TagService::getInstance()->deleteEntityTags($id, self::TAGS_ENTITY_TYPE);
 
         $this->clipFeaturedDao->markUnfeatured($id);
 
-        BOL_FlagService::getInstance()->deleteByTypeAndEntityId('video_clip', $id);
+        BOL_FlagService::getInstance()->deleteByTypeAndEntityId(VIDEO_CLASS_ContentProvider::ENTITY_TYPE, $id);
         
         OW::getEventManager()->trigger(new OW_Event('feed.delete_item', array(
-            'entityType' => 'video_comments',
+            'entityType' => self::FEED_ENTITY_TYPE,
             'entityId' => $id
         )));
         
@@ -471,11 +499,11 @@ final class VIDEO_BOL_ClipService
     
     public function cleanupPluginContent( )
     {
-        BOL_CommentService::getInstance()->deleteEntityTypeComments('video_comments');
-        BOL_RateService::getInstance()->deleteEntityTypeRates('video_rates');
-        BOL_TagService::getInstance()->deleteEntityTypeTags('video');
+        BOL_CommentService::getInstance()->deleteEntityTypeComments(self::ENTITY_TYPE);
+        BOL_RateService::getInstance()->deleteEntityTypeRates(self::RATES_ENTITY_TYPE);
+        BOL_TagService::getInstance()->deleteEntityTypeTags(self::TAGS_ENTITY_TYPE);
         
-        BOL_FlagService::getInstance()->deleteByType('video_clip');
+        BOL_FlagService::getInstance()->deleteFlagList(self::ENTITY_TYPE);
     }
 
     /**
@@ -491,7 +519,11 @@ final class VIDEO_BOL_ClipService
         if ( !strlen($code) )
             return '';
 
-        //adjust width and height
+        // remove %
+        $code = preg_replace("/width=(\"|')?[\d]+(%)?(\"|')?/i", 'width=${1}' . $width . '${3}', $code);
+        $code = preg_replace("/height=(\"|')?[\d]+(%)?(\"|')?/i", 'height=${1}' . $height . '${3}', $code);
+
+        // adjust width and height
         $code = preg_replace("/width=(\"|')?[\d]+(px)?(\"|')?/i", 'width=${1}' . $width . '${3}', $code);
         $code = preg_replace("/height=(\"|')?[\d]+(px)?(\"|')?/i", 'height=${1}' . $height . '${3}', $code);
 
