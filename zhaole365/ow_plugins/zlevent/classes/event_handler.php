@@ -207,7 +207,8 @@ class ZLEVENT_CLASS_EventHandler
                 'zlevent' => array(
                     'label' => $language->text('zlevent', 'auth_group_label'),
                     'actions' => array(
-                        'add_event' => $language->text('zlevent', 'auth_action_label_add_event'),
+                        'add_tag' => $language->text('zlevent', 'auth_action_label_add_tag'),
+                    	'add_event' => $language->text('zlevent', 'auth_action_label_add_event'),
                         'view_event' => $language->text('zlevent', 'auth_action_label_view_event'),
                         'add_comment' => $language->text('zlevent', 'auth_action_label_add_comment')
                     )

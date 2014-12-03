@@ -830,6 +830,7 @@ class ZLGROUPS_CLASS_EventHandler
                 'zlgroups' => array(  // 可能是错的。查看其他相应代码后感觉没错，可以不要key
                     'label' => $language->text('zlgroups', 'auth_group_label'),
                     'actions' => array(
+                    	'add_tag' => $language->text('zlgroups', 'auth_action_label_add_tag'),
                         'add_topic' => $language->text('zlgroups', 'auth_action_label_add_topic'),
                         'create' => $language->text('zlgroups', 'auth_action_label_create'),
                         'view' => $language->text('zlgroups', 'auth_action_label_view'),

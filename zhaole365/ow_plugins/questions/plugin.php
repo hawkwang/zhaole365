@@ -219,7 +219,8 @@ class QUESTIONS_Plugin
 
         $widgetService = BOL_ComponentAdminService::getInstance();
         $widget = $widgetService->addWidget('QUESTIONS_CMP_IndexWidget', false);
-        $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_INDEX);
+        $widgetPlace = $widgetService->addWidgetToPlace($widget, BOL_ComponentService::PLACE_INDEX);
+        $widgetService->addWidgetToPosition($widgetPlace, BOL_ComponentService::SECTION_LEFT);
     }
 
     private function shortActivate()
