@@ -1,5 +1,43 @@
 @CHARSET "UTF-8";
 
+.entry-thumbnail-category {
+	background: none repeat scroll 0 0 #3A3A3A;
+	color: #777777;
+	font-size: 12px;
+	left: 10px;
+	/* left: -5.3px; */
+	padding: 3px 8px;
+	position: absolute;
+	text-transform: uppercase;
+	top: 8px;
+	z-index: 10;
+}
+
+.entry-thumbnail-category:hover {
+	background: none repeat scroll 0 0 #117BB8;
+}
+
+.entry-thumbnail-category:hover:before {
+	border-top: 6px solid #0D5C89;
+}
+
+.entry-thumbnail-category a {
+	color: #FFFFFF;
+	text-decoration: none;
+}
+
+.entry-thumbnail-category:before {
+	border-left: 6px solid rgba(255, 0, 0, 0);
+	border-top: 6px solid #212121;
+	content: "";
+	font-size: 0;
+	left: 0;
+	line-height: 0;
+	position: absolute;
+	top: 23px;
+	width: 0;
+}
+
 .dropdown:hover .dropdown-menu {
     display: block;
  }
@@ -71,7 +109,17 @@ a.unlink:link, a.unlink:visited {
 .thumb { position: relative; width:100%; }
 
 .imagecaption { display: none; position: absolute; background: #000; opacity: 0.7; top: 0; left: 0; width: 100%; height: 100%; padding: 5%; color: #fff; } 
- 
+
+#weixiao_main_content
+{
+	min-height: 500px;
+}
+
+#findNavBar .dropdown, #findNavBar .dropdown ul, #findNavBar .dropdown li, #findNavBar .dropdown li a
+{
+	z-index: 999;
+}
+
 /* 
 .find-navbar-wrap {
 	position: absolute;

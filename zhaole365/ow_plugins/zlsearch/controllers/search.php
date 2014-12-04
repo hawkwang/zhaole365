@@ -18,11 +18,10 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
         $document->addStyleSheet($plugin->getStaticCssUrl() . 'bootstrap-theme.min.css');
         $document->addStyleSheet($plugin->getStaticCssUrl() . 'bootstrap.min.css');
         $document->addStyleSheet($plugin->getStaticCssUrl() . 'search_index.css');
-        $document->addScript($plugin->getStaticJsUrl() . 'jquery-1.11.1.min.js');
+        //$document->addScript($plugin->getStaticJsUrl() . 'jquery-1.11.1.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'bootstrap.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'masonry.pkgd.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'imagesloaded.pkgd.min.js');
-        //$document->addScript($plugin->getStaticJsUrl() . 'jquery.relocator.1.0.0.js');
         $document->addScript($plugin->getStaticJsUrl() . 'search_index.js');
         
         $this->assign('staticurl', $plugin->getStaticUrl());
@@ -270,8 +269,17 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
 					$eventid = $event->getId();
 					$mcount = ZLEVENT_BOL_EventService::getInstance()->findEventUsersCount($eventid, ZLEVENT_BOL_EventService::USER_STATUS_YES);
 					
+					// 获得第一标签
+					$entityType = 'zlevent_tag';
+					$entityId = $eventid;
+					$tags = ZLTAGS_BOL_TagService::getInstance()->findAllTags($entityType, $entityId);
+					$category = '';
+					if(count($tags))
+						$category = $tags[0];
+					
 					$eventinfo = array(
 					   'eid' => $eventid,
+					   'category' => $category,
 					   'url' => OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $eventid)),
 					   'pcount' => $pcount,
 					   'mcount' => $mcount,

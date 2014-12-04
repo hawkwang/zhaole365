@@ -32,13 +32,13 @@ $(document).ready(function() {
 	// 显示缺省内容
 	showDefaultContent();
 	
-	$("#spinner").bind("ajaxSend", function() {
-        $(this).show();
-    }).bind("ajaxStop", function() {
-        $(this).hide();
-    }).bind("ajaxError", function() {
-        $(this).hide();
-    });	
+//	$("#spinner").bind("ajaxSend", function() {
+//        $(this).show();
+//    }).bind("ajaxStop", function() {
+//        $(this).hide();
+//    }).bind("ajaxError", function() {
+//        $(this).hide();
+//    });	
 	
 	// search bar section
 //	$("#id-simple-location").click(function(event) {
@@ -502,7 +502,8 @@ function generateEventsHtmlSnippet(events)
         html='';
 		html += '<div class="item col-lg-3 col-md-4 col-sm-6 col-xs-12">';
 		html += '<section class="panel shadow_bottom" style="border-left-width: 0px; border-right-width: 0px; border-top-width: 0px;">';
-		//html += '<span class="entry-thumbnail-category"> <a title="查看所有' + event.category + '">'+ event.category + '</a></span>';
+		if(event.category.length)
+			html += '<span class="entry-thumbnail-category"> <a title="查看所有' + event.category + '">'+ event.category + '</a></span>';
 		html += '<div class="thumb">';
 		html += '<a href="' + event.url + '" target="_blank">';
 		html += '<div class="imagecaption ellipsize"> <h3>'+ event.title +'</h3> <p>' + event.description + '</p> </div>';

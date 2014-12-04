@@ -173,9 +173,9 @@ class ZLGHEADER_CMP_Header extends OW_Component
         $groupInfo = $this->getGroupInfo();
 
         $js = UTIL_JsGenerator::newInstance()
-            ->jQueryEvent('#groups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "zlgroups+flags", {$ownerId});',
+            ->jQueryEvent('#zlgroups_toolbar_flag', 'click', UTIL_JsGenerator::composeJsString('OW.flagContent({$entity}, {$id}, {$title}, {$href}, "zlgroups+flags", {$ownerId});',
                 array(
-                    'entity' => GROUPS_BOL_Service::WIDGET_PANEL_NAME,
+                    'entity' => ZLGROUPS_BOL_Service::WIDGET_PANEL_NAME,
                     'id' => $this->group->id,
                     'title' => $groupInfo['title'],
                     'href' => $groupInfo['url'],
@@ -197,7 +197,7 @@ class ZLGHEADER_CMP_Header extends OW_Component
             $toolbar[] = array(
                 'label' => OW::getLanguage()->text('base', 'flag'),
                 'href' => 'javascript://',
-                'id' => 'groups_toolbar_flag'
+                'id' => 'zlgroups_toolbar_flag'
             );
         }
 
