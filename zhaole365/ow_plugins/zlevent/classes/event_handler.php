@@ -623,7 +623,8 @@ class ZLEVENT_CLASS_EventHandler
     }
     
     // 乐群介绍组件（ZLGROUPS_CMP_BriefInfoContent）构造工具栏的 event handler
-    // 更新事件数据以更新toolbar信息（添加了“有乐子？与大家分享吧！”）
+    // 1 － 更新事件数据以更新toolbar信息（添加了“有乐子？与大家分享吧！”）
+    // 2 - 更新事件数据已实现对于群主和系统管理员可以删除所有群活动的功能
     public function onGroupToolbarCollect( BASE_CLASS_EventCollector $e )
     {
     	if ( !OW::getUser()->isAuthenticated() )
@@ -657,6 +658,28 @@ class ZLEVENT_CLASS_EventHandler
     						'backUri' => $backUri,
     						'groupId' => $params['groupId'],
     						'command' => 'create_event'))
+    		));
+    	}
+    	
+    	// 2
+    	$groupDto = ZLGROUPS_BOL_Service::getInstance()->findGroupById($params['groupId']);
+    	if ( empty($groupDto) )
+    	{
+    		throw new Redirect404Exception();
+    	}
+    	$isOwner = OW::getUser()->getId() == $groupDto->userId;
+    	$isAdmin = OW::getUser()->isAdmin();
+    	
+    	$url = OW::getRouter()->urlFor('ZLEVENT_CTRL_Base', 'removeAll');
+    	 
+    	if ( $isOwner || $isAdmin )
+    	{
+    		$e->add(array(
+    				'label' => OW::getLanguage()->text('zlevent', 'removeall_group_events'),
+    				'href' => OW::getRequest()->buildUrlQueryString($url, array(
+    						'backUri' => $backUri,
+    						'groupId' => $params['groupId'],
+    						'command' => 'removeall_group_events'))
     		));
     	}
     	

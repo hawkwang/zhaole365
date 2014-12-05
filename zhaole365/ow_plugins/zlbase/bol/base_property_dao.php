@@ -53,6 +53,27 @@ class ZLBASE_BOL_BasePropertyDao extends OW_BaseDao
     	
     }
     
+    public function findProperties($entityType, $entityId)
+    {
+    	$example = new OW_Example();
+    	$example->andFieldEqual(self::ENTITYTYPE, $entityType);
+    	$example->andFieldEqual(self::ENTITYID, $entityId);
+    
+    	$properties = $this->findListByExample($example);
+    
+    	return $properties;
+    	 
+    }
+    
+    public function deleteAllProperties($entityType, $entityId)
+    {
+    	$example = new OW_Example();
+    	$example->andFieldEqual(self::ENTITYTYPE, $entityType);
+    	$example->andFieldEqual(self::ENTITYID, $entityId);
+    	
+    	$this->deleteByExample($example);
+    }
+    
     public function getValue( $entityType, $entityId, $key )
     {
     	$property = $this->findProperty( $entityType, $entityId, $key );

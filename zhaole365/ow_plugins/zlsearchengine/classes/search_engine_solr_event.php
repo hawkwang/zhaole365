@@ -173,6 +173,9 @@ class ZLSEARCHENGINE_CLASS_SearchEngineSolrEvent extends ZLSEARCHENGINE_CLASS_Se
         
         // determine if we has more query elements
         
+        if ( !OW_DEBUG_MODE )
+        	$url = '';
+        	
         // generate result for client
         $search_result = array(
                 'queryurlstatement' => $url,

@@ -895,7 +895,7 @@ class ADMIN_CTRL_Languages extends ADMIN_CTRL_Abstract
 
             $languageService->generateCache($language->getId());
 
-            OW::getFeedback()->info('Added');
+            OW::getFeedback()->info('已添加');
             exit(json_encode(array('result' => 'success')));
         }
     }

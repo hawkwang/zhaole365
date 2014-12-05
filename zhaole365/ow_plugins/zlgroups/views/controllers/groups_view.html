@@ -5,4 +5,39 @@
 {else}
     {$componentPanel}
 {/if}
-{$comments}
+
+
+<input id="current_url" type="hidden" value="{$current_url}">
+<input id="logoiconurl" type="hidden" value="{$logoiconurl}">
+<input id="title" type="hidden" value="{$title}">
+<input id="description" type="hidden" value="{$description}">
+
+{script}
+{literal}
+
+                            var current_url = $('#current_url').val();
+                            var logoiconurl = $('#logoiconurl').val();
+                            var title = $('#title').val();
+                            var description = $('#description').val();
+                            
+                            window._bd_share_config = {
+                                common : {
+                                    bdText : title + ' - 找乐365替您挖掘的乐群',
+                                    bdDesc : description,
+                                    bdUrl : current_url ,
+                                    bdPic : logoiconurl,
+                                },
+                                share : [{
+                                    "bdSize" : 16
+                                }],
+                                slide : [{
+                                    bdImg : 0,
+                                    bdPos : "left",
+                                    bdTop : 100
+                                }],
+                            }
+                         with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+
+
+{/literal}
+{/script}

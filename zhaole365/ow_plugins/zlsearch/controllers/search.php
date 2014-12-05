@@ -41,6 +41,12 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
         $creategroupurl = OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'create');
         $this->assign('creategroupurl', $creategroupurl);
         
+        // for baidu share
+        $current_url = 'http://'.$_SERVER['SERVER_NAME'].':'.$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+        $this->assign('current_url', $current_url);
+        $logoiconurl = OW::getPluginManager()->getPlugin('zlbase')->getStaticUrl() . 'img/le-32.ico';
+        $this->assign('logoiconurl', $logoiconurl);
+        
     }
 
     private function text( $prefix, $key, array $vars = null )
@@ -179,7 +185,10 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     						'description' => $group->description ,
     						'members' => $count_members,
     						'latesteventurl' => $latest_event_url,
-    						'latesteventtime' => $latest_event_time
+    						'latesteventtime' => $latest_event_time,
+    						'joinurl' => OW::getRouter()->urlFor('ZLGROUPS_CTRL_Groups', 'join', array(
+    								'groupId' => $group->getId()
+    						))
     				);
     				$groupinfos[] = $groupinfo;
     				 

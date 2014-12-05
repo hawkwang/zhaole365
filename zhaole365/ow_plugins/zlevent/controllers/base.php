@@ -12,6 +12,51 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         parent::__construct();
         $this->eventService = ZLEVENT_BOL_EventService::getInstance();
     }
+    
+    // 删除所有乐群活动
+    public function removeAll()
+    {
+    	if ( !OW::getUser()->isAuthenticated() )
+    	{
+    		throw new AuthenticateException();
+    	}
+    	
+    	if(!isset($_GET['groupId']))
+    		throw new Redirect404Exception();
+    	
+    	$groupId = (int) $_GET['groupId'];
+    	
+    	$groupDto = ZLGROUPS_BOL_Service::getInstance()->findGroupById($groupId);
+    	
+    	$isOwner = OW::getUser()->getId() == $groupDto->userId;
+    	$isAdmin = OW::getUser()->isAdmin();
+    	if(($isOwner==false)&&($isAdmin==false))
+    		throw new Redirect404Exception();
+    		
+    	if ( $groupDto === null )
+    	{
+    		throw new Redirect404Exception();
+    	}
+    	
+    	switch ( $_GET['command'] )
+    	{
+    		case 'removeall_group_events':
+    			$events = ZLEVENT_BOL_EventService::getInstance()->findEventsByGroupId($groupId);
+    			$total = count($events);
+    			$current = 0;
+    			foreach($events as $event)
+    			{
+    				$this->eventService->deleteEvent($event->getId());
+    				$current++;
+    				//OW::getFeedback()->info('删除乐群活动 － ' . $event->title . ' - 完成 ' . $current . '/' . $total);
+    			}
+    			OW::getFeedback()->info('成功删除乐群活动 － 共计：' . $total);
+    			break;
+    
+    	}
+    	 
+    	$this->redirect(OW_URL_HOME . $_GET['backUri']);
+    }
 
     public function ajaxLatestResponder()
     {
@@ -912,6 +957,7 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
 //         OW::getDocument()->addScript(OW::getPluginManager()->getPlugin('zlareas')->getStaticJsUrl() . 'bootstrap.min.js', 'text/javascript', ZLAREAS_BOL_Service::JQUERY_LOAD_PRIORITY);
         
         // 将活动详细信息作为变量传给视图（view）
+        $eventId = $event->getId();
         $belongingGroup = ZLEVENT_BOL_EventService::getInstance()->findGroupByEventId($event->getId());
         $groupTitle = null;
         $groupLink = null;
@@ -940,6 +986,11 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         
         $imageurl = ( $event->getImage() ? $this->eventService->generateImageUrl($event->getImage(), false) : null );
         
+        // 信息来源
+        $originurlvalue = ZLBASE_BOL_Service::getInstance()->getValue('zlevent', $event->getId(), 'originurl');
+        if($originurlvalue!=null)
+        	$this->assign('originurl', $originurlvalue);
+        
         $infoArray = array(
             'id' => $event->getId(),
             'image' => $imageurl,
@@ -962,6 +1013,16 @@ class ZLEVENT_CTRL_Base extends OW_ActionController
         );
         $this->assign('info', $infoArray);
 
+
+        // 百度分享
+        $current_url = OW::getRouter()->urlForRoute('zlevent.view', array('eventId' => $eventId));
+        $this->assign('current_url', $current_url);
+        $logoiconurl = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+        $this->assign('logoiconurl', $logoiconurl);
+        $this->assign('title', $event->title);
+        $this->assign('description', UTIL_String::truncate(strip_tags($event->description), 100, '...'));
+        
+        
         // event attend form
         // 用户改变参加状态部分
         if ( OW::getUser()->isAuthenticated() && $event->getEndTimeStamp() > time() )

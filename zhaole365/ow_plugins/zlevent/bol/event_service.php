@@ -195,6 +195,10 @@ final class ZLEVENT_BOL_EventService
             $storage->removeFile($this->generateImagePath($eventDto->image));
             $storage->removeFile($this->generateImagePath($eventDto->image, false));
         }
+        
+        // 删除属性
+        ZLBASE_BOL_Service::getInstance()->deleteAllProperties('zlevent', $eventDto->getId() );
+        
 
         // 删除群乐地址
         $this->eventLocationDao->deleteByEventId($eventDto->getId());
@@ -279,6 +283,18 @@ final class ZLEVENT_BOL_EventService
         }
 
         return $this->eventUserDao->findListByEventIdAndStatus($eventId, $status, $first, $count);
+    }
+    
+    public function findAllEventUserIds( $eventId, $status )
+    {
+    	$userIds = array();
+    	$eventUsers = $this->eventUserDao->findAllUserListByEventIdAndStatus($eventId, $status );
+    	foreach($eventUsers as $eventUser)
+    	{
+    		$userIds[] = $eventUser->userId;
+    	}
+    	
+    	return $userIds;
     }
 
     /**
@@ -940,6 +956,11 @@ final class ZLEVENT_BOL_EventService
     public function findLatestEventByGroupId( $groupId, $past = false )
     {
     	return $this->eventDao->findLatestEventByGroupId($groupId, $past);
+    }
+
+    public function findEventsByGroupId( $groupId )
+    {
+    	return $this->eventDao->findEventsByGroupId($groupId);
     }
     
     public function getEventImageWithDefaultUrl($event)

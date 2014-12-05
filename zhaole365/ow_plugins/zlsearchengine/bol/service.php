@@ -54,6 +54,8 @@ class ZLSEARCHENGINE_BOL_Service
     	// location
     	$detailedLocationInfo = ZLGROUPS_BOL_Service::getInstance()->findLocationDetailedInfoByGroupId($groupId);
     	$locationpoint = '' . $detailedLocationInfo['latitude'] . ',' . $detailedLocationInfo['longitude'];
+    	$memberIds = ZLGROUPS_BOL_Service::getInstance()->findGroupUserIdList($groupId);
+    	//$total_members = count($memberIds);
     	 
     	// wrap information into the document the search engine needs
     	$doc = array (
@@ -70,7 +72,8 @@ class ZLSEARCHENGINE_BOL_Service
     					$detailedLocationInfo['formated_address']
     			),
     			'areacode' => $detailedLocationInfo['areacode'],
-    			'member_userid'=> 1
+    			'imageurl' => ZLGROUPS_BOL_Service::getInstance()->getGroupImageWithDefaultUrl($group),
+    			'member_userid'=> $memberIds
     			);
     	
     	
@@ -93,12 +96,23 @@ class ZLSEARCHENGINE_BOL_Service
     	// tags array
     	$tags = ZLTAGS_BOL_TagService::getInstance()->findAllTags('zlevent_tag',$eventId);
     	
+    	// originurl 
+    	$originurl = ZLBASE_BOL_Service::getInstance()->findProperty('zlevent', $eventId, 'originurl');
+    	$url = '';
+    	if ($originurl)
+    		$url = $originurl->value;
+    	
+    	// imageurl
+    	$imageurl = ZLEVENT_BOL_EventService::getInstance()->getEventImageWithDefaultUrl($event);
+    	
     	$doc = array (
+    			'url' => $url,
     			'id' => $event->id,
     			'userid' => $event->userId,
     			'groupid' => $group->id,
     			'title' => $event->title,
     			'description' => $event->description,
+    			'imageurl' => $imageurl,
     			'type' => '1',
     			'category' => $tags,
     			'happentime' => $this->convert2UTC($event->startTimeStamp),      // all the localtime must be converted to UTC time first
@@ -109,7 +123,8 @@ class ZLSEARCHENGINE_BOL_Service
     					$detailedLocationInfo['location'],
     					$detailedLocationInfo['formated_address']
        			),
-    			'areacode' => $detailedLocationInfo['areacode']
+    			'areacode' => $detailedLocationInfo['areacode'],
+    			'RSVP_userid' => ZLEVENT_BOL_EventService::getInstance()->findAllEventUserIds($eventId, ZLEVENT_BOL_EventUserDao::VALUE_STATUS_YES)
     			//'price' => 10.0
     			);
     	

@@ -329,6 +329,18 @@ class ZLEVENT_BOL_EventDao extends OW_BaseDao
     	return $this->dbo->queryForObject($query, $this->getDtoClassName(), array( 'groupId' => $groupId , 'startTime' => time(), 'endTime' => time()));
     }
     
+    public function findEventsByGroupId( $groupId )
+    {
+    	$sortstyle = "ASC";
+    
+    	$query = "SELECT * FROM `" . $this->getTableName() . "` AS `e`
+            INNER JOIN `" . ZLEVENT_BOL_EventGroupDao::getInstance()->getTableName() . "` AS `eg` ON ( `e`.`id` = `eg`.`" . ZLEVENT_BOL_EventGroupDao::EVENT_ID . "` )
+            WHERE `eg`.`" . ZLEVENT_BOL_EventGroupDao::GROUP_ID . "` = :groupId
+             order by " . self::START_TIME_STAMP  . " " . $sortstyle;
+    
+    	return $this->dbo->queryForObjectList($query, $this->getDtoClassName(), array( 'groupId' => $groupId));
+    }    
+    
     public function findUserGroupEventsWithStatus( $groupId, $userId, $userStatus, $first, $count )
     {
     	$query = "SELECT `e`.* FROM `" . $this->getTableName() . "` AS `e`

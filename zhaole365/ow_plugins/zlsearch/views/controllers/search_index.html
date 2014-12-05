@@ -1,3 +1,6 @@
+
+
+
 <!-- <div id="zl_searchbar" class="find-navbar-wrap"> -->
 	<nav id="findNavBar" class="navbar navbar-inverse" role="navigation" style="border-radius:0; width:100%; z-index: 20;">
 	   <div class="container">
@@ -83,7 +86,7 @@
                   </ul>
                 </li>
                 <li><a>之内</a></li>
-				<li class="dropdown">
+				<li class="dropdown" style="display:none;">
 					<a id="id-simple-category" class="dropdown-toggle"
 					data-toggle="dropdown" href="#" data-value="0"> <span class="value">所有类型</span> <span
 						class="caret"></span>
@@ -155,6 +158,8 @@
 				<input id="numFound" type="hidden" value="0"> 
 				<input id="hasMoreItems" type="hidden" value="0"> 
 				<input id="uip" type="hidden" value="{$remoteaddr}">
+				<input id="current_url" type="hidden" value="{$current_url}">
+				<input id="logoiconurl" type="hidden" value="{$logoiconurl}">
 			</div>
 			
 			<div id="weixiao_main_content" class="row clearfix" style="padding-top: 10px; padding-bottom: 10px; margin-bottom: 10px;"></div>
@@ -178,3 +183,31 @@
 	</div>
 
 </div>
+
+
+{script}
+{literal}
+
+                            var current_url = $('#current_url').val();
+                            var logoiconurl = $('#logoiconurl').val();
+                            window._bd_share_config = {
+                                common : {
+                                    bdText : '找乐365 - 天天找乐不用愁',
+                                    bdDesc : '独乐乐不如众乐乐，找乐就找找乐365！',
+                                    bdUrl : current_url ,
+                                    bdPic : logoiconurl,
+                                },
+                                share : [{
+                                    "bdSize" : 16
+                                }],
+                                slide : [{
+                                    bdImg : 0,
+                                    bdPos : "left",
+                                    bdTop : 100
+                                }],
+                            }
+                         with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+
+
+{/literal}
+{/script}

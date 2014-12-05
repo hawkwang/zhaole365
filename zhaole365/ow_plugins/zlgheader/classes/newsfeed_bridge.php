@@ -165,7 +165,7 @@ class ZLGHEADER_CLASS_NewsfeedBridge
         $cover = ZLGHEADER_BOL_Service::getInstance()->findCoverById($params['entityId']);
         
         $data['content'] = array(
-            "format" => "group_cover",
+            "format" => "zlgroup_cover",
             "vars" => array(
                 "groupId" => $cover->groupId
             )

@@ -36,4 +36,19 @@ class ZLBASE_BOL_Service
     	return ZLBASE_BOL_BasePropertyDao::getInstance()->findProperty($entityType, $entityId, $key);
     }
 
+    public function findProperties($entityType, $entityId)
+    {
+    	return ZLBASE_BOL_BasePropertyDao::getInstance()->findProperties($entityType, $entityId );
+    }
+    
+    public function getValue( $entityType, $entityId, $key )
+    {
+		return ZLBASE_BOL_BasePropertyDao::getInstance()->getValue($entityType, $entityId, $key );
+    }
+    
+    public function deleteAllProperties($entityType, $entityId)
+    {
+    	ZLBASE_BOL_BasePropertyDao::getInstance()->deleteAllProperties($entityType, $entityId);
+    }
+    
 }

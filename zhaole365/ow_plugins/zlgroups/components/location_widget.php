@@ -12,7 +12,7 @@ class ZLGROUPS_CMP_LocationWidget extends BASE_CLASS_Widget
 
         $groupId = $params->additionalParamList['entityId'];
         
-        //OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
+        OW::getDocument()->addScript('http://api.map.baidu.com/api?v=2.0&ak=HL2OtpqEFglWT1j2RoS62eRD');
         
         $this->assignList( $groupId );
 
@@ -27,6 +27,8 @@ class ZLGROUPS_CMP_LocationWidget extends BASE_CLASS_Widget
         $this->assign("formated_address", $detailedLocationInfo['formated_address']);
         $this->assign("longitude", $detailedLocationInfo['longitude']);
         $this->assign("latitude", $detailedLocationInfo['latitude']);
+        $zlmarkerurl = OW::getPluginManager()->getPlugin('zlbase')->getStaticUrl() . 'img/zlmarker.png';
+        $this->assign("zlmarkerurl", $zlmarkerurl);
         
     }
 

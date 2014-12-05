@@ -1,13 +1,66 @@
-<div class="ow_lp_avatars">
-	<div id="map_canvas"
+
+{script}
+{literal}
+
+$(function() {
+	
+    var map = undefined;
+    var marker = undefined;
+    
+    var mapDiv = $("<div id='locationtag_autocomplite_map' class='ow_location_tag_map_item' style='width:100%; height:200px;'></div>");
+    $(".map_place").prepend(mapDiv);
+
+    if (!map)
+    {
+    	var longitude = parseFloat($('#longitude').val());
+    	var latitude = parseFloat($('#latitude').val());
+    	var zlmarkerurl = $('#zlmarkerurl').val();
+    	
+        map = new BMap.Map("locationtag_autocomplite_map");
+        var point = new BMap.Point(longitude,latitude);
+        map.centerAndZoom(point,17);
+        map.enableScrollWheelZoom();    //启用滚轮放大缩小，默认禁用
+        map.enableContinuousZoom();    //启用地图惯性拖拽，默认禁用
+        map.addControl(new BMap.NavigationControl());  //添加默认缩放平移控件
+        map.addControl(new BMap.OverviewMapControl());              //添加默认缩略地图控件
+        map.addControl(new BMap.OverviewMapControl({isOpen:false, anchor: BMAP_ANCHOR_TOP_RIGHT}));   //右上角，打开
+        map.addControl(new BMap.ScaleControl());                    // 添加默认比例尺控件
+        //map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_BOTTOM_LEFT}));                    // 左下
+        //map.addControl(new BMap.ScaleControl({anchor: BMAP_ANCHOR_TOP_LEFT}));                    // 左上
+        
+        var icon = new BMap.Icon(zlmarkerurl, new BMap.Size(40, 50));//定义图标
+        marker = new BMap.Marker(point,{icon:icon});
+        //marker = new BMap.Marker(point);
+        //marker.enableDragging();    //可拖拽
+	    map.addOverlay(marker);
+	    
+	    map.centerAndZoom(point,16);
+    }
+    
+}
+);
+
+
+{/literal}
+{/script}
+<input id="zlmarkerurl" type="hidden" value="{$zlmarkerurl}">
+<input id="longitude" type="hidden" value="{$longitude}">
+<input id="latitude" type="hidden" value="{$latitude}">
+<div class="ow_lp_avatars map_place">
+<!-- 	<div id="map_canvas"
 		style="width: 100%; height: 200px; background-color: rgb(229, 227, 223); position: relative;">
 		<a id="location_map_anchor" target="_blank"
 			href="http://map.baidu.com/?latlng={$latitude},{$longitude}&title=标题&content={$location}&autoOpen=true">
 			<img id="location_map"
-			src="http://api.map.baidu.com/staticimage?width=200&height=200&center={$longitude},{$latitude}&markers={$longitude},{$latitude}&zoom=15&markerStyles=s,A,0xff0000"
+			src="http://api.map.baidu.com/staticimage?width=200&height=200&center={$longitude},{$latitude}&markers={$longitude},{$latitude}&zoom=17&markerStyles=s,A,0xff0000"
 			style="width: 100%; height:100%;">
 		</a>
 	</div>
-	<div  style="text-align:left; margin-top: 10px;"> {$location} , {$formated_address}
+ -->	
+ 	<div  style="text-align:center; margin-top: 10px;">
+		<a id="location_map_anchor" target="_blank"
+			href="http://map.baidu.com/?latlng={$latitude},{$longitude}&title=标题&content={$location}&autoOpen=true"> 
+			{$location} , {$formated_address}
+		</a>
 	</div> 
 </div>

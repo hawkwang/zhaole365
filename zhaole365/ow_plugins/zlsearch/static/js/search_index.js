@@ -405,7 +405,7 @@ function generateGroupsHtmlSnippet(groups)
 		html += '<h4 class="group inner list-group-item-heading">'+ group.title + '</h4>';
 //		html += '<p class="group inner list-group-item-text">' + group.description + '</p>';
 		html += '<div class="doc-content group-info">';
-		html += '<h4 class="ellipsize" style="padding-top: 1px;">';
+//		html += '<h4 class="ellipsize" style="padding-top: 1px;">';
 		//html += '<span class="count"></span>' + group.members + '</span>';
 		//html += '乐友';
 		html += '</h4>';
@@ -434,7 +434,7 @@ function generateGroupsHtmlSnippet(groups)
 			if(group.members!=0)
 			{
 				html += '&nbsp;';
-				html += '<a href="/event/follow/?id=" class="unlink muted"><span class="glyphicon glyphicon-heart" style="margin-right: 0px; color:red;"></span>' + group.members + '</a>';
+				html += '<a href="'+group.joinurl+'" class="unlink muted"><span class="glyphicon glyphicon-heart" style="margin-right: 0px; color:red;"></span>' + group.members + '</a>';
 			}
 			else
 				html += '<a href="/event/follow/?id=" class="unlink muted"><span class="glyphicon glyphicon-heart" style="margin-right: 0px; color:#a7a7a7;"></span></a>';

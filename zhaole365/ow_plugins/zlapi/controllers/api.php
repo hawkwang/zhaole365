@@ -164,6 +164,7 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 				}
 				else
 				{
+					ZLAREAS_CLASS_Logger::getInstance()->log($imageurl);
 					$imagePosted = ZLAREAS_CLASS_Utility::getInstance()->url_exists($imageurl);
 				}
 			}	
@@ -171,6 +172,9 @@ class ZLAPI_CTRL_Api extends OW_ActionController
 				$event->setImage(uniqid());
 				
 			ZLEVENT_BOL_EventService::getInstance()->saveEvent($event);
+			
+			// 创建property
+			ZLBASE_BOL_Service::getInstance()->saveProperty('zlevent', $event->id, 'originurl', $originurl);
 				
 			// 创建关联地址
 			$location = $address;

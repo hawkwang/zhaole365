@@ -70,6 +70,17 @@ margin-bottom:7px;
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_location_label'}</td>
             <td class="ow_value"><div style="width:90px;">{$info.location}</div></td>
         </tr>
+        {if !empty($originurl)}
+        <tr>
+            <td class="ow_label" style="width: 25%">{text key='zlevent+view_original_url_label'}</td>
+            <td class="ow_value"><a href="{$originurl}">{text key='zlevent+view_original_url_from_searchengine_label'}</a></td>
+        </tr>
+        {else}
+        <tr>
+            <td class="ow_label" style="width: 25%">{text key='zlevent+view_original_url_label'}</td>
+            <td class="ow_value">{text key='zlevent+view_original_url_from_share_label'}</td>
+        </tr>
+        {/if}
         <tr {if !$info.groupTitle} class="ow_tr_last" {/if}>
             <td class="ow_label" style="width: 25%">{text key='zlevent+view_page_created_label'}</td>
             <td class="ow_value"><a href="{$info.creatorLink}">{$info.creatorName}</a></td>
@@ -96,7 +107,7 @@ margin-bottom:7px;
 			<a id="location_map_anchor" target="_blank"
 				href="http://map.baidu.com/?latlng={$latitude},{$longitude}&title=标题&content={$location}&autoOpen=true">
 				<img id="location_map"
-				src="http://api.map.baidu.com/staticimage?width=200&height=200&center={$longitude},{$latitude}&markers={$longitude},{$latitude}&zoom=15&markerStyles=s,A,0xff0000"
+				src="http://api.map.baidu.com/staticimage?width=200&height=200&center={$longitude},{$latitude}&markers={$longitude},{$latitude}&zoom=17&markerStyles=s,A,0xff0000"
 				style="width: 100%; height:100%;">
 			</a>
 		</div>
@@ -160,3 +171,39 @@ margin-bottom:7px;
 {/if}
 
 {add_content key='zlevents.content.view.bottom' eventId=$info.id}
+
+
+<input id="current_url" type="hidden" value="{$current_url}">
+<input id="logoiconurl" type="hidden" value="{$logoiconurl}">
+<input id="title" type="hidden" value="{$title}">
+<input id="description" type="hidden" value="{$description}">
+
+{script}
+{literal}
+
+                            var current_url = $('#current_url').val();
+                            var logoiconurl = $('#logoiconurl').val();
+                            var title = $('#title').val();
+                            var description = $('#description').val();
+                            
+                            window._bd_share_config = {
+                                common : {
+                                    bdText : title + ' - 找乐365帮咱发现的乐子',
+                                    bdDesc : description,
+                                    bdUrl : current_url ,
+                                    bdPic : logoiconurl,
+                                },
+                                share : [{
+                                    "bdSize" : 16
+                                }],
+                                slide : [{
+                                    bdImg : 0,
+                                    bdPos : "left",
+                                    bdTop : 100
+                                }],
+                            }
+                         with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?cdnversion='+~(-new Date()/36e5)];
+
+
+{/literal}
+{/script}

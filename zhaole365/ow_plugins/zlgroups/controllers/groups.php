@@ -211,6 +211,15 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
         }
 
         $this->assign('componentPanel', $componentPanel->render());
+        
+        // for baidu share
+        $current_url = OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupId));
+        $this->assign('current_url', $current_url);
+        $logoiconurl = ZLGROUPS_BOL_Service::getInstance()->getGroupImageWithDefaultUrl($groupDto);
+        $this->assign('logoiconurl', $logoiconurl);
+        $this->assign('title', $groupDto->title);
+        $this->assign('description', UTIL_String::truncate(strip_tags($groupDto->description), 100, '...'));
+        
     }
 
     // 创建乐群action
@@ -400,11 +409,16 @@ class ZLGROUPS_CTRL_Groups extends OW_ActionController
             )));
         }
         
-        ZLGROUPS_BOL_Service::getInstance()->addUser($groupId, $userId);
+        $existinguser = ZLGROUPS_BOL_Service::getInstance()->findUser($groupId, $userId);
+        if ($existinguser==null)
+        {
+	        ZLGROUPS_BOL_Service::getInstance()->addUser($groupId, $userId);
+	        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'join_complete_message'));
+        }
+        else 
+        	OW::getFeedback()->info('亲，你不记得自己早就是'. $groupDto->title .'的资深乐友了吗？！');
 
         $redirectUrl = OW::getRouter()->urlForRoute('zlgroups-view', array('groupId' => $groupId));
-        OW::getFeedback()->info(OW::getLanguage()->text('zlgroups', 'join_complete_message'));
-
         $this->redirect($redirectUrl);
     }
 

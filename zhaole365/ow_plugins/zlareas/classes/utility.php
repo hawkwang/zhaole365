@@ -111,6 +111,7 @@ class ZLAREAS_CLASS_Utility
 
     function url_exists($url) {
     	try{
+    		ZLAREAS_CLASS_Logger::getInstance()->log($url);
     		$size = getimagesize($url);
     		$value = $size[0]*$size[1];
     		if($value > 0)

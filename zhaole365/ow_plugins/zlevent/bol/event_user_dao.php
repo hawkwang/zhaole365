@@ -84,6 +84,19 @@ class ZLEVENT_BOL_EventUserDao extends OW_BaseDao
 
         return $this->dbo->queryForObjectList( $query, $this->getDtoClassName(), array( 'eventId' => (int)$eventId, 'status' => (int)$status, 'first' => $first, 'count' => $count ) );
     }
+    
+    public function findAllUserListByEventIdAndStatus( $eventId, $status )
+    {
+    	$queryParts = BOL_UserDao::getInstance()->getUserQueryFilter("e", "userId", array(
+    			"method" => "ZLEVENT_BOL_EventUserDao::findListByEventIdAndStatus"
+    	));
+    
+    	$query = " SELECT e.* FROM  " . $this->getTableName() . " e
+                    " . $queryParts['join'] . "
+                    WHERE " . $queryParts['where'] . "  AND e.`".self::EVENT_ID."` = :eventId AND e.`" . self::STATUS . "` = :status " ;
+    
+    	return $this->dbo->queryForObjectList( $query, $this->getDtoClassName(), array( 'eventId' => (int)$eventId, 'status' => (int)$status ) );
+    }
 
     public function findUsersCountByEventIdAndStatus( $eventId, $status )
     {
