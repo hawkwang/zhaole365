@@ -6281,3 +6281,12 @@ body .ow_table_2 tr.ow_tr_titles th:last-child, body .ow_table_1 tr.ow_tr_titles
 	color: blue;
 }
 
+.styled{
+   position: relative; margin-left: 10px; vertical-align: middle; width: 130px; height: 24px; overflow: hidden; background: url(images/ic_city.png) no-repeat scroll 95% center rgb(221, 221, 221); border: 0px solid rgb(204, 204, 204);border-width: 0px 1px 0px 0px;
+
+}
+
+.styled select {
+   background: none repeat scroll 0% 0% transparent; width: 150px; font-size: 13px; border: 1px solid rgb(204, 204, 204); height: 24px; padding: 1px;
+} 
+

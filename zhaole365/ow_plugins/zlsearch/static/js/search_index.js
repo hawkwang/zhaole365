@@ -178,6 +178,13 @@ function init()
 
 function showDefaultContent()
 {
+	// step0 - 得到当前城市
+	var city = $.cookie("city");
+	if(city==null)
+		city='北京';
+	//alert(city);
+	// FIXME
+	
 	// step1 - 得到action并改变对应的type
 	var action = $("#action").val();
 	switch (action) {

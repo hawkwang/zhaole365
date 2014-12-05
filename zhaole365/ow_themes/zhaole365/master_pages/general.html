@@ -1,9 +1,53 @@
+{script}
+{literal}
 
+$( function() {
+	var city = $.cookie("city");
+	if(city==null)
+		city='北京';
+	$("#cityName").val(city);
+	
+});
+
+$( "#cityName" ).change(function() {
+	var city = $(this).children('option:selected').val();
+	alert('选择：' + city);
+	$.cookie("city", city, { path: '/' });
+	var targeturl = $('#siteUrl').val();
+	window.open (targeturl,'_self',false);
+	//document.location.reload();
+});
+				
+{/literal}
+{/script}
+<input type="hidden" id="siteUrl" value="{$siteUrl}">
 <div class="ow_page_wrap">
 	<div class="ow_page_padding">
 		<div id="zl_ow_site_panel" class="ow_site_panel" style="border-bottom-width: 1px; border-bottom-color: rgb(187,187,187);">
 			<div class="ow_logo_wrap" style="position:absolute;width:100%; text-align:center;">
-						<a href="{$siteUrl}"><img src="{$themeImagesUrl}/logo.png" style="margin-top: -12px;"></a>
+				<table style="margin-left:auto; margin-right:auto;">
+					<tr>
+						<td>
+							<div>
+								<a href="{$siteUrl}"><img src="{$themeImagesUrl}/logo.png"
+									style="margin-top: -12px;"></a>
+							</div>
+						</td>
+						<td>
+							<!-- <span style="margin-left: 10px;"> -->
+							<div class="styled"
+								style="">
+								<select id="cityName"
+									style="">
+									<option value="北京">北京站</option>
+ 									<!-- <option value="上海">上海站</option> -->
+									<!-- <option value="广州">广州站</option> -->
+									<!-- <option value="重庆">重庆站</option> -->
+								</select>
+							</div> <!-- </span> --> <!-- <a href="">[切换城市]</a> -->
+						</td>
+					</tr>
+				</table>
 			</div>
 			
 			{component class='BASE_CMP_Console'}
