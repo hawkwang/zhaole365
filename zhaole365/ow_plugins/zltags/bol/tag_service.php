@@ -446,4 +446,9 @@ class ZLTAGS_BOL_TagService
     	return $tags;
     }
     
+    public function findTagsWithCount()
+    {
+    	return $this->entityTagDao->findTagsWithCount();
+    }
+    
 }

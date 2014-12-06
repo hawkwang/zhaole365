@@ -203,5 +203,15 @@ class ZLTAGS_BOL_EntityTagDao extends OW_BaseDao
     	return $this->findObjectByExample($example);
     	
     }
+    
+    public function findTagsWithCount($first=0, $count=40)
+    {
+    	$query = "SELECT t.tag, COUNT(*) as count FROM `" . $this->getTableName() . "` AS `et`
+			RIGHT JOIN `" . ZLTAGS_BOL_TagDao::getInstance()->getTableName() . "` AS `t` ON ( `et`.`" . self::TAG_ID . "` = `t`.`id` )
+			GROUP BY `t`.`tag` ORDER BY count DESC LIMIT :first, :count
+			";
+    	
+    	return $this->dbo->queryForList($query, array('first' => $first, 'count' => $count));
+    }
         
 }

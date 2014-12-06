@@ -1,0 +1,149 @@
+{style}
+{literal}
+
+        .cf:before, .cf:after {content:"";display:table;}
+        .cf:after {clear:both;content:"";}
+        .cf {zoom:1;}
+        .tag-list{border:1px solid #CCC;padding:0.1em 0.2em;width:100%;-webkit-border-radius:3px;-moz-border-radius:3px;border-radius:3px;line-height:26px;}
+        .tag-list li{position:relative;float:left;margin:2px 5px 2px 0;background:white;border:1px solid #B7D7F0;height:20px;line-height:20px;list-style:none;}
+        .tag-list li a{margin-right:20px;;padding:0 3px 0 7px;text-decoration:none;color:#0078B6;text-align:center;}
+        .tag-list li a.delTag{position:absolute;right:0px;padding:0 3px;margin:0;width:14px;font-size:12px;}
+        .tag-list li a.delTag:hover{background:#9FD1F8;}
+        .tag-box {margin-top:2px; margin-bottom: 10px; width:100%;}
+        .tag-box a{display:inline-block;padding:0 10px;line-height:24px;height:24px;margin:0 2px 2px 0;background-color:#DAF5FA;color:#4184BB;font-size:14px;text-decoration:none;}
+        .tag-box a:hover{background-color:#F3F3F3;}
+        .tag-box a.checked{background-color:#F3F3F3;text-decoration:none;color:#9A9A9A;cursor:default;}
+
+{/literal}
+{/style}
+
+{script}
+{literal}
+
+    $.fn.tagSelector = function(options){
+        var defaults = {
+            maxTagsNum:1000,
+            resultList:$('#tag_list'),
+            tagsObjs:{},
+            checkedTags:'',
+            callback:{
+                success:null,
+                error:null
+            }
+        }
+        var options = $.extend(defaults, options);
+
+        return this.each(function(){
+            var _box = $(this);
+            var _list = options.resultList;
+            var checkedTags = options.checkedTags;
+            var checkedTagsArr = checkedTags.length ? checkedTags.split(','):[];
+            var checkedTagNum =  checkedTagsArr.length;
+            //init
+            _box.html(
+                    $.map(options.tagsObjs,function(val,key){
+                        var checked = checkedTags.indexOf(key) != -1;
+                        return '<a href="javascript:;" title="添加标签" tagid="'+key+'"' + (checked ? ' class="checked"':'')+'><em>+</em>' + val + '</a>'
+                    }).join('')
+            );
+
+            checkedTagsArr.length
+                &&
+            _list.html(
+                    $.map(checkedTagsArr,function(n){
+                        var key = n;
+                        return '<li>'
+                                +  '<a href="javascript:;">' + options.tagsObjs[key] + '</a>'
+                                +  '<a href="javascript:;" class="delTag" hidefocus="true" tagid="' + key + '">×</a>'
+                        '</li>';
+
+                    }).join('')
+            );
+            //on
+            _box.off('click.addtag').on('click.addtag','a:not(.checked)',function(){
+                if(checkedTagNum < options.maxTagsNum){
+                    $(this).addClass('checked');
+                    var key = this.getAttribute('tagid');
+                    _list.append(function(){
+                        return '<li>'
+                                +  '<a href="javascript:;">' + options.tagsObjs[key] + '</a>'
+                                +  '<a href="javascript:;" class="delTag" hidefocus="true" tagid="' + key + '">×</a>'
+                        '</li>';
+                    });
+                    checkedTagsArr.push(key);
+                    options.checkedTags = checkedTagsArr.join(',')
+                    options.callback.success && options.callback.success.call(_box,options);
+
+                    checkedTagNum=checkedTagsArr.length;
+                }else{
+                    options.callback.error && options.callback.error.call(_box,options);
+                }
+
+            });
+            _list.off('click.deltag').on('click.deltag','.delTag',function(){
+                $(this).closest('li').remove();
+                var key = this.getAttribute('tagid');
+                _box.find('[tagid=' + key + ']').removeClass('checked');
+
+                for (var i = 0; i < checkedTagsArr.length; i++) {
+                    if (checkedTagsArr[i] == key){
+                        checkedTagsArr.splice(i,1);
+                        break;
+                    }
+                }
+                options.checkedTags = checkedTagsArr.join(',')
+                options.callback && options.callback.success.call(_box,options);
+
+                checkedTagNum=checkedTagsArr.length;
+            });
+            options.callback.success && options.callback.success.call(_box,options);
+
+        });
+    };
+
+    //test
+    
+    var tags = tagsWithCount;
+    var len = tags.length;
+    var alltags = {};
+    for (var i = 0; i < len; i++) {
+		var tagwithcount = tags[i];
+		newtag = new Object();
+		newtag[tagwithcount.tag] = tagwithcount.tag;
+		//alert(newtag[tagwithcount.tag]);
+		//var newtag = {tagwithcount.tag : tagwithcount.tag};
+		alltags = $.extend(alltags, newtag);
+		//alert(alltags[tagwithcount.tag]);
+	}
+	
+	//var jsonstring = JSON.stringify(alltags);
+    
+    //alert(jsonstring);
+    
+    $('#tag_box').tagSelector({
+        maxTagsNum:5,
+        resultList:$('#tag_list'),
+        tagsObjs: alltags,
+        //tagsObjs:{'xy':'校园','cj':'财经'},
+        checkedTags:$('#appcatalog').val()||'',
+        callback:{
+            success:function(data){
+                console && console.log( $.map(data.checkedTags.split(','),function(n){return data.tagsObjs[n]}).join(',') );
+            },error:function(){
+                //OW.warning(OW.getLanguageText('zlsearch', 'entity_tag_select_too_many_message'));
+                OW.warning('亲，你最多可以选5个标签呦！');
+            }
+        }
+    });
+
+{/literal}
+{/script}
+
+<div class="ow_lp_avatars avatar_select_list" id="{$contexId}">
+
+	<ul class="tag-list cf" id="tag_list">&nbsp;</ul>
+	<div class="tag-box" id="tag_box"></div>
+
+    <div class="submit_cont"><div class="ow_right">{decorator name='button' label=$submitLabel class='submit'}</div></div>
+
+</div>

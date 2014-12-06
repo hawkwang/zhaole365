@@ -13,6 +13,14 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
     	//$this->assign('areas', $areainfos);
         $document = OW::getDocument();
         
+        // get tags with count
+//         $tagsWithCount = ZLTAGS_BOL_TagService::getInstance()->findTagsWithCount();
+//         $this->assign('tagsWithCount', $tagsWithCount);
+        
+//         $document->addScriptDeclarationBeforeIncludes(
+//         		';window.tagsWithCount = ' . json_encode($tagsWithCount) . ';'
+//         );
+        
         $document->addOnloadScript(';window.searchBar.init();');
         
         $document->addStyleSheet($plugin->getStaticCssUrl() . 'bootstrap-theme.min.css');
@@ -24,8 +32,25 @@ class ZLSEARCH_CTRL_Search extends OW_ActionController
         $document->addScript($plugin->getStaticJsUrl() . 'imagesloaded.pkgd.min.js');
         $document->addScript($plugin->getStaticJsUrl() . 'search_index.js');
         
+        $params = array();
+        OW::getDocument()->addOnloadScript("
+                var eventFloatBox;
+                $('#simple-tag').click(
+                    function(){
+                        eventFloatBox = OW.ajaxFloatBox('ZLSEARCH_CMP_EntityTags', " . json_encode($params) . ", {width:600, iconClass: 'ow_ic_user', title: " . json_encode(OW::getLanguage()->text('zlsearch', 'tags_select_button_label')) . "});
+                    }
+                );
+                OW.bind('zlsearch.entity_tag_list_select',
+                    function(list){
+                        eventFloatBox.close();
+                        // do something with list
+                    }
+                );
+            ");
+        
         $this->assign('staticurl', $plugin->getStaticUrl());
         
+        //
         $action = 'noaction';
         if (isset($_REQUEST['action'])) {
         	$action = $_REQUEST['action'];
